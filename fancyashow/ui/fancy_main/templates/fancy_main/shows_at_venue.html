@@ -2,6 +2,10 @@
 
 {% load show_util %}
 
+{% block title %}
+ Upcoming Shows at {{ venue.name }}
+{% endblock %}
+
 {% block nav %}
 	{% venue_nav venues venue %}
 {% endblock %}

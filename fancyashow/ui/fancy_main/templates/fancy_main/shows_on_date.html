@@ -2,6 +2,22 @@
 
 {% load show_util %}
 
+{% block title %}
+  {% if period %}
+	  Shows This {{ period_label }}
+	{% else %}
+    {% if day == today %}
+      Shows Tonight
+    {% else %}
+		  {% if day == tomorrow %}
+			  Shows Tomorrow
+      {% else %}
+        Shows on {{ day|date:"D, M d" }}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
 {% block nav %}
 	{% day_nav venues day period %}
 {% endblock %}
