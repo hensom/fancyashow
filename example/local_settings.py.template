@@ -39,7 +39,7 @@ SESSION_FILE_PATH = os.path.join(FANCY_BASE_DIR, 'sessions')
 #
 
 STATIC_BASE_DIR = os.path.join(FANCY_BASE_DIR,  'static')
-SHOW_MEDIA_DIR  = os.path.join('FANCY_BASE_DIR, 'show-media')
+SHOW_MEDIA_DIR  = os.path.join(FANCY_BASE_DIR, 'show-media')
 SHOW_MEDIA_URL  = '/show-media/'
 
 #

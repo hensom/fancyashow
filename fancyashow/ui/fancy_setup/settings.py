@@ -90,10 +90,8 @@ INSTALLED_APPS = (
     'fancyashow.ui.fancy_admin',
 )
 
-STATIC_BASE             = '/Users/michael/fancyashow/media'
-
-LOGIN_REDIRECT_URL      = '/'
-ANONYMOUS_ALLOWED_PATHS = ('/static/', )
+RESOURCE_VERSION = 1
+STATIC_BASE_URL  = '/static'
 
 import sys
 import logging
@@ -102,20 +100,3 @@ LOG_ENABLED  = True
 LOG_LEVEL    = logging.DEBUG
 LOG_FORMAT   = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_FILE     = sys.stderr
-
-ZRI_STATIC_URL  = '/static'
-
-def zri_init_logging(settings):
-  if settings.LOG_ENABLED:
-    logger = logging.getLogger()
-
-    logger.setLevel(settings.LOG_LEVEL)
-
-    if isinstance(settings.LOG_FILE, basestring):
-      handler = logging.FileHandler(settings.LOG_FILE)
-    else:
-      handler = logging.StreamHandler(settings.LOG_FILE)
-
-    handler.setFormatter(logging.Formatter(settings.LOG_FORMAT))
-
-    logger.addHandler(handler)

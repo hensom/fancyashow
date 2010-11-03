@@ -11,6 +11,5 @@ urlpatterns = patterns('',
 
 if settings.DEBUG:
   urlpatterns += patterns('',
-    url(r'^static/(?P<path>.*)$',   'django.views.static.serve', {'document_root': settings.STATIC_BASE_DIR}),
-    url(r'^(?P<path>ie-css3.htc|css3hover.htc)$', 'django.views.static.serve', {'document_root': settings.STATIC_BASE_DIR}),
+    url(r'^static/(?:[^\/]+)/(?P<path>.*)$',   'django.views.static.serve', {'document_root': settings.STATIC_BASE_DIR})
   )

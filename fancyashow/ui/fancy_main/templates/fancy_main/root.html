@@ -7,25 +7,17 @@
   <head>
     <title>Fancy a Show?</title>
 
-    <link rel="stylesheet" href="/static/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="{% css_url "styles.css" %}" type="text/css" />
 		<!--[if IE]>
-    <link rel="stylesheet" href="/static/css/ie-fixups.css" type="text/css" />
+    <link rel="stylesheet" href="{% css_url "ie-fixups.css" %}" type="text/css" />
 		<![endif]-->
-    <script type="text/javascript" src="/static/js/modernizr-1.6.min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="/static/js/yui-base-and-event.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.scrollTo-min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.textshadow.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-columnize.js"></script>
-    <script type="text/javascript" src="/static/js/fancypants.js"></script>
-    <script type="text/javascript" src="/static/soundmanager/soundmanager2.js"></script>
+    <script type="text/javascript" src="{% js_url "modernizr-1.6.min.js"   %}"></script>
+    <script type="text/javascript" src="{% js_url "jquery-1.4.2.min.js"    %}"></script>
+    <script type="text/javascript" src="{% js_url "jquery.scrollTo-min.js" %}"></script>
+    <script type="text/javascript" src="{% js_url "jquery.textshadow.js"   %}"></script>
+    <script type="text/javascript" src="{% js_url "jquery-columnize.js"    %}"></script>
+    <script type="text/javascript" src="{% js_url "fancypants.js"          %}"></script>
 		<script type="text/javascript">
-		soundManager.url               = '/static/soundmanager/swf/';
-		soundManager.useFlashBlock     = false;
-		soundManager.waitForWindowLoad = true;
-		soundManager.debugFlash        = false;
-		soundManager.debugMode         = false;
-		soundManager.useMovieStar      = true;
 		$(document).ready(function() {
       var ui = new Fancy.UI();
 
