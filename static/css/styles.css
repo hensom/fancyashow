@@ -294,7 +294,7 @@ li {
   top:              -8px;
   left:             -8px;
   z-index:          10;
-  text-indent:      -1000px;
+  text-indent:      -10000px;
   cursor:           pointer;
   padding:          0px;
 }
