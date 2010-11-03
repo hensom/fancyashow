@@ -8,13 +8,10 @@
   <head>
     <title>Fancy a Show?</title>
     
-    <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="/static/js/highcharts.js"></script>
-    <script type="text/javascript" src="/static/js/date.js"></script>
-    <script type="text/javascript" src="/static/js/cufon.js"></script>
-    <script type="text/javascript" src="/static/js/Tiza_400.font.js"></script>
-    <link rel="stylesheet" href="/static/css/admin.css" type="text/css" />
+    <script type="text/javascript" src="{% js_url "jquery-1.4.2.min.js"     % }"></script>
+    <script type="text/javascript" src="{% js_url "jquery.dataTables.min.js" %}"></script>
+    <script type="text/javascript" src="{% js_url "highcharts.js"            %}"></script>
+    <link rel="stylesheet" href="{% css_url "admin.css" %}" type="text/css" />
 		<script type="text/javascript">
 		$(document).ready(function() {
 			$('#header li').not('li:last-child').append(' / ');
