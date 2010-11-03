@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+{% load admin_list %}
+{% load humanize %}
+{% load show_util %}
+
+<html>
+  <head>
+    <title>Fancy a Show?</title>
+    
+    <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+    <script type="text/javascript" src="/static/js/date.js"></script>
+    <script type="text/javascript" src="/static/js/cufon.js"></script>
+    <script type="text/javascript" src="/static/js/Tiza_400.font.js"></script>
+    <link rel="stylesheet" href="/static/css/admin.css" type="text/css" />
+		<script type="text/javascript">
+		$(document).ready(function() {
+			$('#header li').not('li:last-child').append(' / ');
+			$('table').not('.normal-table').dataTable({
+				bPaginate: false
+			});
+		});
+		</script>
+  </head>
+  <body id="{% block body_id %}body{% endblock %}">
+	  <div id="header">
+		  <ul>
+				<li id="nav-admin-summary"><a href="{% url admin-summary %}">Summary</a></li>
+				<li id="nav-admin-shows"><a href="{% url admin-shows %}">Shows</a></li>
+				<li id="nav-admin-artists"><a href="{% url admin-artists %}">Artists</a></li>
+				<li id="nav-admin-media"><a href="{% url admin-media %}">Media</a></li>
+				<li id="nav-admin-parser-stats"><a href="{% url admin-parser-stats %}">Parser Stats</a></li>
+				<li id="nav-admin-resource-domains"><a href="{% url admin-resource-domains %}">Resource Domains</a></li>
+				<li id="nav-admin-best-artists"><a href="{% url admin-best-artists %}">Best Artists</a></li>
+				<li id="nav-admin-artist-stats"><a href="{% url admin-artist-stats %}">Artist Stats</a></li>
+				<li id="nav-admin-missing-venues"><a href="{% url admin-missing-venues %}">Missing Venues</a></li>
+			</ul>
+		</div>
+		
+		{% block body %}{% endblock %}
+	  {% block init_scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,78 @@
+{% load show_util %}
+
+<ul class="shows">
+{% for show in shows %}
+	<li id="show-{{ show.id }}" class="show" data-id="{{ show.id }}" data-date="{{ show.date|date:"Y-m-d"}}" data-rank="{{ show.rank|floatformat:2 }}">
+		<div class="preview"{% if show.images.polaroid.url %} style="background-image: url('{{ show.images.polaroid.url }}');"{% endif %}></div>
+		
+		<div class="summary">
+			<h2>{% if show.title %}
+         {{ show.title }}
+       {% else %}
+         {{ show.artists.0.name }}
+       {% endif %}
+			</h2>
+
+			<ul class="with">
+				{% for a in show.artists %}
+					{% if not forloop.first %}
+					  <li{% if p.headliner %} class="headliner"{% endif %}>
+              {% if forloop.counter == 2 %}
+              w/
+              {% endif %}
+					    {{ a.name }}
+					  </li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+
+			<span class="venue">
+				{{ show.venue.name }}
+			</span>
+			<span class="on">on</span>
+			<span class="date">{{ show.date|date:"D, M d" }}</span>
+		</div>
+		
+		<div class="details">
+			<ul>
+			{% if show.title %}
+			  <li>{{ show.title }}</li>
+			{% else %}
+				{% for artist in show.artists %}
+				<li>{{ artist.name }}
+					{% if artist.start_time %}
+					<span class="start-time">{{ artist.start_time }}</span>
+					{% endif %}
+					{% artist_profiles artist artist_map %}
+				</li>
+				{% endfor %}
+			{% endif %}
+			</ul>
+
+			<div class="venue">
+				{{ show.venue.name }}
+				<div class="time">
+				{% if show.show_time and show.door_time %}
+				  Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
+				{% else %}
+				  {% if show.show_time %}Show: {{ show.show_time|date:"P" }}{% endif %}
+				  {% if show.door_time %}Door: {{ show.door_time|date:"P" }}{% endif %}
+				{% endif %}
+				</div>
+				<ul class="options">
+					{% venue_options show venue_map %}
+				</ul>
+			</div>
+
+			<a class="close" title="close-details">close details</a>
+		</div>
+		<div class="actions">
+			<ul>
+				<li class="more-info">More Info</li>
+			</ul>
+		</div>
+	</li>
+{% empty %}
+  <div class="empty">Bummer, no shows found.</div>
+{% endfor %}
+</ul>

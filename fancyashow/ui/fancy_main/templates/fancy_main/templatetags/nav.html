@@ -1,0 +1,35 @@
+<nav id="main-nav">
+  <div class="wrapper">
+		<ul>
+			{% for choice in days %}
+			<li{% if choice.classes %} class="{{ choice.classes }}"{% endif %}><a href="{{ choice.url }}">{{ choice.label }}</a></li>
+			{% endfor %}
+			<li id="venue-chooser"{% if venue %} class="chosen"{% endif %}>
+				<a href="#venues">Location:
+					{% if venue %}
+					  {{ venue.name }}
+					{% else %}
+					  Anywhere
+					{% endif %}
+					<span id="venue-chooser-close">x</span>
+				</a>
+			</li>
+		</ul>
+  </div>
+</nav>
+<nav id="venue-nav">
+	<div class="wrapper">
+		<dl id="venue-list">
+			{% for group in venues_by_city %}
+			<dt>{{ group.city }}</dt>
+			<dd>
+				<ul>
+					{% for venue in group.venues %}
+					  <li><a href="{{ venue.show_list_url }}">{{ venue.name }}</a></li>
+					{% endfor %}
+				</ul>
+			</dd>			
+			{% endfor %}
+		</dl>
+	</div>
+</nav>

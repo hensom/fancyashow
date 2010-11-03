@@ -1,0 +1,595 @@
+html {
+  font-family: 'Droid Sans Pro', 'Arial Rounded Bold', Arial;
+  font-size:   12px;
+  line-height: 15px;
+  background-color: #f1f1f1;
+  color:            black;
+}
+
+* {
+  margin:  0;
+  padding: 0;
+}
+
+body {
+  padding: 0px;
+  margin:  0px;
+  background-color: white;
+}
+
+/* Needed to give a default styling in IE */
+nav, section {
+  display: block;
+}
+
+a {
+  color:   black;
+  padding: 0.2em;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-size:      24px;
+  color:          #111;
+  text-transform: uppercase;
+  margin-top:     0.5em;
+  margin-bottom:  0.5em;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+/* Wrapper */
+.wrapper {
+  margin-left:  auto;
+  margin-right: auto;
+  width:        978px;
+  position: relative;
+}
+
+@media (max-width: 977px) {
+  .wrapper {
+    width: 652px;
+  }
+}
+
+@media (min-width: 978px) and (max-width: 1303px) {
+  .wrapper {
+    width: 978px;
+  }
+}
+
+@media (min-width: 1304px) and (max-width: 1629px) {
+  .wrapper {
+    width: 1304px;
+  }
+}
+
+@media (min-width: 1630px) and (max-width: 1955px) {
+  .wrapper {
+    width: 1630;
+  }
+}
+
+@media (min-width: 1956px) {
+  .wrapper {
+    width: 1956px;
+  }
+}
+
+/* Navigation */
+#main-nav {
+  background: #333;
+}
+
+#main-nav .wrapper > ul > li {
+  display:    inline;
+  width:      10em;
+  text-align: left;
+}
+
+#main-nav .wrapper > ul > li.active {
+  background-color: #4e4e4e;
+}
+
+#main-nav,
+#main-nav a,
+#venue-nav,
+#venue-nav a {
+  color: white;
+  font-size: 14px;
+}
+
+#main-nav a {
+  display: inline-block;
+  padding: 0.75em 0.5em;
+  text-decoration: none;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#venue-chooser a {
+  padding-left:     1em;
+  padding-right:    1em;  
+}
+
+#main-nav .chosen a {
+  color: #dcc08e;
+}
+
+#main-nav a:hover {
+  color: #dcc08e;
+}
+
+#main-nav li.prev,
+#main-nav li.next {
+  width: 1em;
+}
+
+#main-nav li.future {
+  text-align: center;
+}
+
+#main-nav #venue-chooser {
+  width: auto;
+  position: absolute;
+  right:    0px;
+}
+
+#venue-chooser:hover #venue-chooser-close {
+  text-decoration: underline;
+}
+
+#venue-chooser-close {
+  color:     #eee;
+  font-size: 0.7em;
+  position:  relative;
+  top:       -0.2em;
+  visibility: hidden;
+}
+
+#venue-chooser.active #venue-chooser-close {
+  visibility: visible;
+}
+
+#venue-nav {
+  background:     #4e4e4e;
+  padding: 0;
+  margin:  0;
+  border:  0;
+}
+
+#venue-nav dl {
+  margin-left: 0.75em;
+}
+
+#venue-nav ul {
+  margin-left: 1em;
+}
+
+#venue-list {
+  padding-top:    10px;
+  padding-bottom: 20px;
+}
+
+#venue-list dt {
+  font-size:   14px;
+  color:       white;
+  font-weight: bold;
+  text-transform:  uppercase;
+  padding-top:     0.5em;
+  padding-bottom:  0.5em;
+}
+
+#venue-list dd ul li {
+  width:        152px; 
+  margin-left:  5px;
+  margin-right: 5px;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+#venue-list dd a {
+  font-size: 12px;
+  text-transform: none;
+}
+
+/* Shows */
+
+.show > * {
+  -webkit-transition: opacity 0.25s linear;
+  -moz-transition:    opacity 0.25s linear;
+  -o-transition:      opacity 0.25s linear;
+}
+
+.show a {
+  color: #f1f1f1;
+}
+
+.show > div {
+  width:    300px;
+  height:   170px;
+}
+
+.show .preview {
+  border:   2px solid black;
+  overflow: hidden;
+  background-color: black;
+  -moz-box-shadow:    inset 0px 0px 3px black;
+  -webkit-box-shadow: inset 0px 0px 3px black;
+  box-shadow:         inset 0px 0px 3px black;
+  -moz-border-radius: 3px;
+  border-radius:      3px;
+}
+
+ul {
+  margin:  0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  list-style: none;
+}
+
+#display-controls {
+  text-align:      right;
+  font-size:       11px;
+  padding:         10px 20px;
+}
+
+#display-controls a {
+  text-decoration: none;
+  padding:         0.5em;
+  border-radius:   4px;
+  color:           #666;
+}
+
+#display-controls a:hover {
+  text-decoration:  underline;
+  cursor:           pointer;
+}
+
+.shows {
+  height:   430px;
+  overflow: hidden;
+  position: relative;
+}
+
+.show {
+  float:       left;
+  display:     block;
+  margin:      10px;
+  margin-bottom: 30px;
+  font-weight: bold;
+  position:    relative;
+}
+
+.show .details {
+  display:  none;
+  color:    white;
+}
+
+.show .details .close {
+  position:         absolute;
+  display:          block;
+  width:            16px;
+  height:           16px;
+  background:       url('../img/close.png');
+  top:              -8px;
+  left:             -8px;
+  z-index:          10;
+  text-indent:      -1000px;
+  cursor:           pointer;
+  padding:          0px;
+}
+
+.show .summary .venue {
+  font-size: 13px;
+}
+
+.show .details .venue {
+  position: absolute;
+  bottom:   0px;
+  width:    100%;
+}
+
+.shows .details .time {
+  position: absolute;
+  top:      0px;
+  right:    10px;
+  font-size: 9px;
+}
+
+.shows .details .venue ul {
+  margin-left: 10px;
+  font-size:    9px;
+}
+
+.shows .details .venue li {
+  display: inline;
+  width:   auto;
+}
+
+.show .summary {
+  height: 100%;
+}
+
+.show .summary h2 {
+  position:    absolute;
+  top:        0px;
+  left:       0px;
+  padding:    10px;
+  margin:      0px;
+  font-size:  18px;
+  text-shadow: 1px 1px 3px black;
+}
+
+.show .summary .venue {
+ position:   absolute;
+ right:      0px;
+ bottom:     0px;
+ width:      40%;
+ padding:    10px;
+ text-align: right;
+ text-shadow: 1px 1px 3px black;
+}
+
+.show .summary .with {
+  color:   #ccc;
+  font-weight: normal;
+  position: absolute;
+  bottom:   -30px;
+  left:     0px;
+  padding:  10px;
+  text-shadow: 1px 1px 3px black;
+  overflow: hidden;
+  width: 230px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.show .summary .date {
+  position: absolute;
+  bottom:   -20px;
+  right:    -10px;
+  width:    70px;
+  color:    black;
+  font-weight: normal;
+  padding-right: 12px;
+  text-align: right;
+}
+
+.show .summary .with li {
+  display:     inline;
+}
+
+.show .summary .with li:after {
+  content: '\25cf';
+}
+
+.show .summary .with li:last-child:after {
+  content: '';
+}
+
+.show .details {
+  padding:  10px;
+  position: absolute;
+  top:      0;
+  left:     0;
+  width:    280px;
+  height:   150px;
+}
+
+.show .details > ul {
+  height:   120px;
+  overflow: hidden;
+}
+
+.show .details li {
+  padding-right: 20%;
+  position:      relative;
+}
+
+.show .details .start-time {
+  position: absolute;
+  right:    0px;
+}
+
+.show .details .profiles {
+  margin-left: 20px;
+  font-size:    9px;
+}
+
+.show .details .profiles li {
+  display: inline;
+  width:   40%;
+  padding: 4px 4px;
+}
+
+.actions {
+  position: absolute;
+  top:      80px;
+  width:    100%;
+  opacity:  0;
+  -webkit-transition: opacity 0.25s linear;
+}
+
+.show.mouse-over .actions {
+  opacity: 1;
+}
+
+.actions ul {
+  width:  30%;
+  margin: 0px auto;
+}
+
+.actions li {
+  background-color: rgb(78, 150, 199, 0.75);
+  background-color: rgba(78, 150, 199, 0.75);
+  background-color: #9A1D0D;
+  color: white;
+  -moz-border-radius: 6px;
+  border-radius:      6px;
+  text-align: center;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.actions li + li {
+  margin-left: 2px transparent;
+}
+
+.show {
+  background: black;
+  border-radius: 4px;
+}
+
+.show.details-shown .summary {
+  opacity: 0;
+  display: none;
+  z-index: -1;
+}
+
+.show.details-shown .details {
+  display: block;
+  z-index: 1;
+  opacity: 1;
+}
+
+.show.details-shown .preview {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+
+.show.details-shown:hover .actions {
+  display: none;
+}
+
+#artists {
+  position: relative;
+}
+
+#artists li {
+  display:      block;
+  width:        152px; 
+  margin-left:  5px;
+  margin-right: 5px;
+}
+
+#artists a {
+  text-decoration: none;
+}
+
+#artists a:hover {
+  text-decoration: underline;
+}
+
+#shows {
+  clear:          both;
+  padding-top:    15px;
+  padding-bottom: 25px;
+}
+
+#shows .wrapper h1 a {
+  color: #333;
+}
+
+.header {
+  background: none;
+}
+
+.header li {
+  background: none;
+}
+
+#shows h1 {
+
+}
+
+#shows.all #prev,
+#shows.all #next,
+#shows.selected #prev,
+#shows.selected #next {
+  display: none;
+}
+
+#artists {
+  padding-bottom: 100px;
+}
+
+.preview {
+  border: 2px solid rgba(0, 0, 0, 1);
+  -webkit-box-shadow: none;
+}
+
+.show .summary {
+  color: white;
+}
+
+.show .summary .with {
+  color:       black;
+  text-shadow: none;
+}
+
+#artists-sep {
+  display: none;
+}
+
+#artists {
+  background-color: #f1f1f1;
+}
+
+#artists a {
+  color: #333;
+  font-size: 13px;
+  text-shadow: none;
+}
+
+#artists h1 {
+  text-transform: uppercase;
+  position:       relative;
+  top:           -1em;
+}
+
+#artists .hot {
+  font-weight: bold;
+}
+
+#artists li {
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 13px;
+  line-height: 19px;
+  line-height: 1em;
+  text-shadow: black 1px 1px 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#artists li a {
+  padding: 0px;
+}
+
+#shows.for-date h1 {
+  margin-left: -0.5em;
+}
+
+#shows.for-date .date {
+  display: none;
+}
+
+.show .on {
+  display: none;
+}
+
+.show.for-date .summary .with {
+  width: auto;
+}

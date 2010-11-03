@@ -1,0 +1,192 @@
+{% extends "fancy_admin/base.html" %}
+
+{% load humanize %}
+
+{% block body_id %}admin-summary{% endblock %}
+
+{% block body %}
+
+<div id="summary">
+	<div>
+		<h1>Collections</h1>
+	
+		<table>
+			<thead>
+				<tr>
+					<th>Type</th>
+					<th>Number of Documents</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Shows</td>
+					<td>{{ collections.shows|intcomma }}</td>
+				</tr>
+				<tr>
+					<td>Artists</td>
+					<td>{{ collections.artists|intcomma }}</td>
+				</tr>
+			</tbldy>
+		</table>
+	</div>
+
+	<div>
+		<h1>Artist Association</h1>
+
+		<table>
+			<thead>
+				<tr>
+					<th>Association Level</th>
+					<th>Number</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>All Associated</td>
+					<td>{{ artist_association.all|intcomma }}</td>
+				</tr>
+				<tr>
+					<td>No Headliner</td>
+					<td>{{ artist_association.no_headliner|intcomma }}</td>
+				</tr>
+				<tr>
+					<td>Some Associated</td>
+					<td>{{ artist_association.some|intcomma }}</td>
+				</tr>
+				<tr>
+					<td>None Associated</td>
+					<td>{{ artist_association.none|intcomma }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div>
+		<h1>Artist Profiles</h1>
+	
+		<table>
+			<thead>
+				<tr>
+					<th>System</th>
+					<th>Number of Profiles</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for profile in profiles %}
+				<tr>
+					<td>{{ profile.system_id       }}</td>
+					<td>{{ profile.number|intcomma }}</td>
+				</tr>
+			{% endfor %}
+       </tbody>
+		</table>
+	</div>
+
+	<div>
+		<h1>Artist Media</h1>
+	
+		<table>
+			<thead>
+				<tr>
+					<th>System</th>
+					<th>Artists</th>
+					<th>Plays</th>
+					<th>Comments</th>
+					<th>Likes</th>
+					<th>Avg Plays</th>
+					<th>StdDev</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for info in media_summary %}
+				<tr>
+					<td>{{ info.media_type                        }}</td>
+					<td>{{ info.stats.number_of_artists|intcomma  }}</td>
+					<td>{{ info.stats.number_of_plays|intcomma    }}</td>
+					<td>{{ info.stats.number_of_comments|intcomma }}</td>
+					<td>{{ info.stats.number_of_likes|intcomma    }}</td>
+					<td>{{ info.stats.mean|floatformat:2          }}</td>
+					<td>{{ info.stats.stddev|floatformat:2        }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	
+	<div>
+		<h1>Artist Media</h1>
+		
+		<div id="artist-media-graph"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block init_scripts %}
+  {{ block.super }}
+
+<script type="text/javascript">
+$(document).ready(function() {
+  var chartOpts = {
+    chart: {
+      renderTo: 'artist-media-graph',
+      defaultSeriesType: 'line',
+      zoomType: 'xy',
+      width: 400
+    },
+    xAxis: {
+      title: {
+        enabled: true,
+        text: 'Plays per Day'
+      },
+      startOnTick: true,
+      endOnTick: true,
+      showLastLabel: true,
+			min: 0
+    },
+    yAxis: {
+      title: {
+        text: 'Number of Tracks'
+      },
+			min: 0
+    },
+    legend: {
+      layout: 'vertical',
+      align: 'left',
+      verticalAlign: 'top',
+      x: 250,
+      y: 30,
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1
+    },
+    plotOptions: {
+      scatter: {
+        marker: {
+          radius: 5,
+          states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } }
+        },
+        states: {
+          hover: { marker: { enabled: false } }
+        }
+      }
+    },
+    series: []
+  };
+
+  var chart = new Highcharts.Chart(chartOpts);
+
+	$.ajax({
+	   url: '{% url admin-system-stats %}',
+	   dataType: 'json',
+	   success: function(newSeries) {
+			chart.series = [];
+
+			for(var i in newSeries) {
+			  chart.addSeries(newSeries[i], false);
+			}
+
+			chart.redraw();
+		}
+	});
+});
+</script>
+{% endblock %}

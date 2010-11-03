@@ -1,0 +1,31 @@
+{% extends "admin_base.html" %}
+
+{% block body_id %}admin-artist-stats{% endblock %}
+
+{% block body %}
+ <div id="page">
+	<table>
+		<thead>
+  		<tr>
+				<th>Artist</th>
+				<th>Myspace Plays</th>
+				<th>Myspace 3day avg</th>
+				<th>Youtube Plays</th>
+				<th>Vimeo Plays</th>
+				<th>EchoNest Hotness</th>
+				<th>EchoNest Familiarity</th>
+			</tr>
+		</thead>
+		{% for a in artists %}
+		<tr>
+			<td>{{ a.name                                  }}</td>
+			<td>{{ a.media_stats.myspace_song.plays_total  }}</td>
+			<td>{{ a.media_stats.myspace_song.plays_avg_3days  }}</td>
+			<td>{{ a.media_stats.youtube_video.plays_total }}</td>
+			<td>{{ a.media_stats.vimeo_video.plays_total   }}</td>
+			<td>{{ a.associations.echonest.hotness         }}</td>
+			<td>{{ a.associations.echonest.familiarity     }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endblock %}

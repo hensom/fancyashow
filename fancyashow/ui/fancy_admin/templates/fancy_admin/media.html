@@ -1,0 +1,30 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-media{% endblock %}
+
+{% block body %}
+ <div id="page">	
+	<table>
+		<thead>
+			<tr>
+				<th>Artist</th>
+				<th>System Id</th>
+				<th>Media Id</th>
+				<th>Title</th>	
+				<th>Last 30 Days</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for info in media %}
+			<tr>
+				<td>{{ info.artist.name     }}</td>
+				<td>{{ info.media.system_id }}</td>
+				<td>{{ info.media.media_id  }}</td>
+				<td>{{ info.media.title     }}</td>
+				<td>{{ info.plays_per_day   }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	</div>
+{% endblock %}

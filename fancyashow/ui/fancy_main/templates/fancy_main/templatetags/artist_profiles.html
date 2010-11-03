@@ -1,0 +1,7 @@
+{% if profiles %}
+  <ul class="profiles">
+	{% for profile in profiles %}
+	  <li><a href="{{ profile.url }}" target="_blank">{{ profile.system_id|lower }}</a></li>
+	{% endfor %}
+	</ul>
+{% endif %}

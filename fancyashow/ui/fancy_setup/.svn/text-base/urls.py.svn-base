@@ -1,0 +1,32 @@
+from django.conf               import settings as django_settings
+from django.conf.urls.defaults import *
+
+from tfsm_zr.ui.base           import settings as zri_settings
+
+from django.contrib import admin
+
+admin.autodiscover()
+
+urlpatterns = patterns('',
+  (r'^',                  include('tfsm_zr.ui.base.urls.root')),
+  (r'^accounts/',         include('tfsm_zr.ui.base.urls.accounts')),
+  (r'^manage/clients/',   include('tfsm_zr.ui.clients.urls')),
+  (r'^manage/campaigns/', include('tfsm_zr.ui.campaigns.urls')),
+  (r'^manage/views/',     include('tfsm_zr.ui.graphs.urls')),
+  (r'^manage/sync/',      include('tfsm_zr.ui.sync.urls')),
+  (r'^manage/extract/',   include('tfsm_zr.ui.extract.urls')),
+  (r'^dashboard/',        include('tfsm_zr.ui.dashboard.urls')),
+  (r'^django-admin/(.*)', admin.site.root, { }, 'django-admin')
+)
+
+if django_settings.DEBUG:
+  static_serve_kwargs = {
+    'document_root': django_settings.STATIC_BASE,
+    'show_indexes':  True
+  }
+
+  asset_path = r'^' + zri_settings.ASSETS_URL.lstrip('/') + r'/[^\/]+/(?P<path>.*)$'
+
+  urlpatterns += patterns('',
+    (asset_path, 'django.views.static.serve', static_serve_kwargs),
+  )

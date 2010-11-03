@@ -1,0 +1,37 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-show-link-artist{% endblock %}
+
+{% block body %}		
+<form method="POST">	
+	<h1>
+		{{ artist_info.name }} @ {{ show.venue.name }}
+	</h1>
+	
+	<input type="search" name="query" value="{{ query }}" />
+
+	<table class="normal-table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Name</th>
+				<th>Rank</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% for item in matching %}
+	  <tr>
+		  <td><input type="radio" value="{{ item.id_str }}" name="artist" /></td>
+		  <td>{{ item.name }}</td>
+		  <td>{{ item.rank|floatformat:2 }}</td>
+	  </tr>
+	{% empty %}
+	   <tr><td colspan="2">No Matching Artists</td></tr>
+	{% endfor %}
+		</tbody>
+	</table>
+
+	<a href="{% url admin-artist-new %}?associate-show_id={{ show.id_str }}&amp;associate-artist_position={{ artist_position }}">Create Artist</a>
+	<input type="submit" name="link" value="Link Artist" />
+</form>
+{% endblock %}

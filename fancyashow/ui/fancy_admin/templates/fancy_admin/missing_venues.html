@@ -1,0 +1,24 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-missing-venues{% endblock %}
+
+{% block body %}
+<div id="page">
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>URL</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for venue in venues %}
+			<tr>
+				<td>{{ venue.name }}</td>
+				<td>{{ venue.url }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

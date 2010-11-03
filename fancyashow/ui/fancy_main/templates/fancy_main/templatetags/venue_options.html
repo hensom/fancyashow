@@ -1,0 +1,6 @@
+{% if show.url %}
+<li><a href="{{ show.url }}" target="_blank">Details on Site</a></li>
+{% endif %}
+{% if venue and venue.address %}
+<li><a href="http://maps.google.com/?q={{ venue.address|urlencode }}" target="_blank">Map It</a></li>
+{% endif %}

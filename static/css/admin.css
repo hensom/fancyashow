@@ -1,0 +1,230 @@
+body {
+  background:  white;
+  font-family: 'Courier New', Courier, monospace;
+  font-size:   11px;
+  line-height: 13px;
+}
+
+* { padding:0px; margin:0px; }
+a { color: black; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+#header {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+#header li {
+  display: inline;
+}
+
+#admin-summary          #nav-admin-summary,
+#admin-shows            #nav-admin-shows,
+#admin-artists          #nav-admin-artists,
+#admin-media            #nav-admin-media,
+#admin-parser-stats     #nav-admin-parser-stats,
+#admin-recurring-shows  #nav-admin-recurring-shows,
+#admin-missing-venues   #nav-admin-missing-venues,
+#admin-resource-domains #nav-admin-resource-domains,
+#admin-best-artists     #nav-admin-best-artists {
+  font-weight: bold;
+}
+
+#filter {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+#filter form {
+  padding: 0;
+}
+
+#filter label {
+  margin-left:  4px;
+  margin-right: 4px;
+}
+
+#filter ul {
+  display: block;
+  margin-bottom: 15px;
+}
+
+#filter input[type="submit"] {
+  text-align: right;
+}
+
+#paginator {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+#page {
+  padding: 10px 20px;
+}
+
+li {
+  list-style: none;
+}
+
+ul.shows > li {
+  float:      left;
+  position:   relative;
+  width:      300px;
+  height:     200px;
+  margin:      2px;
+  border:        1px solid #F1F1F1;
+  border-bottom: 1px solid #e1e1e1;
+  border-right:  1px solid #e1e1e1;
+  overflow:      auto;
+}
+
+ul.shows li img {
+  width:  80px;
+  height: 80px;
+  float:  left;
+}
+
+ul.shows li table {
+  float:  left;
+  width:  180px;
+  max-height: 180px;
+}
+
+ul.shows li .rank {
+  position:    absolute;
+  right:       0px;
+  width:       40px;
+  text-align:  right;
+  font-weight: bold;
+}
+
+ul.shows li td {
+  border: 0px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+ul.shows li .summary {
+  clear:      left;
+  padding-top: 0.5em;
+}
+
+form .message {
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+form {
+  padding: 10px;
+}
+
+form dt {
+  float: left;
+  width: 100px;
+  clear: left;
+  padding: 2px;
+  padding-right: 20px;
+}
+
+form dt dt {
+  width: 50px;
+}
+
+form dd {
+ float:    left; 
+ position: relative;
+ padding:  2px;
+}
+
+form dd input.override {
+  position:  absolute;
+  left:     -20px;
+  top:        2px;
+}
+
+form img {
+  float: left;
+  margin-right: 20px;
+}
+
+form dl {
+  float: left;
+}
+
+form ol, ul {
+  margin:  0;
+  display: inline;
+}
+
+form li {
+  display: inline;
+}
+
+form .performers li {
+  display: block;
+}
+
+form input[type="submit"] {
+  clear: left;
+  margin: 10px;
+}
+
+form .error {
+  color:       #900;
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table th {
+  padding: 3px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+}
+
+table td {
+  border:  1px solid #ccc;
+  padding: 3px;
+}
+
+form .selected {
+  font-weight: bold;
+}
+
+h1 {
+  margin-bottom: 15px;
+}
+
+.associated {
+  font-weight: bold;
+}
+
+#summary div {
+  float:  left;
+  width:  400px;
+  margin: 10px;
+}
+
+#summary h1 {
+  font-size: 15px;
+}
+
+#summary table {
+  width: 100%;
+}
+
+#summary td + td {
+  text-align: right;
+}
+
+#admin-shows label[for=id_show_range],
+#admin-shows label[for=id_show_date] {
+  display: none;
+}
+
+.profiles li {
+  margin-bottom: 20px; 
+}

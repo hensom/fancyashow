@@ -1,0 +1,44 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-artists{% endblock %}
+
+{% block body %}
+<div id="filter">
+	<form method="GET">
+		<ul>{{ artist_form.as_ul }}</ul>
+		<input type="submit" value="Search" />
+	</form>
+</div>
+
+<div id="paginator">
+	{{ paginator.count }} Matches
+</div>
+
+ <div id="page">
+	<table>
+		<thead>
+			<tr>
+				<th>Artist</th>
+				<th>Rank</th>
+				<th>Last Month</th>
+				<th>Last Three Days</th>
+				<th>% Diff</th>
+				<th>Yesterday</th>
+				<th>% Diff</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for info in artists %}
+			<tr>
+				<td><a href="{% url admin-artist-edit artist_id=info.artist.id_str %}">{{ info.artist.name }}</a></td>
+				<td>{{ info.artist.rank|floatformat:"2" }}</td>
+				<td>{{ info.stats.last_month            }}</td>
+				<td>{{ info.stats.last_three_days       }}</td>
+				<td>{{ info.stats.last_three_days_perc  }}</td>
+				<td>{{ info.stats.yesterday             }}</td>
+				<td>{{ info.stats.yesterday_perc        }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}

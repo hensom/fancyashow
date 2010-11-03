@@ -1,0 +1,133 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-shows{% endblock %}
+
+{% block body %}
+<div id="filter">
+	<form method="GET">
+		<ul>{{ show_form.as_ul }}</ul>
+		<ul>{{ proc_form.as_ul }}</ul>
+
+		<input type="submit" name="search" value="Search" />
+	</form>
+</div>
+
+<div id="paginator">
+	{{ paginator.count }} Matches
+</div>
+
+ <div id="page">	
+  <ul class="shows">
+	{% for show in shows %}
+		<li>
+			<a href="{% url admin-show-edit show_id=show.id_str %}">
+			{% if show.images.polaroid.url %}
+					<img src="{{ show.images.polaroid.url }}">
+			{% endif %}
+
+      <table>
+      {% if show.title %}
+      <tr>
+      <td>{{ show.title }}</td>
+      <td></td>
+      <td></td>
+      </tr>
+      {% endif %}
+
+      {% for artist in show.artists %}
+      {% if artist.artist_id %}
+      <tr class="associated">
+	    {% else %}
+      <tr class="unassociated">
+	    {% endif %}
+      <td>{{ artist.name        }}</td>
+      {% if artist.full %}
+      <td>{{ artist.full.rank|floatformat:2 }}</td>
+      {% else %}
+      <td>-</td>
+      {% endif %}
+      {% endfor %}
+      </table>
+
+
+      <div class="rank">
+	    {% if show.rank %}
+				{{ show.rank|floatformat:2 }}
+			{% else %}
+			  -
+			{% endif %}
+			</div>
+
+      <div class="summary">
+         {{ show.venue.name }}<br />
+
+         {{ show.date|date }}
+          {% if show.show_time %}
+            @ {{ show.show_time|time }}
+          {% else %}
+           {% if show.door_time %}
+             @ {{ show.door_time|time }}
+           {% endif %}
+          {% endif %}
+       </div>
+	{% endfor %}
+
+    {% comment %}
+			<dl class="details">
+				<dt>Ranking</dt>
+				<dd>{{ show.rank|intcomma }}</dd>
+
+				{% if not date %}
+				<dt>Date</dt>
+				<dd>{{ show.date|date }}</dd>
+				{% endif %}
+				<dt>Title</dt>
+				<dd>{{ show.title }}</dd>
+				<dt>Performers</dt>
+				<dd>
+					<ul>
+					
+					</ul>
+				<dt>URL</dt>
+				<dd>
+					{% if show.resources.show_url %}
+					  <a href="{{ show.resources.show_url }}">{{ show.resources.show_url|urlizetrunc:30 }}</a>
+					{% else %}
+					  -
+					{% endif %}
+				</dd>				
+				<dt>Resources</dt>
+				<dd>
+					<ul>
+						{% for uri in show.resources.resource_uris %}
+						<li>{{ uri }}</li>
+						{% endfor %}
+					</ul>
+				</dd>
+				<dt>Media</dt>
+				<dd>
+					<ul>
+						{% for info in show.media %}
+						<li>{{ info.title }} ({{ info.play_count|intcomma }})</li>
+						{% endfor %}	
+					</ul>
+				</dd>
+			</dl>
+		
+			<dl class="venue">
+				<dt>Name</dt>
+				<dd><a href="{{ show.venue.url }}">{{ show.venue.name }}</a></dd>
+				<dt>Time</dt>
+				<dd>
+					 {% if show.door_time %}
+					 Doors: {{ show.door_time|time }} /
+					 {% endif %}
+             Show: {{ show.show_time|time }}
+				</dd>
+			</dl>
+			</a>
+		</li>
+    {% endcomment %}
+	</ul>
+</div>
+{% endblock %}

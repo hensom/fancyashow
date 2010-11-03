@@ -1,0 +1,44 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-headliner-stats{% endblock %}
+
+{% block body %}
+ <div id="page">
+	Total: {{ total }}, With Media: {{ with_media }}, With Resources: {{ with_resources }}, Unknown: {{ unknown }}, No Info: {{ no_info }}
+	<table>
+		<tr>
+			<th></th>
+			{% for info in act_info %}
+			<th>{{ forloop.counter }}</th>
+			{% endfor %}
+		</tr>
+		
+		<tr>
+			<td>Best Act</td>
+			{% for info in act_info %}
+			<td>{{ info.should_see }}</td>
+			{% endfor %}
+		</tr>
+		
+		<tr>
+			<td>% w/Media</td>
+			{% for info in act_info %}
+			<td>{{ info.percent_with_media }}%</td>
+			{% endfor %}
+		</tr>
+		
+		<tr>
+			<td>Media</td>
+			{% for info in act_info %}
+			<td>{{ info.num_with_media }}</td>
+			{% endfor %}
+		</tr>
+		
+		<tr>
+			<td>Total</td>
+			{% for info in act_info %}
+			<td>{{ info.num_total }}</td>
+			{% endfor %}
+		</tr>
+ </div>
+{% endblock %}

@@ -1,0 +1,7 @@
+.actions {
+  display: none;
+}
+
+.mouse-over .actions {
+  display: block;
+}

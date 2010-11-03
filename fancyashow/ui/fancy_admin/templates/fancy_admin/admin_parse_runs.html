@@ -1,0 +1,26 @@
+{% extends "admin_base.html" %}
+
+{% block body_id %}admin-parse-runs{% endblock %}
+
+{% block body %}
+ <div id="page">
+	<table>
+		<thead>
+  		<tr>
+				<th>Parser</th>
+				<th>Valid Shows</th>
+				<th>Invalid Shows</th>
+				<th>Error</th>
+			</tr>
+		</thead>
+		{% for parse_run in parse_logs %}
+		<tr>
+			<td>{{ parse_run.parser_id }}</td>
+			<td>{{ parse_run.num_valid_shows }}</td>
+			<td>{{ parse_run.num_invalid_shows }}</td>
+			<td>{{ parse_run.error_message }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+ </div>
+{% endblock %}

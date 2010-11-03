@@ -1,0 +1,53 @@
+{% extends "fancy_main/root.html" %}
+
+{% load show_util %}
+
+{% block nav %}
+	{% day_nav venues day period %}
+{% endblock %}
+
+{% block content %}
+
+<section id="shows"{% if day %} class="for-date"{% endif %}>
+  <div class="wrapper">
+	  <h1>
+			{% if period %}
+			  {{ period_label }}
+			{% else %}
+				<a href="{{ prev_day_url }}">&lt;</a>
+				{% if day == today %}
+				  Tonight
+				{% else %}
+				  {% if day == tomorrow %}
+				    Tomorrow
+				  {% else %}
+					  {{ day|date:"D, M d" }}
+					{% endif %}
+				{% endif %}
+				<a href="{{ next_day_url }}">&gt;</a>
+			{% endif %}
+		</h1>
+	
+		{% show_list shows artist_map venue_map %}
+
+		<nav id="display-controls">
+			<a id="prev" href="#prev">&lt;</a>
+			<a id="state" href="#state">Show All</a>
+			<a id="next" href="#next">&gt;</a>
+		</nav>
+  </div>
+ </section>
+
+<section id="artists">
+  <div class="wrapper">
+	  <h1>
+			Who's Playing
+		</h1>
+		<ul>
+		{% for info in artists %}
+			<li{% if info.artist.rank > hot_ranking %} class="hot"{% endif %} data-rank="{{ info.artist.rank }}" data-shows="{% for show in info.shows %}{{ show.id_str }}{% if not forloop.last %},{% endif %}{% endfor %}"><a href="#{% url artist-info name=info.artist.url_name %}">{{ info.artist.name }}</a></li>
+		{% endfor %}
+		</ul>
+  </div>
+</section>
+{% endblock %}

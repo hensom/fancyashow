@@ -1,0 +1,177 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-shows{% endblock %}
+
+{% block body %}		
+<form method="POST">
+	{% if saved %}
+	  <div class="message">Your changes have been saved</div>
+	{% endif %}
+	
+	{% if error %}
+		  <div class="message error">Sorry, one of more of the fields below are just plain wrong</div>
+	{% endif %}
+
+	{% if show.images.polaroid.url %}
+		<img src="{{ show.images.polaroid.url }}">
+	{% endif %}
+	
+	<h1>
+	{% if show.title %}
+	  {{ show.title }}
+	{% else %}
+	  {{ show.artists.0.name }}
+	{% endif %}
+	</h1>
+
+	<dl>
+		<dt>{{ show_form.visible.label_tag }}</dt>
+		<dd>
+			{{ show_form.visible }}
+		</dd>
+		<dt>{{ show_form.title.label_tag }}</dt>
+		<dd>
+			{{ override_form.title }}
+			<div class="error">{{ show_form.title.errors }}</div>
+			{{ show_form.title }}
+		</dd>
+		<dt>Artists</dt>
+		<dd class="artists">	
+			<ol>
+			{% for a in artist_forms %}
+			  <li>
+				  <div class="error">{{ a.errors }}</div>
+				  {{ a.name }} starting at {{ a.start_time }}, headliner: {{ a.headliner }}
+				  {% if a.instance.artist_id %}
+				  (<a href="{% url admin-artist-edit artist_id=a.instance.full.id_str %}">edit</a>)
+				  {% else %}
+				  (<a href="{% url admin-show-link-artist show_id=show.id_str,artist_position=forloop.counter0 %}">link artist</a>)
+				  {% endif %}
+				</li>
+			{% endfor %}
+			</ol>
+		</dd>
+		<dt>Date</dt>
+		<dd>
+			<div class="error">{{ show_form.date.errors }}</div>
+			{{ show_form.date }}
+		</dd>
+
+		<dt>Door Time</dt>
+		<dd>
+			<div class="error">{{ show_form.show_time.errors }}</div>
+			{{ show_form.show_time }}
+		</dd>
+		
+		<dt>Show Time</dt>
+		<dd>
+			<div class="error">{{ show_form.door_time.errors }}</div>
+			{{ show_form.door_time }}
+		</dd>
+
+		<dt>Soldout</dt>
+		<dd>
+			<div class="error">{{ show_form.soldout.errors }}</div>
+			{{ show_form.soldout }}
+		</dd>
+
+		<dt>Venue</dt>
+		<dd>
+			<dl>
+				<dt>{{ venue_form.name.label }}</dt>
+				<dd>
+					<div class="error">{{ venue_form.name.errors }}</div>
+					{{ venue_form.name }}
+				</dd>
+				
+				<dt>{{ venue_form.url.label }}</dt>
+				<dd>
+					<div class="error">{{ venue_form.url.errors }}</div>
+					{{ venue_form.url }}
+				</dd>
+			</dl>
+		</dd>
+		<dt>{{ show_form.image_url.label }}</dt>
+		<dd>
+			<div class="error">{{ show_form.image_url.errors }}</div>
+			{{ show_form.image_url }}
+		</dd>
+		
+		<dt>{{ show_form.url.label }}</dt>
+		<dd>
+			<div class="error">{{ show_form.url.errors }}</div>
+			{{ show_form.url }}
+		</dd>
+
+		<dt>{{ show_form.parsed_resources.label }}</dt>
+		<dd>
+			<div class="error">{{ show_form.parsed_resources.errors }}</div>
+			{{ show_form.parsed_resources }}
+		</dd>
+		
+	{% for a in show.artists %}
+	  <dt>{{ a.name }}</dt>
+		<dd>
+			<table>
+				<tr>
+					<th>System Id</th>
+					<th>Profile Id</th>
+					<th>Source Id</th>
+					<th>Creation Date</th>
+				</tr>
+		{% for r in a.full.profiles %}
+		    <tr>
+					<td>{{ r.system_id }}</td>
+					<td>{{ r.profile_id }}</td>
+					<td>{{ r.source_id }}</td>
+					<td>{{ r.creation_date|date }}</td>
+				</tr>
+		{% endfor %}
+			</table>
+			<table>
+				<thead>
+					<tr>
+						<th>System Id</th>
+						<th>Media Id</th>
+						<th>Source Id</th>
+						<th>Artist</th>
+						<th>Title</th>
+						<th>Upload Date</th>
+						<th>Play Count</th>
+						<th>Plays per Day (3D)</th>
+						<th>Number of Samples</th>
+						<th>Score</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for media in a.full.media %}
+					<tr>
+						<td>{{ media.system_id }}</td>
+						<td>{{ media.media_id  }}</td>
+						<td>{{ media.source_id }}</td>
+						<td>{{ media.artist    }}</td>
+						<td>{{ media.title     }}</td>
+						<td>{{ media.upload_date }}</td>
+						<td>{{ media.stats.number_of_plays }}</td>
+						<td>{{ media.stats.stats_last_3_days.number_of_plays }}</td>
+						<td>{{ media.stats.history|length }}</td>
+						<td>{{ media.stats.score|floatformat:2 }}</td>
+					</tr>
+				  {% endfor %}
+				</tbody>
+			</table>
+		</dd>
+		{% endfor %}
+		<dt>Processor State</dt>
+		<dd>
+			<pre>
+				{{ show.processor_state|pprint }}
+			</pre>
+		</dd>
+	</dl>
+
+	<br clear="all" />
+
+	<input type="submit" value="Save" />
+</form>
+{% endblock %}

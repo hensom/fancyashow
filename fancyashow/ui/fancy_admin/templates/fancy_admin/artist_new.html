@@ -1,0 +1,43 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-artist-edit{% endblock %}
+
+{% block body %}		
+<form method="POST">
+	{% if saved %}
+	  <div class="message">Your changes have been saved</div>
+	{% endif %}
+	
+	{% if error %}
+		  <div class="message error">Sorry, one of more of the fields below are just plain wrong</div>
+	{% endif %}
+	
+	<h1>
+		New Artist
+	</h1>
+
+	<dl>
+		<dt>{{ artist_form.name.label_tag }}</dt>
+		<dd>
+			<div class="error">{{ artist_form.name.errors }}</div>
+			{{ artist_form.name }}
+		</dd>
+		<dt>Profles</dt>
+		<dd class="profiles">
+			<ul>
+				{% for profile_form in profile_forms %}
+				<li>
+					<table>
+					{{ profile_form }}
+					</table>
+				</li>
+				{% endfor %}
+			</ul>
+		</dd>
+	</dl>
+
+	<br clear="all" />
+
+	<input type="submit" value="Save" />
+</form>
+{% endblock %}

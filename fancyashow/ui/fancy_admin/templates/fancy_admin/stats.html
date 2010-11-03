@@ -1,0 +1,40 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block body_id %}admin-parser-stats{% endblock %}
+
+{% block body %}	
+ <div id="page">
+   <table class="stats">
+   <tdead>
+   <tr>
+     <th>Parser</th>
+     <th>LP Valid Shows</th>
+     <th>LP Invalid Shows</th>
+     <th>LP Error</th>
+     <th>LP Parse Time</th>
+     <th>Total</th>
+     <th>w/ Title</th>
+     <th>w/ Artists</th>
+     <th>w/ Resources</th>
+   </tr>
+   </tdead>
+   <tbody>
+   {% for p in parser_stats %}
+   <tr>
+     <td>{{ p.parser_id }}</td>
+     <td>{{ p.stats.last_parse.num_valid_shows }}</td>
+     <td>{{ p.stats.last_parse.num_invalid_shows }}</td>
+     <td>{{ p.stats.last_parse.error_message }}</td>
+     <td>{{ p.stats.last_parse.end_time|timeuntil:p.stats.last_parse.start_time }}</td>
+     <td>{{ p.shows.total }}</td>
+     <td>{{ p.shows.with_title }}</td>
+     <td>{{ p.shows.with_artists }}</td>
+     <td>{{ p.shows.with_resources }}</td>
+   </tr>
+   {% endfor %}
+   </tbody>
+   </table>
+ </div>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "admin_base.html" %}
+
+{% block body_id %}admin-recurring-shows{% endblock %}
+
+{% block body %}
+ <div id="page">
+   <table>
+   <thead>
+   <tr>
+     <td>Performer</td>
+     <td>Number of Shows</td>
+   </tr>
+   </thead>
+   <tbody>
+   {% for s in stats %}
+   <tr>
+     <td>{{ s.key }}</td>
+     <td>
+     {% for show in s.value.shows %}
+     <div>
+       {{ show.date|date:"M d, Y" }} - {{ show.venue.name }}
+	</div>
+     {% endfor %}
+    </td>
+   </tr>
+   {% endfor %}
+   </tbody>
+   </table>
+ </div>
+{% endblock %}
