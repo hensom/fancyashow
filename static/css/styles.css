@@ -164,6 +164,15 @@ h2 {
   border:  0;
 }
 
+#venue-anywhere {
+  padding:    10px;
+  text-align: right;
+}
+
+#venue-anywhere a {
+  font-size:  12px;
+}
+
 #venue-nav dl {
   margin-left: 0.75em;
 }

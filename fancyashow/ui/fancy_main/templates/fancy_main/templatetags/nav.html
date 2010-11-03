@@ -31,5 +31,10 @@
 			</dd>			
 			{% endfor %}
 		</dl>
+		{% if venue %}
+		<div id="venue-anywhere">
+			<a href="{% url root %}" id="#">See Shows At All Venues</a>
+		</div>
+		{% endif %}
 	</div>
 </nav>
