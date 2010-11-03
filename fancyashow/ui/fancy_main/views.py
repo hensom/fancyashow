@@ -2,6 +2,7 @@ from django.conf                      import settings
 from django.http                      import HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.shortcuts                 import render_to_response
 from django.core.urlresolvers         import reverse
+from django.template                  import RequestContext
 from datetime                         import datetime, timedelta
 from fancyashow.db.models             import Show, Artist, Venue
 from fancyashow.ui.fancy_main.filters import ShowDateFilter, ShowDateRangeFilter, VenueFilter
@@ -73,7 +74,7 @@ def show_list(request, shows, template, context):
     'hot_ranking': settings.ARTIST_HOT_RANKING
   })
 
-  return render_to_response(template, context)
+  return render_to_response(template, RequestContext(request, context))
   
 def shows_by_venue(request, venue):
   venue = Venue.objects.get(normalized_name = venue)
@@ -114,6 +115,3 @@ def shows_this_weekend(request):
   }
 
   return show_list(request, shows, 'fancy_main/shows_on_date.html', context)
-
-def artist_info(req, name):
-  pass

@@ -45,7 +45,7 @@
 		</h1>
 		<ul>
 		{% for info in artists %}
-			<li{% if info.artist.rank > hot_ranking %} class="hot"{% endif %} data-rank="{{ info.artist.rank }}" data-shows="{% for show in info.shows %}{{ show.id_str }}{% if not forloop.last %},{% endif %}{% endfor %}"><a href="#{% url artist-info name=info.artist.url_name %}">{{ info.artist.name }}</a></li>
+			<li{% if info.artist.rank > hot_ranking %} class="hot"{% endif %} data-rank="{{ info.artist.rank }}" data-shows="{% for show in info.shows %}{{ show.id_str }}{% if not forloop.last %},{% endif %}{% endfor %}"><a href="#{{ info.artist.url_name }}">{{ info.artist.name }}</a></li>
 		{% endfor %}
 		</ul>
   </div>

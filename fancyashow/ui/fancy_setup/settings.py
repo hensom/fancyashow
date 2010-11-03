@@ -66,6 +66,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
     'django.core.context_processors.request',
+    'fancyashow.ui.fancy_main.context_processors.analytics',
 )
 
 ROOT_URLCONF = 'fancyashow.ui.fancy_setup.urls'
@@ -89,6 +90,9 @@ INSTALLED_APPS = (
     'fancyashow.ui.fancy_main',
     'fancyashow.ui.fancy_admin',
 )
+
+GOOGLE_ANALYTICS_ACCOUNT = None
+PARSE_STAT_MAX_HISTORY   = 5
 
 RESOURCE_VERSION = 1
 STATIC_BASE_URL  = '/static'
