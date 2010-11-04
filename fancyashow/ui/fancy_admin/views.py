@@ -267,7 +267,7 @@ def system_stats(request):
 
 @password_required
 def resource_domains(request):
-  domain_map_f = """
+  show_domain_map_f = """
   function() {
     var domainRe = /(.*?):/;
 
@@ -276,6 +276,26 @@ def resource_domains(request):
       
       if(m) {      
         emit(m[1], 1);
+      }
+    }
+  }
+  """
+
+  artist_domain_map_f = """
+  function() {
+    var domainRe = /(.*?):/;
+    
+    var state = this.processor_state['profile-parser'] || { };
+    
+    for(var handler in state) {
+      var resources = state[handler]['resources'];
+      
+      for(var i = 0 ; i < resources.length; i++) {
+        var m = domainRe.exec(resources[i]);
+      
+        if(m) {      
+          emit(m[1], 1);
+        }
       }
     }
   }
@@ -293,14 +313,19 @@ def resource_domains(request):
   }
   """
 
-  domains = []
+  show_domains   = []
+  artist_domains = []
   
-  for venue_doc in Show.objects.map_reduce(domain_map_f, sum_by_key_f):
-    domains.append({'domain': venue_doc.key, 'number': venue_doc.value})
+  for doc in Show.objects.map_reduce(show_domain_map_f, sum_by_key_f):
+    show_domains.append({'domain': doc.key, 'number': doc.value})
+    
+  for doc in Artist.objects.map_reduce(artist_domain_map_f, sum_by_key_f):
+    artist_domains.append({'domain': doc.key, 'number': doc.value})
 
-  domains.sort(lambda x, y: cmp(y['number'], x['number']))
+  show_domains.sort(lambda x, y: cmp(y['number'], x['number']))
+  artist_domains.sort(lambda x, y: cmp(y['number'], x['number']))
 
-  return render_to_response('fancy_admin/admin_resource_domains.html', {'domains': domains})
+  return render_to_response('fancy_admin/admin_resource_domains.html', {'show_domains': show_domains, 'artist_domains': artist_domains})
   
 def best_artists(request):
   act_info       = []
