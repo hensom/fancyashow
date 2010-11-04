@@ -53,7 +53,7 @@ class TwitterArtistResourceHandler(ArtistResourceHandler):
 
     return protocol == 'twitter-profile'
 
-  def handle(self, show, uri):
+  def handle(self, artist, uri):
     protocol, user_id = uri.split(':')
 
     profile_link = 'http://www.twitter.com/%s' % user_id
@@ -62,7 +62,7 @@ class TwitterArtistResourceHandler(ArtistResourceHandler):
 
     artist_profile = ArtistProfile(system_id = 'twitter', profile_id = user_id, source_id = 'artist-resource-handler:twitter', url = profile_link)
 
-    return artist_matcher.associate_profile_with_artist(show, name, artist_profile)
+    return artist_matcher.associate_profile_with_artist(artist, name, artist_profile)
 
   @classmethod
   def id(self):

@@ -5,6 +5,8 @@ import lxml.etree
 import urllib2
 import re
 
+logger = logging.getLogger(__name__)
+
 REPLACEMENTS = [
   (re.compile('<\s*br\s*/?\s*>', re.I), '\n'),
   (re.compile('<\s*div\s*.*?>',  re.I), ''),
@@ -153,7 +155,7 @@ def get_displayed_text_content(el):
 def get_name_from_title(url, name_re):  
   logger.debug('Fetching document name of: %s' % url)
   
-  html = urllib2.urlopen(profile_link).read()
+  html = urllib2.urlopen(url).read()
   
   doc  = lxml.html.document_fromstring(html)
   

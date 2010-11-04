@@ -54,11 +54,11 @@ def associate_profile_with_matching_artist(show, name, profile):
     
   return False
   
-def associate_profile_with_artist(artist, profile):
+def associate_profile_with_artist(artist, name, profile):
   logger.debug('Checking if %s matches %s' % (artist.name, name))
 
   if artist_matches(artist.name, name):
-    logger.debug('Resource matches artist: %s, associating' % (artist_info.name))
+    logger.debug('Resource matches artist: %s, associating' % (artist.name))
 
     artist.add_profile(profile)
 
