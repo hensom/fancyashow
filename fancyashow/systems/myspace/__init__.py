@@ -1,5 +1,6 @@
 import logging
 import re
+import urllib2
 from datetime                     import datetime
 from fancyashow.extensions        import ExtensionLibrary, ResourceExtractor
 from fancyashow.extensions        import ArtistResourceHandler, ShowResourceHandler
@@ -20,6 +21,7 @@ SYSTEM_ID   = 'myspace'
 
 MYSPACE_URL = re.compile('(?:http://)?(?:www\.)?myspace\.com/(?P<profile_id>[^/&]+)', re.I)
 PROFILE_URL = re.compile('(?:http://)?profile\.myspace\.com/index.cfm\?(?:[^&]*&)*friendid=(?P<profile_id>[^&]+)', re.I)
+OFFSITE_URL = re.compile('http[s]?://www.msplinks.com/', re.I)
 
 class MySpaceResourceExtractor(ResourceExtractor):
   def resources(self, node):
@@ -108,6 +110,12 @@ class MySpaceSongExtractor(ArtistMediaExtractor):
   @classmethod
   def id(cls):
     return 'myspace-songs'
+    
+class GetRedirectHandler(urllib2.HTTPRedirectHandler):
+  def http_error_302(self, req, fp, code, msg, headers):
+    return urllib2.addinfourl(fp, headers, req.get_full_url(), code)
+
+  http_error_301 = http_error_303 = http_error_307 = http_error_302
 
 class MyspaceProfileParser(ArtistProfileParser):
   def supports(self, profile):
@@ -116,6 +124,8 @@ class MyspaceProfileParser(ArtistProfileParser):
   def parse(self, artist, profile):
     doc  = parsing.fetch_and_parse('http://www.myspace.com/%s' % profile.profile_id)
     body = parsing.get_first_element(doc, 'body')
+    
+    self._resolve_offsite_links(doc)
 
     if parsing.has_class(body, 'profileV1'):
       logger.debug('%s is v1 profile' % profile.profile_id)
@@ -127,8 +137,46 @@ class MyspaceProfileParser(ArtistProfileParser):
       return self._parse_v2(doc)
     else:
       raise Exception('Unable to determine myspace profile version')
-      
+
+  def _resolve_offsite_links(self, doc):
+    logger.debug('Resolving msplinks.com links')
+
+    for a in doc.iter(tag = 'a'):
+      if OFFSITE_URL.match(a.get('href', '')):
+        logger.debug('Found offsite link: %s' % a.get('href'))
+        
+        opener = urllib2.build_opener(GetRedirectHandler())
+
+        req = urllib2.Request(url = a.get('href'))
+        
+        fp = None
+        
+        try:
+          fp = opener.open(req)
+          
+          if fp.info()['Location']:
+            logger.debug('Url resolved to: %s' % fp.info()['Location'])
+        
+            a.set('href', fp.info()['Location'])
+          else:
+            logger.debug('Url was not redirected, leaving as is')
+        except:
+          logger.exception('Unable to resolve url')
+        finally:
+          if fp:
+            fp.close()
+            
+            
+    for a in doc.iter(tag = 'a'):
+      logger.error('Found link: %s' % a.get('href'))
+
   def _parse_v1(self, doc):
+    to_drop = ('table.friendsComments', 'table.friendSpace', '#footerWarpper', '#header', '#musicJVNav')
+    
+    for selector in to_drop:
+      for drop in doc.cssselect(selector):
+        drop.drop_tree()
+
     info_rows = dict((css_id, True) for css_id in('Member SinceRow', 'Band WebsiteRow', 'Sounds LikeRow', 'RecordLabelRow', 'Type of LabelRow'))
 
     tr        = None
@@ -149,7 +197,7 @@ class MyspaceProfileParser(ArtistProfileParser):
         
         break
         
-      resources = self.resource_extractor.extract_resources(table)
+      resources = self.resource_extractor.extract_resources(doc)
       
       return ArtistProfileParserResult(resources)
       
