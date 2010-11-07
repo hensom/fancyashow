@@ -82,7 +82,7 @@ class BellHouse(ShowParser):
     return show
 
   def venue(self):
-    return Venue('Bell House', self.BASE_URL)
+    return Venue('The Bell House', self.BASE_URL)
     
   @classmethod
   def id(cls):

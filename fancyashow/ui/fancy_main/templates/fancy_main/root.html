@@ -3,9 +3,14 @@
 {% load humanize %}
 {% load show_util %}
 
-<html>
+<html lang="en">
   <head>
-    <title>{% block title %}Fancy a Show?{% endblock %}</title>
+	{% block head %}
+    <title>{% singleline %}
+			  {% block title %}{{ SITE_NAME }} - {{ SITE_TAGLINE }}{% endblock %}
+		{% endsingleline %}</title>
+
+		<meta charset="utf-8">
 
     <link rel="stylesheet" href="{% css_url "styles.css" %}" type="text/css" />
 		<!--[if IE]>
@@ -24,8 +29,15 @@
 	    ui.init();
 	  });
 		</script>
+	{% endblock %}
   </head>
   <body>
+	  <header>
+		  <hgroup class="wrapper">
+			  <h1><a href="{% url root %}">{{ SITE_NAME }}</a></h1>
+				<h2>{{ SITE_TAGLINE }}</h2>
+			</hgroup>
+		</header>
 		{% block nav %}{% endblock %}
 
   	{% block content %}{% endblock %}

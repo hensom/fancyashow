@@ -66,6 +66,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
     'django.core.context_processors.request',
+    'fancyashow.ui.fancy_main.context_processors.site_info',
     'fancyashow.ui.fancy_main.context_processors.analytics',
 )
 
@@ -81,7 +82,6 @@ DATE_FORMAT = 'M d, Y'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.humanize',
@@ -94,7 +94,7 @@ INSTALLED_APPS = (
 GOOGLE_ANALYTICS_ACCOUNT = None
 PARSE_STAT_MAX_HISTORY   = 5
 
-RESOURCE_VERSION = 1
+RESOURCE_VERSION = 2
 STATIC_BASE_URL  = '/static'
 
 import sys
@@ -104,3 +104,6 @@ LOG_ENABLED  = True
 LOG_LEVEL    = logging.DEBUG
 LOG_FORMAT   = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_FILE     = sys.stderr
+
+SITE_NAME    = 'Fancy a Show?'
+SITE_TAGLINE = 'Live Music Shows in New York City'

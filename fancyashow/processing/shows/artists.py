@@ -12,12 +12,19 @@ extensions = ExtensionLibrary()
 
 class ArtistAssociation(ShowProcessor):
   def process(self, show, state, dependent_states):
+    artist_ids = []
+
     for artist_info in show.artists:
       if not artist_info.artist_id:
         artist = artist_matcher.get_artist(artist_info.name)
         
         if artist:
           artist_info.artist_id = artist.id
+
+      if artist_info.artist_id:
+        artist_ids.append(artist_info.artist_id)
+
+    show.artist_ids = artist_ids
 
   def cleanup(self, show, state):
     pass

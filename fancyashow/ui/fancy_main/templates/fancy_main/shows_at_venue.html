@@ -3,7 +3,31 @@
 {% load show_util %}
 
 {% block title %}
- Upcoming Shows at {{ venue.name }}
+ {% if day %}
+	 {{ venue.name }} ({{ day|date }})
+ {% else %}
+	 Upcoming Shows at {{ venue.name }}
+	{% endif %}
+{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+
+	<meta name="description" content="{% attribute %}
+	  Upcoming Shows at {{ venue.name }}:
+
+  {% for show in shows %}
+    {% if forloop.counter < 6 %}
+      {% if show.title %}
+        {{ show.title }}
+      {% else %}
+        {{ show.artists.0.name }}
+      {% endif %}
+
+      on {{ show.date|date:"D, M d" }}{% if forloop.counter != 5 %}, {% endif %}
+    {% endif %}
+  {% endfor %}
+	{% endattribute %}" />
 {% endblock %}
 
 {% block nav %}
@@ -15,7 +39,11 @@
 <section id="shows"{% if day %}class="for-date"{% endif %}>
   <div class="wrapper">
 	  <h1>
-		  {{ venue.name }}
+		 {% if day %}
+			 {{ venue.name }} ({{ day|date:"D, M d" }})
+		 {% else %}
+			 {{ venue.name }}
+			{% endif %}
 		</h1>
 	
 		{% show_list shows artist_map venue_map %}

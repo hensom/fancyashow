@@ -101,7 +101,7 @@ class Command(BaseCommand):
 
         end_time = datetime.now()
         
-        stat = ParserStat.objects.get_or_create(parser_id = parser.id(), defaults = {'parser_id': parser.id()})
+        stat, created = ParserStat.objects.get_or_create(parser_id = parser.id(), defaults = {'parser_id': parser.id()})
         
         run_info = {
           'group_start_time':  parse_run_id,

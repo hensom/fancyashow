@@ -1,5 +1,6 @@
 <nav id="main-nav">
   <div class="wrapper">
+	  <h1>Navigation</h1>
 		<ul>
 			{% for choice in days %}
 			<li{% if choice.classes %} class="{{ choice.classes }}"{% endif %}><a href="{{ choice.url }}">{{ choice.label }}</a></li>
@@ -19,6 +20,7 @@
 </nav>
 <nav id="venue-nav">
 	<div class="wrapper">
+	  <h1>Venues</h1>
 		<dl id="venue-list">
 			{% for group in venues_by_city %}
 			<dt>{{ group.city }}</dt>

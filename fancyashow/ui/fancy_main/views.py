@@ -77,7 +77,7 @@ def show_list(request, shows, template, context):
   return render_to_response(template, RequestContext(request, context))
   
 def shows_by_venue(request, venue):
-  venue = Venue.objects.get(normalized_name = venue)
+  venue = Venue.objects.get(slug = venue)
   
   today = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
   
@@ -115,3 +115,55 @@ def shows_this_weekend(request):
   }
 
   return show_list(request, shows, 'fancy_main/shows_on_date.html', context)
+
+def show_details(request, venue, year, month, day, artist):
+  venue = Venue.objects.get(slug = venue)
+  day   = datetime(int(year), int(month), int(day))
+  
+  
+  matching_shows = Show.objects(venue__url = venue.url, date = day)
+  show           = None
+  
+  for prospect in matching_shows:
+    if prospect.slug() == artist:
+      show = prospect
+      
+      break
+      
+  if not show:
+    return show_list(request, matching_shows, 'fancy_main/shows_at_venue.html', {'venue': venue, 'day': day})
+
+  artist_ids      = { }
+  artist_map      = { }
+  artists         = []
+  shows_by_artist = { }
+
+  for info in filter(lambda x: x.artist_id, show.artists):
+    if info.artist_id not in artist_map:
+      artist_ids[info.artist_id] = True
+
+  if artist_ids:
+    artist_shows = Show.objects(artist_ids__in = artist_ids.keys(), id__ne = show.id).order_by('date')
+
+    for artist_show in artist_shows:
+      for info in filter(lambda x: x.artist_id, artist_show.artists):
+        if info.artist_id not in shows_by_artist:
+          shows_by_artist[info.artist_id] = []
+  
+        shows_by_artist[info.artist_id].append(artist_show)
+  
+    artist_map = Artist.objects.in_bulk(artist_ids.keys())
+  
+  for artist_info in show.artists:
+    artists.append({'info': artist_info, 'artist': artist_map.get(artist_info.artist_id), 'shows': shows_by_artist.get(artist_info.artist_id, [])})
+
+  venues = list(Venue.objects())
+
+  context = {
+    'show':    show,
+    'artists': artists,
+    'venue':   Venue.objects.get(url = show.venue.url),
+    'venues':  venues
+  }
+
+  return render_to_response('fancy_main/show_details.html', RequestContext(request, context))

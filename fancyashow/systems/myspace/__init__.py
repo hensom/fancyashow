@@ -62,7 +62,7 @@ class MySpaceArtistResourceHandler(ArtistResourceHandler):
 
     return protocol == 'myspace-profile'
 
-  def handle(self, show, uri):
+  def handle(self, artist, uri):
     protocol, user_id = uri.split(':')
 
     logger.debug('Fetching profile information for: %s' % user_id)
@@ -71,7 +71,7 @@ class MySpaceArtistResourceHandler(ArtistResourceHandler):
 
     artist_profile = ArtistProfile(system_id = 'myspace', profile_id = user_id, source_id = 'artist-resource-handler:myspace', url = 'http://www.myspace.com/%s' % user_id)
 
-    return artist_matcher.associate_profile_with_artist(artist, artist_profile)
+    return artist_matcher.associate_profile_with_artist(artist, profile.get_name(), artist_profile)
 
   @classmethod
   def id(self):

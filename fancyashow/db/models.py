@@ -6,6 +6,7 @@ from mongoengine          import DictField, BooleanField, URLField
 from mongoengine          import EmbeddedDocumentField, ObjectIdField
 from mongoengine.base     import ValidationError
 from fancyashow.db.fields import StringField
+from django.template.defaultfilters import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,7 @@ class ArtistProfile(EmbeddedDocument):
   url           = URLField(required = True)
 
   def equivalent_to(self, profile):
-    return profile.system_id == self.system_id and profile.source_id == self.source_id
+    return profile.system_id == self.system_id and profile.profile_id == self.profile_id
 
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -212,15 +213,15 @@ class Artist(Document):
   
   rank              = FloatField()
   
-  def url_name(self):
-    return self.name.strip(" \r\n\t").replace(' ', '_')
+  def slug(self):
+    return slugify(self.name)
 
   def __str__(self):
     return unicode(self).encode('utf-8')
 
   def __unicode__(self):
     return self.name
-    
+
   @property
   def id_str(self):
     return str(self.id)
@@ -302,7 +303,7 @@ class Artist(Document):
   
 class Venue(Document):
   name            = StringField(required = True)
-  normalized_name = StringField(required = True, unique = True)
+  slug            = StringField(required = True, unique = True)
   url             = URLField()
   address         = StringField()
   city            = StringField()
@@ -312,10 +313,18 @@ class Venue(Document):
 
   def __unicode__(self):
     return self.name
+    
+  def save(self):
+    self.slug = slugify(self.name)
+    
+    return super(Venue, self).save()
 
 class VenueInfo(EmbeddedDocument):
   name = StringField(required = True)
   url  = URLField()
+  
+  def slug(self):
+    return slugify(self.name)
 
   def __str__(self):
     return unicode(self).encode('utf-8')
@@ -328,7 +337,7 @@ class ArtistInfo(EmbeddedDocument):
   headliner  = BooleanField(required = True, default = False)
   start_time = StringField()
   artist_id  = ObjectIdField()
-  
+
   def __str__(self):
     return unicode(self).encode('utf-8')
 
@@ -342,6 +351,7 @@ class ParseMeta(EmbeddedDocument):
 class Show(Document):
   title            = StringField()
   artists          = ListField(EmbeddedDocumentField(ArtistInfo))
+  artist_ids       = ListField(ObjectIdField(), default = lambda: [])
 
   date             = DateTimeField(required = True)
   show_time        = DateTimeField()
@@ -364,6 +374,12 @@ class Show(Document):
   images           = DictField(default = lambda: {}, required = True)
 
   creation_date    = DateTimeField(required = True, default = lambda: datetime.now())
+  
+  def slug(self):
+    if self.title:
+      return slugify(self.title)
+    else:
+      return slugify(self.artists[0].name)
 
   @property
   def id_str(self):

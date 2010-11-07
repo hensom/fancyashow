@@ -6,69 +6,40 @@
 		<div class="preview"{% if show.images.polaroid.url %} style="background-image: url('{{ show.images.polaroid.url }}');"{% endif %}></div>
 		
 		<div class="summary">
-			<h2>{% if show.title %}
+			<h2>{% singleline %}{% if show.title %}
          {{ show.title }}
        {% else %}
          {{ show.artists.0.name }}
        {% endif %}
-			</h2>
+      {% endsingleline %}</h2>
 
+      {% if show.artists|length > 1 %}
 			<ul class="with">
+				{% spaceless %}
 				{% for a in show.artists %}
 					{% if not forloop.first %}
+					  {% singleline %}
 					  <li{% if p.headliner %} class="headliner"{% endif %}>
+
               {% if forloop.counter == 2 %}
               w/
               {% endif %}
 					    {{ a.name }}
 					  </li>
+						{% endsingleline %}
 					{% endif %}
 				{% endfor %}
+				{% endspaceless %}
 			</ul>
-
-			<span class="venue">
-				{{ show.venue.name }}
-			</span>
-			<span class="on">on</span>
-			<span class="date">{{ show.date|date:"D, M d" }}</span>
-		</div>
-		
-		<div class="details">
-			<ul>
-			{% if show.title %}
-			  <li>{{ show.title }}</li>
-			{% else %}
-				{% for artist in show.artists %}
-				<li>{{ artist.name }}
-					{% if artist.start_time %}
-					<span class="start-time">{{ artist.start_time }}</span>
-					{% endif %}
-					{% artist_profiles artist artist_map %}
-				</li>
-				{% endfor %}
 			{% endif %}
-			</ul>
 
-			<div class="venue">
-				{{ show.venue.name }}
-				<div class="time">
-				{% if show.show_time and show.door_time %}
-				  Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
-				{% else %}
-				  {% if show.show_time %}Show: {{ show.show_time|date:"P" }}{% endif %}
-				  {% if show.door_time %}Door: {{ show.door_time|date:"P" }}{% endif %}
-				{% endif %}
-				</div>
-				<ul class="options">
-					{% venue_options show venue_map %}
-				</ul>
-			</div>
-
-			<a class="close" title="close-details">close details</a>
+			<span class="venue">{{ show.venue.name }}</span>
+			<span class="on">on</span>
+			<time datetime="{{ show.date|date:"F" }}">{{ show.date|date:"D, M d" }}</time>
 		</div>
 		<div class="actions">
 			<ul>
-				<li class="more-info">More Info</li>
+				<li><a href="{% show_url show %}">Details</a></li>
 			</ul>
 		</div>
 	</li>

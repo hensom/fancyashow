@@ -1,6 +1,8 @@
+import re
 import urllib
 from datetime import datetime, timedelta
 from django   import template
+from django.template          import Node
 from django.core.urlresolvers import reverse
 from django.conf              import settings
 
@@ -19,6 +21,43 @@ def css_url(path):
 @register.simple_tag
 def js_url(path):
   return static_url('js', path)  
+  
+@register.simple_tag
+def show_url(show):
+  kwargs = {
+    'venue':  show.venue.slug(),
+    'year':   show.date.year,
+    'month':  show.date.month,
+    'day':    show.date.day,
+    'artist': show.slug()
+  }
+  return reverse('show-details', kwargs = kwargs)
+  
+VIDEO_IMPL = {
+  'youtube': '<iframe title="%(title)s" class="youtube-player" type="text/html" width="%(width)s" height="%(height)s" src="http://www.youtube.com/embed/%(media_id)s?rel=0&showinfo=1" frameborder="0"></iframe>',
+  'vimeo':   '<iframe title ="%(title)s" src="http://player.vimeo.com/video/%(media_id)s?portrait=0&amp;color=ff9933" width="%(width)s" height="%(height)s" frameborder="0"></iframe>'  
+}
+  
+@register.simple_tag
+def artist_video(artist, width = 380, height = 255):
+  end   = datetime.today()
+  start = end - timedelta(days = 30)
+  
+  videos = [(v, v.stats.stats_over(start, end)) for v in artist.videos]
+
+  videos.sort(key = lambda i: i[1].number_of_plays, reverse = True)
+
+  for video, stats in videos:
+    if video.system_id in VIDEO_IMPL:
+      context = {
+        'title':    urllib.quote(video.title),
+        'width':    width,
+        'height':   height,
+        'media_id': video.media_id
+      }
+      return VIDEO_IMPL[video.system_id] % context
+    
+  return ''
 
 @register.inclusion_tag('fancy_main/templatetags/show_list.html')
 def show_list(shows, artist_map, venue_map):
@@ -63,7 +102,7 @@ def nav(venues, venue = None, chosen_day = None, period = None):
 
     venue_info = {
       'name':          v.name,
-      'show_list_url': reverse('shows-at-venue', kwargs = {'venue': v.normalized_name})
+      'show_list_url': reverse('shows-at-venue', kwargs = {'venue': v.slug})
     }
 
     venues_by_city_map[v.city].append(venue_info)
@@ -104,3 +143,34 @@ def nav(venues, venue = None, chosen_day = None, period = None):
     this_week.append({'date': week_day, 'show_list_url': show_url})
 
   return {'days': days, 'venues_by_city': venues_by_city, 'venue': venue, 'this_week': this_week, 'period': period}
+
+NEWLINE_RE = re.compile('\n')
+SPACE_RE   = re.compile('\s+')
+
+class SingleLineNode(Node):
+  def __init__(self, nodelist):
+    self.nodelist = nodelist
+
+  def render(self, context):
+    s = self.nodelist.render(context).strip()
+
+    s = NEWLINE_RE.sub(' ', s)
+
+    return SPACE_RE.sub(' ', s)
+
+class AttributeNode(SingleLineNode):
+  def render(self, context):
+    return super(AttributeNode, self).render(context).replace('"', '\\"')
+
+@register.tag
+def singleline(parser, token):
+    nodelist = parser.parse(('endsingleline',))
+    parser.delete_first_token()
+
+    return SingleLineNode(nodelist)
+
+@register.tag
+def attribute(parser, token):
+    nodelist = parser.parse(('endattribute',))
+    parser.delete_first_token()
+    return AttributeNode(nodelist)
