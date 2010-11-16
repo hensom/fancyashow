@@ -3,6 +3,7 @@ import urllib2
 import re
 import lxml.html
 from lxml import etree
+from fancyashow.util              import parsing
 
 logger = logging.getLogger(__name__)
 
@@ -69,16 +70,16 @@ class MySpacePlaylist:
 
 class MySpaceProfile:  
   def __init__(self, profile_id):
-    profile_link = 'http://www.myspace.com/' + profile_id
     
     self.name = None
     
-    logger.debug('Fetching profile page: %s' % profile_link)
+    logger.debug('Fetching profile: %s' % profile_id)
     
-    html = urllib2.urlopen(profile_link).read()
-    
-    doc  = lxml.html.document_fromstring(html)
-    
+    version, html, doc = self._fetch_profile(profile_id)
+
+    self.doc     = doc
+    self.version = version
+
     for title in doc.iter(tag = 'title'):
       logger.debug('Fetching profile name from: %s' % title.text_content())
       match = NAME_RE.match(title.text_content())
@@ -111,9 +112,53 @@ class MySpaceProfile:
       
       if playlist_match:
         self.playlist_id = int(playlist_match.group(1))
-        
+
+  def _fetch_and_parse(self, url):
+    html = urllib2.urlopen(url).read()
+    
+    doc  = lxml.html.document_fromstring(html)
+
+    return html, doc
+
+  def _fetch_profile(self, profile_id):
+    profile_link = 'http://www.myspace.com/' + profile_id
+
+    logger.debug('Fetching profile page: %s' % profile_link)
+
+    html, doc = self._fetch_and_parse(profile_link)
+
+    body = parsing.get_first_element(doc, 'body')
+
+    if 'layout_0_1' in body.get('class'):
+      logger.debug('%s is v1 profile' % profile_id)
+
+      friend_id = FRIEND_ID_RE.search(html)
+
+      if not friend_id:
+        raise Exception("Unable to determine friend id for v1 myspace profile: %s" % profile_id)
+
+      classic_profile_link = 'http://www.myspace.com/%s/classic' % friend_id.group(1)
+
+      logger.debug('Fetching classic profile page: %s' % classic_profile_link)
+
+      new_html, new_doc = self._fetch_and_parse(classic_profile_link)
+
+      return (1, new_html, new_doc)
+    elif 'layout_0_2' in body.get('class'):
+      return (2, html, doc)
+    else:
+      raise Exception('Unable to determine myspace profile version: %s' % profile_id)
+
+      logger.debug('%s is v2 profile' % profile.profile_id)
+
   def get_name(self):
     return self.name
+
+  def get_profile_doc(self):
+    return self.doc
+
+  def get_profile_version(self):
+    return self.version
 
   def is_music_artist( self ):
     if None != self.artist_id:
