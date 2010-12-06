@@ -19,7 +19,9 @@ def get_or_create_artist(name):
     }
   }
   
-  return Artist.objects.get_or_create(**query)
+  artist, created = Artist.objects.get_or_create(**query)
+
+  return artist
 
 def _artists(show):
   artist_map = { }
