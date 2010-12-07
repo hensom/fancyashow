@@ -32,13 +32,22 @@
 	{% endblock %}
   </head>
   <body>
-	  <header>
-		  <hgroup class="wrapper">
-			  <h1><a href="{% url root %}">{{ SITE_NAME }}</a></h1>
-				<h2>{{ SITE_TAGLINE }}</h2>
-			</hgroup>
-		</header>
-		{% block nav %}{% endblock %}
+	  <div class="wrapper">
+		  <header id="site-header">
+			  <hgroup>
+				  <h1><a href="{% url root %}">{{ SITE_NAME }}</a></h1>
+					<h2>{{ SITE_TAGLINE }}</h2>
+				</hgroup>
+
+				{% block nav %}
+				<nav>
+					<ul>
+						<li><a href="{% url shows %}">Shows</a></li>
+						<li><a href="{% url venues %}">Venues</a></li>
+					</ul>
+				</nav>
+				{% endblock %}
+			</header>
 
   	{% block content %}{% endblock %}
 
@@ -55,5 +64,6 @@
 			  })();
 			</script>
 		{% endif %}
+		</div>
   </body>
 </html>

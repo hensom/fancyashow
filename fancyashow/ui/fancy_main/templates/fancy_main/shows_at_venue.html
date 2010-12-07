@@ -3,18 +3,14 @@
 {% load show_util %}
 
 {% block title %}
- {% if day %}
-	 {{ venue.name }} ({{ day|date }})
- {% else %}
-	 Upcoming Shows at {{ venue.name }}
-	{% endif %}
+  {% show_list_title show_context %}
 {% endblock %}
 
 {% block head %}
   {{ block.super }}
 
 	<meta name="description" content="{% attribute %}
-	  Upcoming Shows at {{ venue.name }}:
+		{% show_list_title show_context %}:
 
   {% for show in shows %}
     {% if forloop.counter < 6 %}
@@ -24,48 +20,45 @@
         {{ show.artists.0.name }}
       {% endif %}
 
-      on {{ show.date|date:"D, M d" }}{% if forloop.counter != 5 %}, {% endif %}
+      at {{ show.venue.name }}{% if forloop.counter != 5 %}, {% endif %}
     {% endif %}
   {% endfor %}
 	{% endattribute %}" />
 {% endblock %}
 
-{% block nav %}
-	{% venue_nav venues venue %}
-{% endblock %}
-
 {% block content %}
-
-<section id="shows"{% if day %}class="for-date"{% endif %}>
-  <div class="wrapper">
-	  <h1>
-		 {% if day %}
-			 {{ venue.name }} ({{ day|date:"D, M d" }})
-		 {% else %}
-			 {{ venue.name }}
-			{% endif %}
-		</h1>
+<article class="show-list">
+	<header>
+		<h1>{% show_list_title show_context %}</h1>
+	</header>
 	
-		{% show_list shows artist_map venue_map %}
+	<section id="shows">
+		<header>
+		  <h1>Shows</h1>
+		</header>
+	
+		{% if shows %}
+		<ul{% if show_context.multiday %}class=""{% endif %}>
+			{% for show in shows %}
+			  <li>{% show_featured_listing show %}</li>
+			{% endfor %}
+		</ul>
+		{% else %}
+		  Looks like we're in the dark here. :(
+		{% endif %}
+	</section>
 
-		<nav id="display-controls">
-			<a id="prev" href="#prev">&lt;</a>
-			<a id="state" href="#state">Show All</a>
-			<a id="next" href="#next">&gt;</a>
-		</nav>
-  </div>
- </section>
-
-<section id="artists">
-  <div class="wrapper">
-	  <h1>
-			Who's Playing
-		</h1>
+	<section id="artists">
+		<header>
+		  <h1>
+				Artists
+			</h1>
+		</header>
 		<ul>
 		{% for info in artists %}
-			<li{% if info.artist.rank > hot_ranking %} class="hot"{% endif %} data-rank="{{ info.artist.rank }}" data-shows="{% for show in info.shows %}{{ show.id_str }}{% if not forloop.last %},{% endif %}{% endfor %}"><a href="#{{ info.artist.url_name }}">{{ info.artist.name }}</a></li>
+			<li><a href="{% show_url info.shows.0 %}">{{ info.artist.name }}</a></li>
 		{% endfor %}
 		</ul>
-  </div>
-</section>
+	</section>
+</article>
 {% endblock %}

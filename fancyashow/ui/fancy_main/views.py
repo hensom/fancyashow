@@ -1,39 +1,31 @@
 from django.conf                      import settings
-from django.http                      import HttpResponseRedirect, HttpResponse, HttpResponseServerError
+from django.http                      import HttpResponseRedirect, HttpResponse, HttpResponseServerError, Http404
 from django.shortcuts                 import render_to_response
 from django.core.urlresolvers         import reverse
 from django.template                  import RequestContext
 from datetime                         import datetime, timedelta
-from fancyashow.db.models             import Show, Artist, Venue
+from fancyashow.db.models             import Show, Artist, Venue, City
 from fancyashow.ui.fancy_main.filters import ShowDateFilter, ShowDateRangeFilter, VenueFilter
-
+from fancyashow.ui.fancy_main.context import ShowContext, InvalidContextFilter
 def root(request):
   today = datetime.today()
   
-  return shows_by_date(request, today.year, today.month, today.day)
-
-def shows_by_date(request, year, month, day):
-  requested_day  = datetime(int(year), int(month), int(day))
-  prev_day       = requested_day - timedelta(days = 1)
-  next_day       = requested_day + timedelta(days = 1)
-
-  prev_day_url   = reverse('shows-by-date', kwargs = {'year': prev_day.year, 'month': prev_day.month, 'day': prev_day.day})
-  next_day_url   = reverse('shows-by-date', kwargs = {'year': next_day.year, 'month': next_day.month, 'day': next_day.day})
-
-  date_filter    = ShowDateFilter(requested_day)
-  shows          = list(date_filter.apply(Show.objects).order_by('-rank'))
+  return shows(request, today.year, today.month, today.day)
+  
+def shows(request, year = None, month = None, day = None, period = None, city = None, neighborhood = None, venue = None):
+  show_context = None
+  
+  try:
+    show_context = ShowContext.from_request(year, month, day, period, city, neighborhood, venue)
+  except InvalidContextFilter, e:
+    raise Http404
 
   context = {
-    'day':          requested_day,
-    'period':       None,
-    'prev_day':     prev_day,
-    'next_day':     next_day,
-    'prev_day_url': prev_day_url,
-    'next_day_url': next_day_url
+    'show_context': show_context
   }
-  
-  return show_list(request, shows, 'fancy_main/shows_on_date.html', context)
-  
+
+  return show_list(request, show_context.shows, 'fancy_main/shows_on_date.html', context)
+
 def show_list(request, shows, template, context):
   today    = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
   tomorrow = today + timedelta(days = 1)
@@ -76,46 +68,20 @@ def show_list(request, shows, template, context):
 
   return render_to_response(template, RequestContext(request, context))
   
-def shows_by_venue(request, venue):
+def shows_at_venue(request, venue):
   venue = Venue.objects.get(slug = venue)
   
-  today = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
-  
-  filters = (
-    ShowDateFilter(today, method = 'gte'),
-    VenueFilter(venue)
-  )
+  start = datetime.today()
+  end   = start + timedelta(days = 60)
 
-  shows = Show.objects()
+  show_context = ShowContext(start, end, venue = venue)
 
-  for f in filters:
-    shows = f.apply(shows)
-    
-  shows = list(shows.order_by('date').limit(60))
+  shows = list(show_context.shows)
 
-  return show_list(request, shows, 'fancy_main/shows_at_venue.html', {'venue': venue})
-  
-def shows_this_weekend(request):
-  start = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
-  
-  # 4, 5, 6 - Fri, Sat, Sun
-  if start.weekday() not in (4, 5, 6):
-    start += timedelta(4 - start.weekday())
-    
-  end = start + timedelta(days = 6 - start.weekday())
-  
-  range_filter = ShowDateRangeFilter(start, end)
-  
-  shows        = list(range_filter.apply(Show.objects).order_by('-rank'))
-  
-  context = {
-    'day':          None,
-    'period':       'this-weekend',
-    'period_label': 'This Weekend'
-  }
+  shows.sort(key = lambda s: s.date)
 
-  return show_list(request, shows, 'fancy_main/shows_on_date.html', context)
-
+  return show_list(request, shows, 'fancy_main/shows_at_venue.html', {'show_context': show_context})
+  
 def show_details(request, venue, year, month, day, artist):
   venue = Venue.objects.get(slug = venue)
   day   = datetime(int(year), int(month), int(day))
@@ -167,3 +133,36 @@ def show_details(request, venue, year, month, day, artist):
   }
 
   return render_to_response('fancy_main/show_details.html', RequestContext(request, context))
+
+def venues(request):
+  neighborhood_map = { }
+
+  for v in Venue.objects.order_by('name'):
+    key = (v.city, v.neighborhood)
+
+    if key not in neighborhood_map:
+      neighborhood_map[key] = []
+
+    neighborhood_map[key].append(v)
+
+  cities = [ ]
+
+  for city in City.objects():
+    city_info = {
+      'city':          city,
+      'neighborhoods': []
+    }
+
+    cities.append(city_info)
+
+    for neighborhood in city.neighborhoods:
+      city_info['neighborhoods'].append({
+        'neighborhood': neighborhood,
+        'venues':       neighborhood_map.get( (city.slug, neighborhood.slug), [])
+      })
+
+  context = {
+    'cities': cities
+  }
+
+  return render_to_response('fancy_main/venues.html', RequestContext(request, context))

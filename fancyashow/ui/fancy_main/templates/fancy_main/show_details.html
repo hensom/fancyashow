@@ -37,99 +37,91 @@
 		- {{ show.date|date:"D, M d" }}
 {% endblock %}
 
-{% block nav %}
-	{% day_nav venues '' '' %}
-{% endblock %}
-
 {% block content %}
 
-<section id="show-info">
-  <div class="wrapper">
-    <div id="bands">
-      <h1>{% singleline %}{% if show.title %}
-         {{ show.title }}
-       {% else %}
-         {{ show.artists.0.name }}
-       {% endif %}
-      {% endsingleline %}</h1>
-
-      <ul class="with">{% spaceless %}
-        {% for a in show.artists %}
-          {% if not forloop.first %}
-            <li{% if p.headliner %} class="headliner"{% endif %}>{{ a.name }}</li>
-          {% endif %}
-        {% endfor %}
-      {% endspaceless %}</ul>
-    </div>
-
-    <img id="show-image" src="{{ show.images.polaroid.url }}" />
-
-    <div id="venue">
-      <h1> {{ venue.name }}</h1>
-      <div class="address"><a href="http://maps.google.com/?q={{ venue.address }}">{{ venue.address }}</a></div>
-
-      <time datetime="{{ show.date|date:"F" }}">
-	    {{ show.date|date:"D, M d" }}<br />
-      {% if show.show_time and show.door_time %}
-          Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
+<article class="show-details">
+	<header>
+		<div>
+			<h1>{% singleline %}{% if show.title %}
+        {{ show.title }}
       {% else %}
-        {% if show.show_time %}Show: {{ show.show_time|date:"P" }}{% endif %}
-        {% if show.door_time %}Door: {{ show.door_time|date:"P" }}{% endif %}
+        {{ show.artists.0.name }}
       {% endif %}
-      </time>
+     {% endsingleline %}</h1>
 
-      {% if show.url %}
-      <div class="details">
-        <a href="{{ show.url }}">Details on Site</a>
-      </div>
-      {% endif %}
-    </div>
+     {% spaceless %}
+       {% for a in show.artists %}
+         {% if forloop.counter == 0 and show.title %}
+         
+           <li>{{ a.name }}
+				    <span class="start-time">
+				    {% if artist.info.start_time %}
+				      {{ artist.info.start_time }}
+				    {% endif %}
+				    </span>
+					</li>
+         {% endif %}
+       {% endfor %}
+     {% endspaceless %}</ul>
 
-    <img id="map" src="http://maps.google.com/maps/api/staticmap?sensor=false&size=300x170&center={{ venue.address }}&markers=size:medium|{{ venue.address }}&style=saturation:-100" />
-  </div>
+    <time datetime="{{ show.date|date:"F" }}">
+    {{ show.date|date:"D, M d" }}
+     {% if show.show_time and show.door_time %}
+         - Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
+     {% else %}
+       {% if show.show_time %} - Show: {{ show.show_time|date:"P" }}{% endif %}
+       {% if show.door_time %} - Door: {{ show.door_time|date:"P" }}{% endif %}
+     {% endif %}
+     </time>
+   </div>
+   <div>
+     <h1>{{ venue.name }}</h1>
+     <div class="address"><a href="http://maps.google.com/?q={{ venue.address }}">{{ venue.address }}</a></div>
+
+     {% if show.url %}
+     <div class="details">
+       <a href="{{ show.url }}">Details on Site</a>
+     </div>
+     {% endif %}
+   </div>
+	</header>
 </section>
 
 <section id="show-details">
-  <div class="wrapper">
-    <ul class="artists">
-    {% for artist in artists %}
-      <li>
-        <h2>{{ artist.info.name }}</h2>
+   <ul class="artists">
+   {% for artist in artists %}
+     <li>
+       <h2>{{ artist.info.name }}</h2>
 
-		    <span class="start-time">
-		    {% if artist.info.start_time %}
-		      @{{ artist.info.start_time }}
-		    {% endif %}
-		    </span>
-
-	    {% if artist.artist %}
-        <ul class="profiles">
-        {% for profile in artist.artist.profiles %}
-          <li><a href="{{ profile.url }}">{{ profile.system_id }}</a></li>
-        {% endfor %}
-        </ul>
-
-         <div class="media">
-         {% if artist.artist.videos %}
-				 	{% artist_video artist.artist %}
-         {% endif %}
-	       </div>
-       {% endif %}
-
-       {% if artist.shows %}
-       <ul class="other-shows">
-         <li>Also Playing:</li>
-	        {% for show in artist.shows %}
-		        {% if forloop.counter0 < 3 %}
-         <li><a href="{% show_url show %}">{{ show.venue.name }} on {{ show.date|date:"D, M d" }}</a></li>
-						{% endif %}
-	        {% endfor %}
+    {% if artist.artist %}
+       <ul class="profiles">
+       {% for profile in artist.artist.profiles %}
+         <li><a href="{{ profile.url }}">{{ profile.system_id }}</a></li>
+       {% endfor %}
        </ul>
-	    {% endif %}
-			</li>
-  {% endfor %}
-    </ul>
-  </div>
+
+        <div class="media">
+        {% if artist.artist.videos %}
+			 	{% artist_video artist.artist %}
+        {% endif %}
+       </div>
+      {% endif %}
+
+      {% if artist.shows %}
+      <ul class="other-shows">
+        <li>Also Playing:</li>
+        {% for show in artist.shows %}
+	        {% if forloop.counter0 < 3 %}
+        <li><a href="{% show_url show %}">{{ show.venue.name }} on {{ show.date|date:"D, M d" }}</a></li>
+					{% endif %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+		</li>
+ {% endfor %}
+   </ul>
 </section>
+
+</article>
 
 {% endblock %}

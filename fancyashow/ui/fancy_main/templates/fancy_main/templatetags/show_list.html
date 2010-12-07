@@ -1,9 +1,9 @@
 {% load show_util %}
 
-<ul class="shows">
-{% for show in shows %}
+<ul class="shows featured">
+{% for show in featured_shows %}
 	<li id="show-{{ show.id }}" class="show" data-id="{{ show.id }}" data-date="{{ show.date|date:"Y-m-d"}}" data-rank="{{ show.rank|floatformat:2 }}">
-		<div class="preview"{% if show.images.polaroid.url %} style="background-image: url('{{ show.images.polaroid.url }}');"{% endif %}></div>
+		<div class="preview"{% if show.images.featured.url %} style="background-image: url('{{ show.images.featured.url }}');"{% endif %}></div>
 		
 		<div class="summary">
 			<h2>{% singleline %}{% if show.title %}
@@ -45,5 +45,47 @@
 	</li>
 {% empty %}
   <div class="empty">Bummer, no shows found.</div>
+{% endfor %}
+</ul>
+
+<h1>Lineup</h1>
+
+<ul class="shows other">
+{% for show in other_shows %}
+<li id="show-{{ show.id }}" class="show-info" data-id="{{ show.id }}" data-date="{{ show.date|date:"Y-m-d"}}" data-rank="{{ show.rank|floatformat:2 }}">
+	<a href="{% show_url show %}">
+	<div class="preview"{% if show.images.info.url %} style="background-image: url('{{ show.images.info.url }}');"{% endif %}></div>
+	<div class="summary">
+		<h2>{% singleline %}{% if show.title %}
+       {{ show.title }}
+     {% else %}
+       {{ show.artists.0.name }}
+     {% endif %}
+    {% endsingleline %}
+</h2>
+
+    {% if show.artists|length > 1 %}
+		<ul class="with">
+			{% spaceless %}
+			{% for a in show.artists %}
+				{% if not forloop.first %}
+				  {% singleline %}
+				  <li{% if p.headliner %} class="headliner"{% endif %}>
+
+            {% if forloop.counter == 2 %}
+            w/
+            {% endif %}
+				    {{ a.name }}
+				  </li>
+					{% endsingleline %}
+				{% endif %}
+			{% endfor %}
+			{% endspaceless %}
+		</ul>
+		{% endif %}
+	</div>
+	<span class="venue">@ {{ show.venue.name }}</span>
+	</a>
+</li>
 {% endfor %}
 </ul>

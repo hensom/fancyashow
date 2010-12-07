@@ -1,19 +1,25 @@
 import re
 import logging
-from optparse                    import make_option
-from decimal                     import Decimal
-from django.core.management.base import BaseCommand
-from django.conf                 import settings
+from optparse                       import make_option
+from decimal                        import Decimal
+from django.core.management.base    import BaseCommand
+from django.conf                    import settings
+from django.template.defaultfilters import slugify
 
-from fancyashow.db.models import Venue
+from fancyashow.db.models import Venue, City, Neighborhood
 from fancyashow.util.csv  import CSVParser
 from fancyashow.util.lang import normalize
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
-          make_option('--file',
+         make_option('--cities',
               action='store',
-              dest='file',
+              dest='cities',
+              default=None,
+              help='Load cities and neighborhoods from this file'),
+          make_option('--venues',
+              action='store',
+              dest='venues',
               default=None,
               help='Load venues from this file'),
           make_option('--debug',
@@ -30,15 +36,47 @@ class Command(BaseCommand):
         logger.setLevel(level = logging.DEBUG)
       else:
         logger.setLevel(level = logging.WARNING)
-        
-      venue_file = options.get('file')
       
+      self.load_cities(options.get('cities'))
+
+      self.load_venues(options.get('venues'))
+      
+    def load_cities(self, city_file):
+      parser = CSVParser(city_file)
+
+      City.objects().delete()
+      
+      city_map = { }
+
+      for record in parser:
+        city, city_slug = record.get('city'), record.get('city slug')
+
+        if city_slug not in city_map:
+          city_map[city_slug] = {
+            'city':          City(name = city, slug = city_slug),
+            'neighborhoods': { }
+          }
+          
+        city_map[city_slug]['neighborhoods'][record.get('neighborhood slug')] = record.get('neighborhood')
+        
+      for city_info in city_map.values():
+        city = city_info['city']
+        
+        neighborhoods = [Neighborhood(name = name, slug = slug) for slug, name in city_info['neighborhoods'].iteritems()]
+
+        neighborhoods.sort(key = lambda n: n.name)
+        
+        city.neighborhoods = neighborhoods
+        
+        city.save()
+      
+    def load_venues(self, venue_file):      
       parser = CSVParser(venue_file)
       
       Venue.objects().delete()
 
       for record in parser:
-        copy_over = ('name', 'url', 'address', 'city')
+        copy_over = ('name', 'url', 'address', 'city', 'neighborhood')
         
         #if record.get('lat') and record.get('long'):
         #  v_map['geo'] = GeoPoint(lat = float(record.get('lat')), long = float(record.get('long')))

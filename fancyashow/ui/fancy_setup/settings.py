@@ -94,7 +94,7 @@ INSTALLED_APPS = (
 GOOGLE_ANALYTICS_ACCOUNT = None
 PARSE_STAT_MAX_HISTORY   = 5
 
-RESOURCE_VERSION = 2
+RESOURCE_VERSION = 3
 STATIC_BASE_URL  = '/static'
 
 import sys
@@ -106,4 +106,5 @@ LOG_FORMAT   = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_FILE     = sys.stderr
 
 SITE_NAME    = 'Fancy a Show?'
-SITE_TAGLINE = 'Live Music Shows in New York City'
+SITE_TAGLINE = 'Live Music Shows in NYC'
+DEFAULT_LOCATION_NAME = 'NYC'

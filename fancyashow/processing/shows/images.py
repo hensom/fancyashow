@@ -253,7 +253,7 @@ class ImageMagickImageProcessor(TransformImageBase):
     
     return file_name, final_file
 
-class PolaroidImageProcessor(ImageMagickImageProcessor):
+class FeaturedImageProcessor(ImageMagickImageProcessor):
   def image_magick_command(self):
     #'-channel', 'R', '-fx', '0.854*u^2+0.537*u',
     #'-channel', 'G', '-fx', '-0.799*u^3+1.066*u^2+0.734*u',
@@ -261,11 +261,11 @@ class PolaroidImageProcessor(ImageMagickImageProcessor):
     return ('-normalize', '-contrast', '-modulate', '100,120,100')
     
   def image_type(self):
-    return 'polaroid'
+    return 'featured'
 
   @classmethod    
   def id(self):
-    return 'polaroid-image'
+    return 'featured-image'
     
 extensions.register_show_processor(DownloadImageProcessor)
-extensions.register_show_processor(PolaroidImageProcessor)
+extensions.register_show_processor(FeaturedImageProcessor)

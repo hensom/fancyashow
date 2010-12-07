@@ -29,7 +29,13 @@ var FancyUI = null;
  	    
  	    this._columnizeLists();
  	     
- 	    this.closeVenuePanel(true);
+ 	    this.closeFilterPanel(true);
+ 	    
+ 	    this.shows.filter('.show-featured').each(function(showEl) {
+ 	      var show = $(showEl);
+ 	      
+ 	      show.css('position', 'absolute');
+ 	    });
       
       //this._initSettings();
       this._initDisplayCompat();
@@ -65,14 +71,16 @@ var FancyUI = null;
     },
     
     _columnizeLists: function() {
-      var baseWidth = 162;
-      var columns   = parseInt($('#main-nav .wrapper').outerWidth() / baseWidth);
+      var baseWidth = 152;
+      var columns   = parseInt($('#main-nav').outerWidth() / baseWidth);
+      
+      console.log($('#main-nav').outerWidth());
       
       if(columns % 2 != 0) {
         columns--;
       }
 
-      $('#artists ul').columnizeList({cols: columns, width: baseWidth, unit:'px'});
+//      $('#artists ul').columnizeList({cols: columns, width: baseWidth, unit:'px'});
       $('#venue-list ul').each(function() {
 	      $(this).columnizeList({cols: columns, width: baseWidth, unit:'px'});
  	    });      
@@ -287,21 +295,21 @@ var FancyUI = null;
         ui._columnizeLists();
       });
       
-      $('#venue-chooser a').bind('click', function(ev) {
+      $('.show-list header').bind('click', function(ev) {
         ev.preventDefault();
         
-        if(ui.venuePanelIsOpen) {
-          ui.closeVenuePanel();
+        if(ui.filterPanelIsOpen) {
+          ui.closeFilterPanel();
         } else {
-          ui.openVenuePanel();
+          ui.openFilterPanel();
         }
       });
       
-      this.shows.delegate('li.show', 'mouseenter', function(ev) {
+      this.shows.delegate('.show-feautured', 'mouseenter', function(ev) {
         $(this).addClass('mouse-over');
       });
       
-      this.shows.delegate('li.show', 'mouseleave', function(ev) {
+      this.shows.delegate('.show-featured', 'mouseleave', function(ev) {
         $(this).removeClass('mouse-over');
       });
 
@@ -340,44 +348,22 @@ var FancyUI = null;
         
         show.removeClass('details-shown');
       });
-
-      this.artists.delegate('a', 'click', function(ev) {
-        ev.preventDefault();
-
-        var artist_info = $(this).parents('li').first();
-        
-        var showIds     = artist_info.get(0).getAttribute('data-shows').split(',');
-        
-        ui.showSelected(showIds);
-        
-        ui.clearArtistSelection();
-        
-        artist_info.addClass('selected');
-      });
     },
     
-    openVenuePanel: function() {
-      $('#venue-chooser').addClass('active');
+    openFilterPanel: function() {
+      $('.show-list nav').slideDown();
 
-      $('#venue-nav').slideDown();
-      
-      // We need to redo the columns here in case the window
-      // was resized while we were hidden
-      this._columnizeLists();
-      
-      this.venuePanelIsOpen = true;
+      this.filterPanelIsOpen = true;
     },
     
-    closeVenuePanel: function(instant) {
+    closeFilterPanel: function(instant) {
       if(instant) {
-        $('#venue-nav').css('display', 'none');
+        $('.show-list nav').css('display', 'none');
       } else {
-        $('#venue-nav').slideUp(function() {
-          $('#venue-chooser').removeClass('active');
-        });        
+        $('.show-list nav').slideUp();
       }
 
-      this.venuePanelIsOpen = false;
+      this.filterPanelIsOpen = false;
     },    
     
     setCurrentShow: function(showId) {

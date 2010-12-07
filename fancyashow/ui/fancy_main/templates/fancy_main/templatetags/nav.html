@@ -1,42 +1,17 @@
-<nav id="main-nav">
-  <div class="wrapper">
-	  <h1>Navigation</h1>
-		<ul>
-			{% for choice in days %}
-			<li{% if choice.classes %} class="{{ choice.classes }}"{% endif %}><a href="{{ choice.url }}">{{ choice.label }}</a></li>
-			{% endfor %}
-			<li id="venue-chooser"{% if venue %} class="chosen"{% endif %}>
-				<a href="#venues">Location:
-					{% if venue %}
-					  {{ venue.name }}
-					{% else %}
-					  Anywhere
-					{% endif %}
-					<span id="venue-chooser-close">x</span>
-				</a>
-			</li>
-		</ul>
-  </div>
-</nav>
-<nav id="venue-nav">
-	<div class="wrapper">
-	  <h1>Venues</h1>
-		<dl id="venue-list">
-			{% for group in venues_by_city %}
-			<dt>{{ group.city }}</dt>
-			<dd>
-				<ul>
-					{% for venue in group.venues %}
-					  <li><a href="{{ venue.show_list_url }}">{{ venue.name }}</a></li>
-					{% endfor %}
-				</ul>
-			</dd>			
-			{% endfor %}
-		</dl>
-		{% if venue %}
-		<div id="venue-anywhere">
-			<a href="{% url root %}" id="#">See Shows At All Venues</a>
-		</div>
-		{% endif %}
-	</div>
-</nav>
+<div>
+	<h2>When:</h2>
+	<ul>
+	{% for choice in days %}<li{% if choice.classes %} class="{{ choice.classes }}"{% endif %}><a href="{{ choice.url }}">{{ choice.label }}</a></li>{% endfor %}
+	</ul>	
+</div>
+
+{% for city in cities %}
+<div>
+	<h2><a href="{{ city.set_url }}">{{ city.name }}:</a></h2>
+  <ul>
+  {% for neighborhood in city.neighborhoods %}
+    <li><a href="{{ neighborhood.set_url }}">{{ neighborhood.name }}</a></li>
+  {% endfor %}
+  </ul>
+</div>
+{% endfor %}

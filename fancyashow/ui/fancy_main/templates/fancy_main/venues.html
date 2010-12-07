@@ -1,0 +1,30 @@
+{% extends "fancy_main/root.html" %}
+
+{% load show_util %}
+
+{% block title %}
+  Venues
+{% endblock %}
+
+{% block content %}
+<article class="venue-list">
+	<header>
+		<h1>Venues</h1>
+	</header>
+
+  {% for city_info in cities %}
+  <h2>{{ city_info.city.name }}</h2>
+    {% for neighborhood_info in city_info.neighborhoods %}
+      <h3>{{ neighborhood_info.neighborhood.name }}</h3>
+        <ul>
+      {% for venue in neighborhood_info.venues %}
+          <li>
+            <a href="{% url shows-at-venue venue.slug %}">{{ venue.name }}</a>
+          </li>
+      {% endfor %}
+        </ul>
+    {% endfor %}
+  {% endfor %}
+</article>
+
+{% endblock %}

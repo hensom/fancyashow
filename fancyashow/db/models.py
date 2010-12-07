@@ -300,13 +300,23 @@ class Artist(Document):
 
   def add_video(self, video):
     return self.add_or_update_video(video, update = False)
-  
+
+class Neighborhood(EmbeddedDocument):
+  name = StringField(required = True)
+  slug = StringField(required = True, unique = True)
+
+class City(Document):
+  name          = StringField(required = True)
+  slug          = StringField(required = True, unique = True)
+  neighborhoods = ListField(EmbeddedDocumentField(Neighborhood), default = lambda: [])
+
 class Venue(Document):
   name            = StringField(required = True)
   slug            = StringField(required = True, unique = True)
   url             = URLField()
   address         = StringField()
   city            = StringField()
+  neighborhood    = StringField()
 
   def __str__(self):
     return unicode(self).encode('utf-8')

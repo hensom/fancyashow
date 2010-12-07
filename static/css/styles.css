@@ -1,8 +1,8 @@
 html {
   font-family: 'Droid Sans Pro', 'Arial Rounded Bold', Arial;
   font-size:   12px;
-  line-height: 15px;
-  background-color: #f1f1f1;
+  line-height: 1.3em;
+  background-color: white;
   color:            black;
 }
 
@@ -11,14 +11,18 @@ html {
   padding: 0;
 }
 
-body {
-  padding: 0px;
-  margin:  0px;
-  background-color: white;
+ul {
+  margin:  0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  list-style: none;
 }
 
 /* Needed to give a default styling in IE */
-header, nav, section {
+header, hgroup, nav, section {
   display: block;
 }
 
@@ -33,206 +37,51 @@ a {
 }
 
 a:hover {
-  text-decoration: underline;
-}
-
-h1 {
-  font-size:      24px;
-  color:          #111;
-  text-transform: uppercase;
-  margin-top:     0.5em;
-  margin-bottom:  0.5em;
-}
-
-h2 {
-  font-size: 18px;
+  background-color: black;
+  color:            white;
 }
 
 /* Wrapper */
 .wrapper {
   margin-left:  auto;
   margin-right: auto;
-  width:        978px;
-  position: relative;
-}
-
-header {
-  background: #333;
-  border-bottom: 1px solid #444;
-  padding: 0 0.5em;
-}
-
-header a {
-  color: white;
-}
-
-header a:hover {
-  text-decoration: none;
-}
-
-header hgroup {
-  padding-top: 1em;
-  padding-bottom: 0.5em;
-  padding-left:   10px;
-}
-
-header h1 {
-  color:   white;
-  display: inline;
-}
-
-header h2 {
-  color:     white;
-  display:   inline;
-  font-size: 10px;
-  margin-left: 2em;
-}
-
-/* Navigation */
-#main-nav {
-  background: #333;
-}
-
-#main-nav .wrapper > ul > li {
-  display:    inline;
-  width:      10em;
-  text-align: left;
-}
-
-#main-nav .wrapper > ul > li.active {
-  background-color: #4e4e4e;
-}
-
-#main-nav,
-#main-nav a,
-#venue-nav,
-#venue-nav a {
-  color: white;
-  font-size: 14px;
-}
-
-#main-nav a {
-  display: inline-block;
-  padding: 0.75em 0.5em;
-  text-decoration: none;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-#venue-chooser a {
-  padding-left:     1em;
-  padding-right:    1em;  
-}
-
-#main-nav .chosen a {
-  color: #dcc08e;
-}
-
-#main-nav a:hover {
-  color: #dcc08e;
-}
-
-#main-nav li.prev,
-#main-nav li.next {
-  width: 1em;
-}
-
-#main-nav li.future {
-  text-align: center;
-}
-
-#main-nav #venue-chooser {
-  width: auto;
-  position: absolute;
-  right:    0px;
-}
-
-#venue-chooser:hover #venue-chooser-close {
-  text-decoration: underline;
-}
-
-#venue-chooser-close {
-  color:     #eee;
-  font-size: 0.7em;
-  position:  relative;
-  top:       -0.2em;
-  visibility: hidden;
-}
-
-#venue-chooser.active #venue-chooser-close {
-  visibility: visible;
-}
-
-#venue-nav {
-  background:     #4e4e4e;
-  padding: 0;
-  margin:  0;
-  border:  0;
-}
-
-#venue-anywhere {
-  padding:    10px;
-  text-align: right;
-}
-
-#venue-anywhere a {
-  font-size:  12px;
-}
-
-#venue-nav dl {
-  margin-left: 0.75em;
-}
-
-#venue-nav ul {
-  margin-left: 1em;
-}
-
-#venue-list {
-  padding-top:    10px;
-  padding-bottom: 20px;
-}
-
-#venue-list dt {
-  font-size:   14px;
-  color:       white;
-  font-weight: bold;
-  text-transform:  uppercase;
-  padding-top:     0.5em;
-  padding-bottom:  0.5em;
-}
-
-#venue-list dd ul li {
-  width:        152px; 
-  margin-left:  5px;
-  margin-right: 5px;
-  overflow:      hidden;
-  text-overflow: ellipsis;
-  white-space:   nowrap;
-}
-
-#venue-list dd a {
-  font-size: 12px;
-  text-transform: none;
+  width:        650px;
+  position:     relative;
 }
 
 /* Shows */
+#shows {
+  height:   100%;
+  overflow: hidden;
+}
+.show-featured {
+  float:         left;
+  display:       block;
+  margin:        10px;
+  margin-bottom: 25px;
+  font-weight:   bold;
+  position:      relative;
+  background:    black;
+  border-radius: 4px;  
+  -moz-border-radius: 4px;
+}
 
-.show > * {
+.show-featured > * {
   -webkit-transition: opacity 0.25s linear;
   -moz-transition:    opacity 0.25s linear;
   -o-transition:      opacity 0.25s linear;
 }
 
-.show a {
+.show-featured a {
   color: #f1f1f1;
 }
 
-.show > div {
+.show-featured > div {
   width:    300px;
   height:   170px;
 }
 
-.show .preview {
+.show-featured .preview {
   border:   2px solid black;
   overflow: hidden;
   background-color: black;
@@ -243,58 +92,11 @@ header h2 {
   border-radius:      3px;
 }
 
-ul {
-  margin:  0;
-  padding: 0;
-}
-
-li {
-  margin: 0;
-  list-style: none;
-}
-
-#display-controls {
-  text-align:      right;
-  font-size:       11px;
-  padding:         10px 20px;
-}
-
-#display-controls a {
-  text-decoration: none;
-  padding:         0.5em;
-  border-radius:   4px;
-  color:           #666;
-}
-
-#display-controls a:hover {
-  text-decoration:  underline;
-  cursor:           pointer;
-}
-
-.shows {
-  height:   430px;
-  overflow: hidden;
-  position: relative;
-}
-
-.show {
-  float:       left;
-  display:     block;
-  margin:      10px;
-  margin-bottom: 30px;
-  font-weight: bold;
-  position:    relative;
-}
-
-.show .summary .venue {
-  font-size: 13px;
-}
-
-.show .summary {
+.show-featured .summary {
   height: 100%;
 }
 
-.show .summary h2 {
+.show-featured .summary h2 {
   position:    absolute;
   top:        0px;
   left:       0px;
@@ -304,7 +106,8 @@ li {
   text-shadow: 1px 1px 3px black;
 }
 
-.show .summary .venue {
+.show-featured .summary .venue {
+ font-size: 13px;
  position:   absolute;
  right:      0px;
  bottom:     0px;
@@ -314,225 +117,109 @@ li {
  text-shadow: 1px 1px 3px black;
 }
 
-.show .summary .with {
-  color:   #ccc;
+.show-featured .summary .with {
+  color: #666;
   font-weight: normal;
   position: absolute;
   bottom:   -30px;
   left:     0px;
   padding:  10px;
-  text-shadow: 1px 1px 3px black;
   overflow: hidden;
   width: 210px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.for-date .show .summary .with {
+.single-date .show-featured .with {
   width: 280px;
 }
 
-.show .summary time {
+.single-date .show-featured time {
+  display: none;
+}
+
+.show-featured .summary time {
   position: absolute;
   bottom:   -20px;
   right:    0px;
   width:    70px;
-  color:    black;
+  color: #666;
   font-weight: normal;
   padding-right: 12px;
   text-align: right;
 }
 
-.show .summary .with li {
+.show-featured .summary .with li {
   display:     inline;
 }
 
-.show .summary .with li:after {
+.show-featured .summary .with li:after {
   content: '\25cf';
 }
 
-.show .summary .with li:last-child:after {
+.show-featured .summary .with li:last-child:after {
   content: '';
 }
 
-.actions {
-  position: absolute;
-  top:      80px;
-  width:    100%;
-  opacity:  0;
-  -webkit-transition: opacity 0.25s linear;
-}
-
-.show.mouse-over .actions {
-  opacity: 1;
-}
-
-.actions ul {
-  width:  30%;
-  margin: 0px auto;
-}
-
-.actions li {
-  background-color: rgb(78, 150, 199, 0.75);
-  background-color: rgba(78, 150, 199, 0.75);
-  background-color: #9A1D0D;
-  color: white;
-  -moz-border-radius: 6px;
-  border-radius:      6px;
-  text-align: center;
-  padding: 6px;
-  cursor: pointer;
-}
-
-.actions li + li {
-  margin-left: 2px transparent;
-}
-
-.show {
-  background: black;
-  border-radius: 4px;
-}
-
-#artists {
-  position: relative;
-}
-
-#artists li {
-  display:      block;
-  width:        152px; 
-  margin-left:  5px;
-  margin-right: 5px;
-}
-
-#artists a {
-  text-decoration: none;
-}
-
-#artists a:hover {
-  text-decoration: underline;
-}
-
-#shows,
-#show {
-  clear:          both;
-  padding-top:    15px;
-  padding-bottom: 25px;
-}
-
-#shows header {
-  background-color: white;
-  border:   0px;
-  position: relative;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-#shows header h1 {
-  padding-left: 8px;
-  color: black;
-}
-
-#shows #prev-day {
-  position: absolute;
-  left:     -10px;
-  top:      -3px;
-  font-size: 18px;
-  color:     black;
-}
-
-#shows #next-day {
-  position: absolute;
-  top:      -3px;
-  font-size: 18px;
-  color:     black;
-}
-
-#shows #date-nav {
-}
-
-#shows .wrapper h1 a {
-  color: #333;
-}
-
-.header {
-  background: none;
-}
-
-.header li {
-  background: none;
-}
-
-#shows.all #prev,
-#shows.all #next,
-#shows.selected #prev,
-#shows.selected #next {
-  display: none;
-}
-
-#artists {
-  padding-bottom: 100px;
-}
-
-.preview {
+.show-featured .preview {
   border: 2px solid rgba(0, 0, 0, 1);
   -webkit-box-shadow: none;
 }
 
-.show .summary {
+.show-featured .preview a {
+  display: block;
+  width:   100%;
+  height:  100%;
+}
+
+.show-featured .preview a:hover {
+  background: none;
+}
+
+.show-featured .summary {
   color: white;
 }
 
-.show .summary .with {
-  color:       black;
-  text-shadow: none;
-}
-
-#artists-sep {
+.show-featured .on {
   display: none;
 }
 
+/* Artist Lists */
 #artists {
-  background-color: #f1f1f1;
-}
-
-#artists a {
-  color: #333;
-  font-size: 13px;
-  text-shadow: none;
-}
-
-#artists h1 {
-  text-transform: uppercase;
-  position:       relative;
-  top:           -1em;
-}
-
-#artists .hot {
-  font-weight: bold;
+  clear:      both;
+  text-align: center;
+  border-top: 1px solid black;
+  padding:    10px;
+  margin-top: 20px;
 }
 
 #artists li {
-  border-radius: 4px;
-  padding: 2px 10px;
-  font-size: 13px;
-  line-height: 19px;
-  line-height: 1em;
-  text-shadow: black 1px 1px 1px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: inline;
+  width:   auto;
 }
 
 #artists li a {
-  padding: 0px;
+  display: inline;
+  width:   auto;
 }
 
-#shows.for-date time {
-  display: none;
+#artists li:after {
+  content: ' / ';
 }
 
-.show .on {
-  display: none;
+#artists li:last-child:after {
+  content: '';
+}
+
+/* Show Details */
+.show-details h1 {
+  text-align:  left;
+  padding-left: 0;
+  padding-top:  5px;
+}
+
+.show-details .address {
+  text-align: left;
 }
 
 .artists h2 {
@@ -541,12 +228,16 @@ li {
 }
 
 .artists > li {
+  display:    block;
   position:   relative;
-  height:     340px;
-  width:      400px;
-  float:      left;
-  overflow:   hidden;
-  margin:     15px;
+  margin-bottom: 20px;
+  height:        100%;
+}
+
+.artists > li:after {
+  content: "";
+  clear:   both;
+  display: block;
 }
 
 .artists .profiles {
@@ -571,6 +262,7 @@ li {
 }
 
 .artists .other-shows {
+  display: none;
   border-top: 1px solid #666;
   width: 100%;
   position: absolute;
@@ -598,9 +290,14 @@ li {
   font-weight: bold;
 }
 
-.artists .media {
-  margin: 1em;
+.artists .media iframe {
+  margin:     1em;
   margin-top: 2em;
+  float:      left;
+}
+
+.artists > li {
+  clear: both;
 }
 
 #show {
@@ -619,13 +316,12 @@ li {
   color: white;
 }
 
-#show-info .show {
+#show-info .show-featured {
   float: none;
 }
 
 #show-details {
-  margin: 10px;
-  margin-top: 50px;
+  margin-top: 40px;
 }
 
 #show-info .venue-details {
@@ -704,65 +400,178 @@ li {
   right:    10px;
 }
 
-@media (max-width: 977px) {
-  .wrapper {
-    width: 652px;
-  }
-
-  #show-info {
-    height: 340px;
-  }
-
-  #show-image {
-    right: 0px;
-    left:  auto;
-  }
-
-  #venue {
-    top:   170px;
-    right: 0px;
-    left:  auto;
-  }
-
-  #map {
-    display: none;
-  }
-
-  .artists > li {
-    float: none;
-    margin: 0px auto;
-  }
+.show-detailed-link{
+  height:  auto;
 }
 
-@media (min-width: 978px) and (max-width: 1303px) {
-  .wrapper {
-    width: 978px;
-  }
-
-  #map {
-    display: none;
-  }
-
-  #venue {
-    right: 0px;
-    top:   0px;
-  }
+.show-detailed-link .summary,
+.show-detailed-link h2,
+.show-detailed-link ul {
+  display: inline;
 }
 
-@media (min-width: 1304px) and (max-width: 1629px) {
-  .wrapper {
-    width: 1304px;
-  }
+.show-detailed-link .venue {
+  font-weight: normal;
 }
 
-@media (min-width: 1630px) and (max-width: 1955px) {
-  .wrapper {
-    width: 1630;
-  }
+.show-detailed-link .with li {
+  display: inline;
 }
 
-@media (min-width: 1956px) {
-  .wrapper {
-    width: 1956px;
-  }
+.show-detailed-link .with {
+  height:   1.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.other {
+  margin: 0px auto;
+}
+
+#shows header {
+  display: none;
+}
+
+#shows {
+  margin-top:  20px;
+  clear:       both;
+}
+
+#shows header,
+#artists header {
+  display: none;
+}
+
+/* Site Header */
+#site-header {
+  text-transform: uppercase;
+  position:       relative;
+  border-bottom:  1px solid black;
+}
+
+#site-header hgroup {
+  padding-top:    1em;
+  padding-bottom: 4px;
+  border-bottom:  2px solid black;
+  margin-bottom:  2px;
+}
+
+#site-header h1 {
+  display:     inline;
+  font-weight: normal;
+  font-size:   1em;
+}
+
+#site-header h2 {
+  display: none;
+}
+
+#site-header nav {
+  position: absolute;
+  right:    0px;
+  bottom:   8px;
+  
+}
+
+#site-header ul li {
+  display: inline;
+}
+
+/* Page Header */
+article header {
+  text-align:    center;
+  border-bottom: 1px solid black;
+}
+
+article header h1 {
+  padding: 0.5em;
+}
+
+/* Suppress the Headers for the First Level of Filters */
+.show-list header:hover {
+  cursor: pointer;
+  background-color: black;
+  color: white;
+}
+
+.show-list nav {
+  display: none;
+}
+
+.show-list nav h2 {
+  font-weight: bold;
+  font-size:   1em;
+}
+
+.show-list nav {
+  padding: 10px;
+  border-bottom: 1px solid black;
+  height: 100%;
+  overflow: hidden;
+}
+
+.show-list nav div {
+  float: left;
+  width: 32%;
+}
+
+.show-list nav ul {
+  padding-left: 1em;
+}
+
+.show-list nav {
+  display: block;
+  height:  100px;
+}
+
+#shows {
+  clear: both;
+}
+
+.show-details header {
+  background-color: black;
+  color: white;
+  overflow: hidden;
+}
+
+.show-details header a {
+  color: white;
+}
+
+.show-details header a:hover {
+  background-color: white;
+  color: black;
+}
+
+.show-details header > div {
+  float:    left;
+  position: relative;
+  width:    300px;
+  height:   100px;
+  padding:  10px;
+}
+
+.show-details header time,
+.show-details header .details {
+  position: absolute;
+  bottom:   10px;
+  left:     10px;
+}
+
+/* Venue List */
+.venue-list header {
+  margin-bottom: 20px;
+}
+
+.venue-list h2 {
+  padding: 0.5em 0;
+}
+
+.venue-list h3 {
+  margin-left: 20px;
+  padding: 0.5em 0;
+}
+
+.venue-list ul {
+  margin-left: 40px;
 }

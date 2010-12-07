@@ -5,6 +5,7 @@ from django   import template
 from django.template          import Node
 from django.core.urlresolvers import reverse
 from django.conf              import settings
+from fancyashow.db.models     import Venue, City
 
 register = template.Library()
 
@@ -39,29 +40,43 @@ VIDEO_IMPL = {
 }
   
 @register.simple_tag
-def artist_video(artist, width = 380, height = 255):
+def artist_video(artist, width = 300, height = 200, number = 2):
   end   = datetime.today()
   start = end - timedelta(days = 30)
   
   videos = [(v, v.stats.stats_over(start, end)) for v in artist.videos]
 
   videos.sort(key = lambda i: i[1].number_of_plays, reverse = True)
+  
+  ret = []
 
   for video, stats in videos:
-    if video.system_id in VIDEO_IMPL:
+    if video.system_id in VIDEO_IMPL and len(ret) < number:
       context = {
         'title':    urllib.quote(video.title),
         'width':    width,
         'height':   height,
         'media_id': video.media_id
       }
-      return VIDEO_IMPL[video.system_id] % context
+
+      ret.append(VIDEO_IMPL[video.system_id] % context)
     
-  return ''
+  return ''.join(ret)
+  
+@register.inclusion_tag('fancy_main/templatetags/show_featured_listing.html')
+def show_featured_listing(show):
+  return {'show': show}
+  
+@register.inclusion_tag('fancy_main/templatetags/show_detailed_link.html')
+def show_detailed_link(show):
+  return {'show': show}
 
 @register.inclusion_tag('fancy_main/templatetags/show_list.html')
 def show_list(shows, artist_map, venue_map):
-  return {'shows': shows, 'artist_map': artist_map, 'venue_map': venue_map}
+  featured_shows = shows[:9]
+  other_shows    = shows[9:]
+  
+  return {'shows': shows, 'artist_map': artist_map, 'venue_map': venue_map, 'featured_shows': featured_shows, 'other_shows': other_shows }
   
 @register.inclusion_tag('fancy_main/templatetags/artist_profiles.html')
 def artist_profiles(artist_info, artist_map):
@@ -79,70 +94,94 @@ def venue_options(show, venue_map):
   venue = venue_map.get(show.venue.url)
 
   return {'show': show, 'venue': venue}
+  
+  
+@register.inclusion_tag('fancy_main/templatetags/title.html')
+def show_list_title(show_context):
+  return {'show_context': show_context}
 
 @register.inclusion_tag('fancy_main/templatetags/nav.html')
-def day_nav(venues, day, period):
-  return nav(venues, chosen_day = day, period = period)
-
-@register.inclusion_tag('fancy_main/templatetags/nav.html')
-def venue_nav(venues, venue):
-  return nav(venues, venue = venue)
-
-def nav(venues, venue = None, chosen_day = None, period = None):
+def show_list_nav(show_context):
   today    = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
   tomorrow = today + timedelta(days = 1)
   
-  venues_by_city_map = { }
-  
-  venues.sort(key = lambda v: v.name)
-  
-  for v in venues:
-    if v.city not in venues_by_city_map:
-      venues_by_city_map[v.city] = []
-
-    venue_info = {
-      'name':          v.name,
-      'show_list_url': reverse('shows-at-venue', kwargs = {'venue': v.slug})
+  if show_context.multiday:
+    date_type  = '-during-period'
+    date_args = {
+      'period': show_context.period
     }
-
-    venues_by_city_map[v.city].append(venue_info)
+  else:
+    date_type  = '-on-date'
+    date_args = {
+      'year':  show_context.start_date.year,
+      'month': show_context.start_date.month,
+      'day':   show_context.start_date.day
+    }
     
-  venues_by_city = [{'city': city, 'venues': venues} for city, venues in venues_by_city_map.iteritems()]
+  if show_context.location:
+    if show_context.location.get('neighborhood'):
+      location_type = '-in-neighborhood'
+      location_args = {
+        'city':         show_context.location.get('city').slug,
+        'neighborhood': show_context.location.get('neighborhood').slug
+      }
+    else:
+      location_type = '-in-city'
+      location_args = {
+        'city': show_context.location.get('city').slug
+      }
+  else:
+    location_type = ''
+    location_args = {}
+    
+  cities = []
   
-  venues_by_city.sort(key = lambda g: g['city'])
+  for city in City.objects.order_by('name'):
+    city_args = date_args.copy()
+    city_args['city'] = city.slug
+
+    city_info = {    
+      'name':          city.name,
+      'set_url':       reverse('shows-in-city%s' % date_type, kwargs = city_args),
+      'neighborhoods': []
+    }
+    
+    for n in city.neighborhoods:
+      neighborhood_args = date_args.copy()
+      neighborhood_args.update({'city': city.slug, 'neighborhood': n.slug})
+
+      city_info['neighborhoods'].append({
+        'name':    n.name,
+        'set_url': reverse('shows-in-neighborhood%s' % date_type, kwargs = neighborhood_args)
+      })
+
+    city_info['neighborhoods'].sort(key = lambda n: n['name'])
+    
+    cities.append(city_info)
 
   def choice(day, label = None, classes = ''):
     if not label:
       label = day.strftime('%a, %b %d')
       
-    if day and chosen_day == day:
-      classes += ' chosen'
-
-    return {'url': reverse('shows-by-date', kwargs = {'year': day.year, 'month': day.month, 'day': day.day}), 'classes': classes.strip(), 'label': label}
-
-  days = [ choice(today, 'Tonight'), choice(tomorrow, 'Tomorrow') ]
-
-  weekend = {'label': 'This Weekend', 'url': reverse('shows-this-weekend')}
-  
-  if period == 'this-weekend':
-    weekend['classes'] = 'chosen'
-
-  days.append(weekend)
+    date_args = location_args.copy()
     
-  this_week = []
-  
-  sunday = today
-  
-  while sunday.weekday() != 0:
-    sunday -= timedelta(days = 1)
-  
-  for i in xrange(0, 6):
-    week_day = sunday + timedelta(days = i)
-    show_url = reverse('shows-by-date', kwargs = {'year': week_day.year, 'month': week_day.month, 'day': week_day.day})
+    date_args.update({'year': day.year, 'month': day.month, 'day': day.day})
 
-    this_week.append({'date': week_day, 'show_list_url': show_url})
+    return {'url': reverse('shows%s-on-date' % location_type, kwargs = date_args), 'classes': classes.strip(), 'label': label}
+    
+  days = [ choice(today, 'Tonight'), choice(tomorrow, 'Tomorrow') ]
+    
+  for period_slug, period_name in show_context.supported_periods():
+    period_args = location_args.copy()
+    period_args.update({'period': period_slug})
 
-  return {'days': days, 'venues_by_city': venues_by_city, 'venue': venue, 'this_week': this_week, 'period': period}
+    period = {
+      'label': period_name, 'url': reverse('shows%s-during-period' % location_type, kwargs = period_args)
+    }
+
+    days.append(period)
+
+  return {'days': days, 'cities': cities, 'show_context': show_context}
 
 NEWLINE_RE = re.compile('\n')
 SPACE_RE   = re.compile('\s+')
