@@ -122,16 +122,18 @@ class MyspaceProfileParser(ArtistProfileParser):
     return profile.system_id == SYSTEM_ID
 
   def parse(self, artist, profile):
-    doc  = parsing.fetch_and_parse('http://www.myspace.com/%s' % profile.profile_id)
+    msp_profile  = api.MySpaceProfile(profile.profile_id)
+
+    doc = msp_profile.get_profile_doc()
     body = parsing.get_first_element(doc, 'body')
     
     self._resolve_offsite_links(doc)
 
-    if parsing.has_class(body, 'profileV1'):
+    if msp_profile.get_profile_version() == 1:
       logger.debug('%s is v1 profile' % profile.profile_id)
 
       return self._parse_v1(doc)
-    elif 'layout_0_2' in body.get('class'):
+    elif msp_profile.get_profile_version() == 2:
       logger.debug('%s is v2 profile' % profile.profile_id)
 
       return self._parse_v2(doc)
