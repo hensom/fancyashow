@@ -13,9 +13,12 @@
 	</header>
 
   {% for city_info in cities %}
-  <h2>{{ city_info.city.name }}</h2>
+	<section>
+		<header>
+		  <h1>{{ city_info.city.name }}</h1>
+		</header>
     {% for neighborhood_info in city_info.neighborhoods %}
-      <h3>{{ neighborhood_info.neighborhood.name }}</h3>
+      <h2>{{ neighborhood_info.neighborhood.name }}</h2>
         <ul>
       {% for venue in neighborhood_info.venues %}
           <li>
@@ -24,6 +27,7 @@
       {% endfor %}
         </ul>
     {% endfor %}
+  </section>
   {% endfor %}
 </article>
 

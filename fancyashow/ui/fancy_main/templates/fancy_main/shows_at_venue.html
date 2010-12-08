@@ -32,14 +32,32 @@
 		<h1>{% show_list_title show_context %}</h1>
 	</header>
 	
-	<section id="shows">
+	<section>
 		<header>
-		  <h1>Shows</h1>
+		  <h1>Featured Shows</h1>
 		</header>
 	
-		{% if shows %}
+		{% if	shows_by_rank %}
+		<ul>
+			{% for show in shows_by_rank %}
+			  {% if forloop.counter0 < 6 %}
+			  <li>{% show_featured_listing show %}</li>
+			  {% endif %}
+			{% endfor %}
+		</ul>
+		{% else %}
+		  Looks like we're in the dark here. :(
+		{% endif %}
+	</section>
+	
+	<section>
+		<header>
+		  <h1>Calendar</h1>
+		</header>
+	
+		{% if shows_by_date %}
 		<ul{% if show_context.multiday %}class=""{% endif %}>
-			{% for show in shows %}
+			{% for show in shows_by_date %}
 			  <li>{% show_featured_listing show %}</li>
 			{% endfor %}
 		</ul>

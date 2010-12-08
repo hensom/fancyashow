@@ -79,8 +79,20 @@ def shows_at_venue(request, venue):
   shows = list(show_context.shows)
 
   shows.sort(key = lambda s: s.date)
+  
+  shows_by_rank = list(shows)
+  shows_by_rank.sort(key = lambda s: s.rank)
+  
+  shows_by_date = list(shows)
+  shows_by_date.sort(key = lambda s: s.date)
+  
+  context = {
+    'show_context':  show_context,
+    'shows_by_rank': shows_by_rank,
+    'shows_by_date': shows_by_date
+  }
 
-  return show_list(request, shows, 'fancy_main/shows_at_venue.html', {'show_context': show_context})
+  return show_list(request, shows, 'fancy_main/shows_at_venue.html', context)
   
 def show_details(request, venue, year, month, day, artist):
   venue = Venue.objects.get(slug = venue)

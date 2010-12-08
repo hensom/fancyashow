@@ -36,15 +36,35 @@
 		{% show_list_nav show_context %}
 	</nav>
 	
-	<section id="shows">
+	<section>
 		<header>
-		  <h1>Shows</h1>
+		  <h1>Featured Shows</h1>
 		</header>
 		
 		{% if shows %}
-		<ul{% if not show_contex.multiday %} class="single-date"{% endif %}>
+		<ul{% if not show_context.multiday %} class="single-date"{% endif %}>
 			{% for show in shows %}
+			{% if forloop.counter0 < 4 %}
 			  <li>{% show_featured_listing show %}</li>
+			{% endif %}
+			{% endfor %}
+		</ul>
+		{% else %}
+		  Looks like we're in the dark here. :(
+		{% endif %}
+	</section>
+	
+	<section>
+		<header>
+		  <h1>Lineup</h1>
+		</header>
+		
+		{% if shows %}
+		<ul{% if not show_context.multiday %} class="single-date"{% endif %}>
+			{% for show in shows %}
+				{% if forloop.counter0 > 4 %}
+			  <li>{% show_featured_listing show %}</li>
+				{% endif %}
 			{% endfor %}
 		</ul>
 		{% else %}
