@@ -496,7 +496,7 @@ def show_edit(request, show_id):
   
   for a in artist_map.values():
     for m in a.media:
-      plays_per_day = m.stats.stats_last_3_days().number_of_plays
+      plays_per_day = m.stats.stats_last_30_days().number_of_plays
       system_stat   = stats.get(m.system_id)
   
       if plays_per_day != None and system_stat:

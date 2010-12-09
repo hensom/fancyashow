@@ -90,6 +90,9 @@ class MediaStats(EmbeddedDocument):
       self.number_of_comments = last_stat.number_of_comments
       self.number_of_likes    = last_stat.number_of_likes
       self.rating             = last_stat.rating
+      
+  def last_sample(self):
+    return self.history[-1]
 
   def sample_range(self, start_date, end_date):
     start = None
@@ -114,9 +117,9 @@ class MediaStats(EmbeddedDocument):
          
     return start, end
     
-  def stats_last_3_days(self):
+  def stats_last_30_days(self):
     today          = datetime.now()
-    three_days_ago = (today - timedelta(days = 2)).replace(hour = 0, minute = 0, second = 0)
+    three_days_ago = (today - timedelta(days = 30)).replace(hour = 0, minute = 0, second = 0)
     
     return self.stats_over(three_days_ago, today)
 
