@@ -20,11 +20,10 @@
 			<tr>
 				<th>Artist</th>
 				<th>Rank</th>
+				<th>M</th>
+				<th>F</th>
+				<th>T</th>
 				<th>Last Month</th>
-				<th>Last Three Days</th>
-				<th>% Diff</th>
-				<th>Yesterday</th>
-				<th>% Diff</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -32,11 +31,10 @@
 			<tr>
 				<td><a href="{% url admin-artist-edit artist_id=info.artist.id_str %}">{{ info.artist.name }}</a></td>
 				<td>{{ info.artist.rank|floatformat:"2" }}</td>
-				<td>{{ info.stats.last_month            }}</td>
-				<td>{{ info.stats.last_three_days       }}</td>
-				<td>{{ info.stats.last_three_days_perc  }}</td>
-				<td>{{ info.stats.yesterday             }}</td>
-				<td>{{ info.stats.yesterday_perc        }}</td>
+				<td>{% if info.profiles.myspace  %}X{% endif %}</td>
+				<td>{% if info.profiles.facebook %}X{% endif %}</td>
+				<td>{% if info.profiles.twitter  %}X{% endif %}</td>
+				<td>{{ info.stats.last_30_days       }}</td>
 			</tr>
 		{% endfor %}
 		</tbody>

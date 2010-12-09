@@ -8,8 +8,11 @@
 		<thead>
   		<tr>
 				<th>Artist</th>
+				<th>M</th>
+				<th>F</th>
+				<th>T</th>
 				<th>Myspace Plays</th>
-				<th>Myspace 3day avg</th>
+				<th>Myspace 30 day avg</th>
 				<th>Youtube Plays</th>
 				<th>Vimeo Plays</th>
 				<th>EchoNest Hotness</th>
@@ -20,7 +23,7 @@
 		<tr>
 			<td>{{ a.name                                  }}</td>
 			<td>{{ a.media_stats.myspace_song.plays_total  }}</td>
-			<td>{{ a.media_stats.myspace_song.plays_avg_3days  }}</td>
+			<td>{{ a.media_stats.myspace_song.plays_avg_30days  }}</td>
 			<td>{{ a.media_stats.youtube_video.plays_total }}</td>
 			<td>{{ a.media_stats.vimeo_video.plays_total   }}</td>
 			<td>{{ a.associations.echonest.hotness         }}</td>

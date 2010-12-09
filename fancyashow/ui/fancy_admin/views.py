@@ -188,16 +188,20 @@ def artists(request):
   
   periods = (
     ('last_30_days',    thirty_days_ago,  yesterday),
-    ('last_three_days', three_days_ago,   yesterday),
-    ('yesterday',       yesterday,        today)
+#    ('last_three_days', three_days_ago,   yesterday),
+#    ('yesterday',       yesterday,        today)
   )
   
   for artist in list(page.object_list):
-    info = { }
+    stats    = { }
+    profiles = { }
     
-    artists.append({'artist': artist, 'stats': info})
+    artists.append({'artist': artist, 'stats': stats, 'profiles': profiles})
     
     last_sum = None
+    
+    for profile in artist.profiles:
+      profiles[profile.system_id] = True
 
     for period, start, end in periods:
       media_info = [a.stats.stats_over(start, end).number_of_plays or 0 for a in artist.audio]
@@ -205,14 +209,14 @@ def artists(request):
       media_info.sort(reverse = True)
   
       if len(media_info[0:3]) > 0:
-        info[period] = sum(media_info[0:3])/len(media_info[0:3])
+        stats[period] = sum(media_info[0:3])/len(media_info[0:3])
       else:
-        info[period] = ''
+        stats[period] = ''
         
       if last_sum and info[period]:
-        info['%s_perc' % period] = int((1.0 * info[period] - last_sum) / last_sum * 100)
+        stats['%s_perc' % period] = int((1.0 * stats[period] - last_sum) / last_sum * 100)
         
-      last_sum = info[period]
+      last_sum = stats[period]
 
   context = {
     'artist_form': artist_form,

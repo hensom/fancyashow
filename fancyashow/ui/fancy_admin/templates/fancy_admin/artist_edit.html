@@ -34,6 +34,43 @@
 				{% endfor %}
 			</ul>
 		</dd>
+		<dt>Media</dt>
+		<dd>
+			<table>
+				<thead>
+					<tr>
+						<th>System Id</th>
+						<th>Media Id</th>
+						<th>Source Id</th>
+						<th>Artist</th>
+						<th>Title</th>
+						<th>Upload Date</th>
+						<th>Play Count</th>
+						<th>Plays per Day</th>
+						<th>Number of Samples</th>
+						<th>Last Sampled</th>
+						<th>Score</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for media in artist.media %}
+					<tr>
+						<td>{{ media.system_id }}</td>
+						<td>{{ media.media_id  }}</td>
+						<td>{{ media.source_id }}</td>
+						<td>{{ media.artist    }}</td>
+						<td>{{ media.title     }}</td>
+						<td>{{ media.upload_date }}</td>
+						<td>{{ media.stats.number_of_plays }}</td>
+						<td>{{ media.stats.stats_last_30_days.number_of_plays }}</td>
+						<td>{{ media.stats.history|length }}</td>
+						<td>{{ media.stats.last_sample.sample_date|date }}</td>
+						<td>{{ media.stats.score|floatformat:2 }}</td>
+					</tr>
+				  {% endfor %}
+				</tbody>
+			</table>
+		</dd>
 		
 		<dt>Processor State</dt>
 		<dd>
