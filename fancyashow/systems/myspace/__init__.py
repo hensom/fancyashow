@@ -170,7 +170,7 @@ class MyspaceProfileParser(ArtistProfileParser):
             
             
     for a in doc.iter(tag = 'a'):
-      logger.error('Found link: %s' % a.get('href'))
+      logger.debug('Found link: %s' % a.get('href'))
 
   def _parse_v1(self, doc):
     to_drop = ('table.friendsComments', 'table.friendSpace', '#footerWarpper', '#header', '#musicJVNav')
