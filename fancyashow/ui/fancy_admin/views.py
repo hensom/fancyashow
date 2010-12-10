@@ -4,6 +4,7 @@ from django.http                import HttpResponseRedirect, HttpResponse, HttpR
 from django.shortcuts           import render_to_response
 from django.utils               import simplejson
 from django.core.urlresolvers   import reverse
+from django.conf                import settings
 from datetime                   import datetime, timedelta
 from fancyashow.processing.common import RESOURCE_HANDLED, RESOURCE_HANDLING_FAILED, RESOURCE_NOT_HANDLED
 from fancyashow.db.models       import Show, VenueInfo, ArtistInfo, Artist, ParserStat, SystemStat, SystemStatInfo, Venue
@@ -255,12 +256,13 @@ def system_stats(request):
       systems[item.system_id] = { }
 
     # Plays are normalized to increments of 20
-    adj_plays = int(item.plays_per_day) / 20 * 20
-    
-    if adj_plays not in systems[item.system_id]:
-      systems[item.system_id][adj_plays] = 0
-      
-    systems[item.system_id][adj_plays] += item.number
+    adj_plays = int(item.plays_per_day) / 5 * 5
+
+    if adj_plays > settings.SAMPLE_MIN_PER_DAY and adj_plays < settings.SAMPLE_MAX_PER_DAY:    
+      if adj_plays not in systems[item.system_id]:
+        systems[item.system_id][adj_plays] = 0
+
+      systems[item.system_id][adj_plays] += item.number
 
   series = []
   

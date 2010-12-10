@@ -186,7 +186,7 @@ function() {
     var audio = this.audio[i];
     var plays = plays_per_day(audio.stats.history);
 
-    if(plays != null) {
+    if(plays != null && (plays > min_sample && plays < max_sample)) {
       emit(audio.system_id + '/' + plays, {'system_id': audio.system_id, 'plays': plays, 'num': 1});
     }
   }
@@ -195,7 +195,7 @@ function() {
     var video = this.videos[i];
     var plays = plays_per_day(video.stats.history);
     
-    if(plays != null) {
+    if(plays != null && (plays > min_sample && plays < max_sample)) {
       emit(video.system_id + '/' + plays, {'system_id': video.system_id, 'plays': plays, 'num': 1});
     }
   }

@@ -13,10 +13,12 @@ from fancyashow.db.models      import Artist, SystemStat, SystemStatInfo
 class Command(BaseCommand):
     def handle(self, **options):
       stats_scope = {
+        'min_sample': settings.SAMPLE_MIN_PER_DAY,
+        'max_sample': settings.SAMPLE_MAX_PER_DAY,
         'start_date': datetime.now().replace(hour = 0, minute = 0, second = 0) - timedelta(days = 30),
         'end_date':   datetime.now().replace(hour = 0, minute = 0, second = 0)
       }
-      
+
       new_stats = Artist.objects.map_reduce(query.system_stats_map, query.system_stats_reduce, scope = stats_scope, keep_temp = False)
 
       SystemStat.objects.delete()

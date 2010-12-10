@@ -171,4 +171,4 @@ def get_name_from_title(url, name_re):
 
       return name
       
-  raise Exception('Unable to determine document name: %s'. url)
+  raise Exception('Unable to determine document name: %s' % url)
