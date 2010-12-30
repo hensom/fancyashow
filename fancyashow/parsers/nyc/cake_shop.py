@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime                     import datetime
+from urllib2                      import HTTPError
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
 from fancyashow.extensions.models import Venue, Performer, Show
 from fancyashow.util              import parsing  as html_util
@@ -13,11 +14,12 @@ extensions = ExtensionLibrary()
 
 class CakeShop(ShowParser):
   BASE_URL     = "http://cake-shop.com/"
+  CALENDAR_RE  = re.compile('%scalendar/' % BASE_URL, re.IGNORECASE)
   DATE_RE      = re.compile("\w+\s+(?P<day>\d+)")
   NUM_RE       = re.compile('^\s*\d+\s*(?:st|nd|rd|th):\s*$', re.IGNORECASE | re.MULTILINE)
   TIME_RE      = re.compile('^\s*(?P<time>\d+(?::\d+)?\s*(?:am|pm))\s*', re.IGNORECASE | re.MULTILINE)
   PRICE_OR_AGE = re.compile('(?:\$\d+|\d+\+)', re.IGNORECASE | re.MULTILINE)
-  MONTHS_AHEAD = 1
+  MONTHS_AHEAD = 3
   
   def __init__(self, *args, **kwargs):
     super(CakeShop, self).__init__(*args, **kwargs)
@@ -40,6 +42,13 @@ class CakeShop(ShowParser):
         return self._current_parser.next()
       except StopIteration:
         self._current_parser = self._next_parser()
+      except HTTPError, e:
+        if e.code == 404 and self.CALENDAR_RE.match(e.url):
+          logger.debug('Unable to fetch calendar url: %s, ending iteration' % e.url)
+
+          raise StopIteration
+        else:
+          raise
     
     raise StopIteration
 
@@ -49,11 +58,13 @@ class CakeShop(ShowParser):
 
     for i in xrange(self.MONTHS_AHEAD):
       month = start.month + i
+      year  = start.year
 
       if month > 12:
         month = month - 12
+        year  = start.year + 1
 
-      ret.append(start.replace(month = month))
+      ret.append(start.replace(month = month, year = year))
       
     return ret
 
@@ -107,17 +118,14 @@ class CakeShop(ShowParser):
             while p_list:
               show_detail, show_time = p_list.pop(0), p_list.pop(0)
 
-              try:
-                show = self._parse_show(show_date, show_detail, show_time)
-                
-                if not (show.door_time or show.show_time):
-                  logger.warning('Unable to determine door or show time for show on %s, discarding' % show_date)
-                elif not (show.title or len(show.performers) > 0):
-                  logger.warning('Unable to determine title or performers for show on %s, discarding' % show_date)
-                else:
-                  yield show                  
-              except Exception, e:
-                raise ParserError(None, show_detail, e)
+              show = self._parse_show(show_date, show_detail, show_time)
+              
+              if not (show.door_time or show.show_time):
+                logger.warning('Unable to determine door or show time for show on %s, discarding' % show_date)
+              elif not (show.title or len(show.performers) > 0):
+                logger.warning('Unable to determine title or performers for show on %s, discarding' % show_date)
+              else:
+                yield show
           
   def _parse_show(self, show_date, show_detail, show_time):
     show = Show()
