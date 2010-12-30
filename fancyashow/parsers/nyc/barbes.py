@@ -10,6 +10,8 @@ from fancyashow.util              import lang     as lang_util
 
 extensions = ExtensionLibrary()
 
+logger = logging.getLogger(__name__)
+
 class Barbes(ShowParser):
   BASE_URL     = "http://www.barbesbrooklyn.com/"
   CALENDAR_URL = "http://www.barbesbrooklyn.com/calendar.html"
@@ -41,20 +43,17 @@ class Barbes(ShowParser):
       
       date_txt = tds[0].text_content().strip()
       
-      logging.debug('Checking if td el is a show: %s' % date_txt)
+      logger.debug('Checking if td el is a show: %s' % date_txt)
       
       if self.DATE_RE.match(date_txt):
-        try:
-          show = self._parse_show(tds)
-          
-          show_date = show[0].date()
-          
-          if show_date not in by_date:
-            by_date[show_date] = []
+        show = self._parse_show(tds)
+        
+        show_date = show[0].date()
+        
+        if show_date not in by_date:
+          by_date[show_date] = []
 
-          by_date[show_date].append(show)
-        except Exception, e:
-          raise ParserError(None, tr, e)
+        by_date[show_date].append(show)
           
     for date, performers in by_date.iteritems():
       performers.sort(lambda x,y: cmp(y[0], x[0]))
@@ -90,7 +89,7 @@ class Barbes(ShowParser):
     if time_match:
       time_txt = time_match.group('time')
     else:
-      raise Exception('Unable to determine time for show: %s - %s - %s' % (date_text, time.text_content(), info.text_content()))
+      raise Exception('Unable to determine time for show: %s - %s - %s' % (date_txt, time.text_content(), info.text_content()))
       
     performers = []
 
