@@ -1,4 +1,5 @@
 import re
+import logging
 from datetime                     import datetime, timedelta
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
 from fancyashow.extensions.models import Venue, Performer, Show
@@ -8,16 +9,20 @@ from fancyashow.util              import lang     as lang_util
 
 extensions = ExtensionLibrary()
 
+logger = logging.getLogger(__name__)
+
 class BellHouse(ShowParser):
   BASE_URL     = "http://www.thebellhouseny.com/"
   CALENDAR_URL = "http://www.thebellhouseny.com/calendar.php"
   DATE_RE      = re.compile("\w+ (?P<month>\d+)/(?P<day>\d+):")
-  TIME_RE      = re.compile(':\s+(?P<time>\d+(?:\s*:\s*\d+)?\s*[ap]m)\s*', re.IGNORECASE)
+  TIME_RE      = re.compile(':\s+(?P<time>\d+(?:\s*:\s*\d+)?\s*[ap]\.?m\.?)\s*', re.IGNORECASE)
   
   def __init__(self, *args, **kwargs):
     super(BellHouse, self).__init__(*args, **kwargs)
     
-    self._parser = None
+    self._parser    = None
+    self.prev_month = None
+    self.year       = datetime.now().year
   
   def next(self):
     if not self._parser:
@@ -36,10 +41,7 @@ class BellHouse(ShowParser):
     main_section = doc.get_element_by_id("col-main")
 
     for event_detail in main_section.cssselect("#bellhouse"):
-      try:
-        yield self._parse_show(self.CALENDAR_URL, event_detail, today)
-      except Exception, e:
-        raise ParserError(self.CALENDAR_URL, event_detail, e)
+      yield self._parse_show(self.CALENDAR_URL, event_detail, today)
 
   def _parse_show(self, show_url, event_detail, today):
     show = Show()
@@ -67,10 +69,19 @@ class BellHouse(ShowParser):
 
     if date_match and time_match:
       month, day = (int(d) for d in (date_match.group('month'), date_match.group('day')))
+
+      # Handle cases where we pass from one year to the next
+      logger.debug('Testing for year boundary: last month: %s, current month: %s' % (self.prev_month, month))
+
+      if self.prev_month > month:
+        logger.debug('Increasing date by one year to account for passing the boundary')
+        self.year += 1
+        
+      self.prev_month = month
       
-      date_txt = today.replace(month = month, day = day).strftime('%F')
+      show_date = datetime(month = month, day = day, year = self.year)
       
-      show.show_time = date_util.parse_date_and_time(date_txt, time_match.group('time'))
+      show.show_time = date_util.parse_date_and_time(show_date.strftime('%F'), time_match.group('time'))
 
     show.resources.resource_uris = self.resource_extractor.extract_resources(event_detail)
 
