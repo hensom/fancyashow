@@ -17,7 +17,7 @@ class Coco66(ShowParser):
   EVENT_ID     = re.compile('id=(\d+)')
   # Allows for 2009-09-01, Monday, October 11th, 2010, or Tonight
   HEADER_PARSE = re.compile('(?P<date>(?:\d+-\d+-\d+)|(?:\w+\s+\d+/\d+)|(\w+,\s+\w+\s+\d+\w+,\s+\d+)|(?:tonight))\s*-\s*(?P<title>.*)', re.I)
-  MONTHS_AHEAD = 1
+  MONTHS_AHEAD = 3
   
   def __init__(self, *args, **kwargs):
     super(Coco66, self).__init__(*args, **kwargs)
@@ -50,11 +50,13 @@ class Coco66(ShowParser):
 
     for i in xrange(self.MONTHS_AHEAD):
       month = start.month + i
+      year  = start.year
 
       if month > 12:
         month = month - 12
+        year  += 1
 
-      ret.append(start.replace(month = month))
+      ret.append(start.replace(month = month, year = year))
       
     return ret
     
