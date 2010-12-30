@@ -1,4 +1,5 @@
 import re
+from datetime                     import datetime
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
 from fancyashow.extensions.models import Venue, Performer, Show
 from fancyashow.util              import parsing  as html_util
@@ -15,7 +16,9 @@ class Southpaw(ShowParser):
   def __init__(self, *args, **kwargs):
     super(Southpaw, self).__init__(*args, **kwargs)
     
-    self._parser = None
+    self._parser    = None
+    self.prev_month = None
+    self.year       = datetime.now().year
     
   def next(self):
     if not self._parser:
@@ -37,6 +40,15 @@ class Southpaw(ShowParser):
 
     date_txt     = html_util.get_first_element(event_detail, 'strong').text
     time_txt     = event_detail.text_content()
+    
+    date_obj     = date_util.parse_date_time(date_txt)
+    
+    if self.prev_month > date_obj.month:
+      self.year += 1
+      
+    self.prev_month = date_obj.month
+
+    date_obj = date_obj.replace(year = self.year)
 
     show = Show()
 
@@ -44,8 +56,8 @@ class Southpaw(ShowParser):
     
     title_txt       = html_util.get_first_element(event_detail, '.event-name').text_content()
     show.performers = [Performer(p) for p in lang_util.parse_performers(title_txt)]
-    show.show_time  = date_util.parse_show_time(date_txt, time_txt)
-    show.door_time  = date_util.parse_door_time(date_txt, time_txt)
+    show.show_time  = date_util.parse_show_time(date_obj, time_txt)
+    show.door_time  = date_util.parse_door_time(date_obj, time_txt)
     
     show.resources.resource_uris = self.resource_extractor.extract_resources(event_detail)
 
