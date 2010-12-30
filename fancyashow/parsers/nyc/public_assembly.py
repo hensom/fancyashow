@@ -13,7 +13,7 @@ class PublicAssembly(ShowParser):
   BASE_URL     = "http://www.publicassemblynyc.com/"
   IS_EVENT     = re.compile("http://www.publicassemblynyc.com/events/view/(\d+)")
   TIME_RE      = re.compile("Room\s*,\s*(?P<time>\d.*?[ap]m)")
-  MONTHS_AHEAD = 1
+  MONTHS_AHEAD = 3
   
   def __init__(self, *args, **kwargs):
     super(PublicAssembly, self).__init__(*args, **kwargs)
@@ -45,11 +45,13 @@ class PublicAssembly(ShowParser):
 
     for i in xrange(self.MONTHS_AHEAD):
       month = start.month + i
+      year  = start.year
 
       if month > 12:
         month = month - 12
+        year  = year + 1
 
-      ret.append(start.replace(month = month))
+      ret.append(start.replace(month = month, year = year))
       
     return ret
 
