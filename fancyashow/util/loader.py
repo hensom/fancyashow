@@ -184,7 +184,8 @@ class ShowLoader(object):
       return None
       
   def _normalize_caps(self, text):
-    text = text.strip(' \n\r\t')
+    if text:
+      text = text.strip(' \n\r\t')
 
     if text and text == text.upper():
       text = ' '.join( (part.capitalize() for part in text.lower().split(' ')) )

@@ -2,6 +2,7 @@ import logging
 import lxml.html
 import re
 from lxml.html.clean              import Cleaner
+from datetime                     import datetime
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
 from fancyashow.extensions.models import Venue, Performer, Show
 from fancyashow.util              import parsing  as html_util
@@ -19,7 +20,9 @@ class BruarFalls(ShowParser):
   def __init__(self, *args, **kwargs):
     super(BruarFalls, self).__init__(*args, **kwargs)
     
-    self._parser = None
+    self._parser    = None
+    self.prev_month = None
+    self.year       = datetime.now().year
   
   def next(self):
     if not self._parser:
@@ -88,6 +91,15 @@ class BruarFalls(ShowParser):
     show.venue      = self.venue()
     show.performers = performers
     show.date       = date_util.parse_date_and_time(date_txt, None)
+
+    # Adjust for the date shifting over by one year
+    if show.date:
+      if self.prev_month > show.date.month:
+        self.year += 1
+
+      show.date = show.date.replace(year = self.year)
+
+      self.prev_month = show.date.month
     
     show.resources.resource_uris = self.resource_extractor.extract_resources(event_detail)
 
