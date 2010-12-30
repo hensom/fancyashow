@@ -387,6 +387,9 @@ class Show(Document):
   images           = DictField(default = lambda: {}, required = True)
 
   creation_date    = DateTimeField(required = True, default = lambda: datetime.now())
+
+  def __unicode__(self):
+    return '%s on %s' % (self.title or self.artists[0].name, self.date.strftime('%F'))
   
   def slug(self):
     if self.title:

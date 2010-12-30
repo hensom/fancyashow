@@ -14,6 +14,8 @@ REPLACEMENTS = [
 ]
 
 def fetch_and_parse(url, parse_500 = False):
+  logger.debug('Fetching: %s' % url)
+
   try:
     data = urllib2.urlopen(url).read()
   except urllib2.HTTPError, e:
@@ -21,8 +23,7 @@ def fetch_and_parse(url, parse_500 = False):
       data = e.read()
     else:
       raise
-    
-  
+
   doc = lxml.html.document_fromstring(data)
 
   doc.make_links_absolute(url)

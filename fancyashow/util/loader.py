@@ -114,7 +114,9 @@ class ShowLoader(object):
         
     return shows
           
-  def _merge_shows(self, old_show, new_show):    
+  def _merge_shows(self, old_show, new_show):
+    logger.debug('Merging %s with %s' % (old_show, new_show))
+
     copy_attrs = ('parse_meta', 'title', 'date', 'show_time', 'door_time', 'url', 'image_url', 'parsed_resources', 'venue', 'soldout')
 
     for attr in copy_attrs:
@@ -182,6 +184,8 @@ class ShowLoader(object):
       return None
       
   def _normalize_caps(self, text):
+    text = text.strip(' \n\r\t')
+
     if text and text == text.upper():
       text = ' '.join( (part.capitalize() for part in text.lower().split(' ')) )
         
