@@ -80,7 +80,7 @@ class Command(BaseCommand):
       for parser in parsers:
         start_time = datetime.now()
 
-        logging.info('Starting parse for %s' % parser.id())
+        logging.info(u'Starting parse for %s' % parser.id())
 
         loader = ShowLoader(parser, resource_extractor)
         
@@ -90,14 +90,8 @@ class Command(BaseCommand):
         
         try:
           num_new, num_invalid, shows = loader.load_shows()
-        except ParserError, e:
-          error = str(e)
-          
-          logging.exception('Unable to parse %s: %s - %s' % (parser.id(), e.url, e))
         except Exception, e:
-          error = str(e)
-
-          logging.exception('Unable to parse %s: %s' % (parser.id(), e))
+          logging.exception(u'Unable to parse %s: %s' % (parser.id(), e))
 
         end_time = datetime.now()
         
@@ -123,7 +117,7 @@ class Command(BaseCommand):
           self.process_shows(library, shows)
           
     def process_shows(self, library, shows):
-      logging.info('Beginning Processing for %d Shows' % len(shows))
+      logging.info(u'Beginning Processing for %d Shows' % len(shows))
 
       setup  = ProcessorSetup(library, library.show_processors(), settings.SHOW_PROCESSOR_SETTINGS)
 

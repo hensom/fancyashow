@@ -20,13 +20,12 @@ class BellHouse(ShowParser):
   def __init__(self, *args, **kwargs):
     super(BellHouse, self).__init__(*args, **kwargs)
     
-    self._parser    = None
-    self.prev_month = None
-    self.year       = datetime.now().year
+    self._parser = None
   
   def next(self):
     if not self._parser:
-      self._parser = self._get_parser()
+      self._parser_started = datetime.now()
+      self._parser         = self._get_parser()
 
     while(True):
       return self._parser.next()
@@ -69,17 +68,8 @@ class BellHouse(ShowParser):
 
     if date_match and time_match:
       month, day = (int(d) for d in (date_match.group('month'), date_match.group('day')))
-
-      # Handle cases where we pass from one year to the next
-      logger.debug('Testing for year boundary: last month: %s, current month: %s' % (self.prev_month, month))
-
-      if self.prev_month > month:
-        logger.debug('Increasing date by one year to account for passing the boundary')
-        self.year += 1
-        
-      self.prev_month = month
       
-      show_date = datetime(month = month, day = day, year = self.year)
+      show_date = datetime.now().replace(month = month, day = day)
       
       show.show_time = date_util.parse_date_and_time(show_date.strftime('%F'), time_match.group('time'))
 
@@ -89,6 +79,8 @@ class BellHouse(ShowParser):
       show.resources.image_url = img_tag.get('src')
       
       break
+      
+    date_util.adjust_fuzzy_years(show, self._parse_started)
       
     return show
 

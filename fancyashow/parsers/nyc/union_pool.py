@@ -14,12 +14,11 @@ class UnionPool(ShowParser):
     super(UnionPool, self).__init__(*args, **kwargs)
     
     self._parser    = None
-    self.prev_month = None
-    self.year       = datetime.now().year
   
   def next(self):
     if not self._parser:
-      self._parser = self._get_parser()
+      self._parse_started = datetime.now()
+      self._parser        = self._get_parser()
       
     while(True):
       return self._parser.next()
@@ -45,14 +44,6 @@ class UnionPool(ShowParser):
     
     if not date_txt.lower().startswith('every'):
       show.date = date_util.parse_date_and_time(date_txt, None)
-      
-    if show.date:
-      if self.prev_month > show.date.month:
-        self.year += 1
-        
-      self.prev_month = show.date.month
-      
-      show.date = show.date.replace(year = self.year)
 
     show.resources.resource_uris = self.resource_extractor.extract_resources(event_detail)
 
@@ -60,6 +51,8 @@ class UnionPool(ShowParser):
       show.resources.image_url = img_tag.get('src')
       
       break
+      
+    date_util.adjust_fuzzy_years(show, self._parse_started)
       
     return show
 

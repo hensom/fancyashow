@@ -100,3 +100,27 @@ def parse_show_time(date_str, time_str):
       return parse_date_and_time(date_str, extract_time(time_match))
 
   return None
+  
+def adjust_fuzzy_years(show, base_day, look_forward_months = 10, look_back_months = 4):
+  between = lambda x, a, b: x >= a and x <= b
+
+  def adjust_date(day):
+    if day.year != base_day.year:
+      return day
+    else:
+      if between(base_day.month, look_forward_months, 12) and between(day.month, 1, look_forward_months - 1):
+        return day.replace(year = day.year + 1)
+
+      if between(base_day.month, 1, look_back_months) and day.month >= look_forward_months:
+        return day.replace(year = day.year - 1)
+
+    return day
+
+  if show.date:
+    show.date = adjust_date(show.date)
+    
+  if show.show_time:
+    show.show_time = adjust_date(show.show_time)
+
+  if show.door_time:
+    show.door_time = adjust_date(show.door_time)

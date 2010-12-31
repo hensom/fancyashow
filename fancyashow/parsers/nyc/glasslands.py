@@ -45,17 +45,14 @@ class Glasslands(ShowParser):
     f = feedparser.parse(self.FEED_URL)
     
     for entry in f.entries:
-      pub_year, rest = entry.published.split('-', 1) #2010-11-30T15:15:00.000-08:00
-
-      self.prev_month = None
-      self.year       = int(pub_year)
-
       for show in self._parse_shows(entry):
         yield show
 
   def _parse_shows(self, entry):
     content = None
     shows   = []
+    
+    entry_date = date_util.parse_date_time(entry.published)
 
     for item in entry.content:
       if item.type in ('text/html',):
@@ -169,19 +166,12 @@ class Glasslands(ShowParser):
       except:
         logging.exception('Unable to parse: %s - %s' % (date_txt, time_txt))
         continue
-        
-      # Adjust for the date shifting over by one year
-      if show.show_time:
-        if self.prev_month > show.show_time.month:
-          self.year += 1
-
-        show.show_time = show.show_time.replace(year = self.year)
-
-        self.prev_month = show.show_time.month
 
       show.resources.image_url     = img_url
       show.resources.resource_uris = self.resource_extractor.extract_resources(show_doc)
-      
+
+      date_util.adjust_fuzzy_years(show, entry_date)
+
       shows.append(show)
 
     return shows

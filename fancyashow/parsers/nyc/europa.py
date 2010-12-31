@@ -20,12 +20,11 @@ class Europa(ShowParser):
     super(Europa, self).__init__(*args, **kwargs)
     
     self._parser    = None
-    self.prev_month = None
-    self.year       = datetime.now().year
     
   def next(self):
     if not self._parser:
-      self._parser = self._get_parser()
+      self._parse_started = datetime.now()
+      self._parser        = self._get_parser()
 
     while(True):
       return self._parser.next()
@@ -92,15 +91,6 @@ class Europa(ShowParser):
     show.venue      = self.venue()
     show.performers = performers
     show.show_time  = date_util.parse_date_and_time(date_txt, time_txt)
-    
-    # Adjust for the date shifting over by one year
-    if show.show_time:
-      if self.prev_month > show.show_time.month:
-        self.year += 1
-
-      show.show_time = show.show_time.replace(year = self.year)
-
-      self.prev_month = show.show_time.month
 
     show.resources.resource_uris = self.resource_extractor.extract_resources(el)
     
@@ -108,6 +98,8 @@ class Europa(ShowParser):
       logging.debug('image: %s - %s' % (img.get('src'), self.IMAGE_RE.search(img.get('src', ''))))
       if self.IMAGE_RE.search(img.get('src', '')):
         show.resources.image_url = img.get('src')
+        
+    date_util.adjust_fuzzy_years(show, self._parse_started)
 
     return show
 

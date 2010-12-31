@@ -13,14 +13,14 @@ class ShowLoader(object):
   def load_shows(self):
     parser = self.parser_class(self.resource_extractor)
     
-    logger.info('Parsing %s' % parser.id())
+    logger.info(u'Parsing %s' % parser.id())
 
     shows = []
 
     for show in parser:
       shows.append(show)
         
-    logger.info('Loading %d Show[s]: %s' % (len(shows), parser.id()))
+    logger.info(u'Loading %d Show[s]: %s' % (len(shows), parser.id()))
         
     old_shows = list(Show.objects.filter(parse_meta__parser_id = parser.id()))
     
@@ -36,7 +36,7 @@ class ShowLoader(object):
 
         new_shows.append(show)
       except:
-        logger.exception('Invalid show: %s from %s' % (self._show_debug_str(s), parser.id()))
+        logger.exception(u'Invalid show: %s from %s' % (self._show_debug_str(s), parser.id()))
         
         invalid_shows.append(s)
     
@@ -59,7 +59,7 @@ class ShowLoader(object):
       return '<NO CONTEXT>'
     
   def _reconcile_changes(self, old_shows, new_shows):
-    logger.debug('Reconciling changes between show lists %d old show[s], %d new show[s]' % (len(old_shows), len(new_shows)))
+    logger.debug(u'Reconciling changes between show lists %d old show[s], %d new show[s]' % (len(old_shows), len(new_shows)))
 
     old_by_merge_key, old_by_date = self._split_show_list(old_shows)
     new_by_merge_key, new_by_date = self._split_show_list(new_shows)
@@ -74,12 +74,12 @@ class ShowLoader(object):
   def _merge_by_key(self, old_by_merge_key, new_by_merge_key):
     shows = []
     
-    logger.debug('Merging shows by key: old: %d, new: %d' % (len(old_by_merge_key.values()), len(new_by_merge_key.values())))
+    logger.debug(u'Merging shows by key: old: %d, new: %d' % (len(old_by_merge_key.values()), len(new_by_merge_key.values())))
 
     for new_show in new_by_merge_key.values():
       old_show = old_by_merge_key.get(new_show.parse_meta.merge_key)
       
-      logger.debug('Merging new show with key: %s, matching show found?: %s', new_show.parse_meta.merge_key, old_show is not None)
+      logger.debug(u'Merging new show with key: %s, matching show found?: %s', new_show.parse_meta.merge_key, old_show is not None)
       
       if old_show:
         del old_by_merge_key[new_show.parse_meta.merge_key]
@@ -98,7 +98,7 @@ class ShowLoader(object):
   def _merge_by_date(self, old_by_date, new_by_date):
     shows = []
     
-    logger.debug('Merging shows by date: old: %d, new: %d' % (len(old_by_date.values()), len(new_by_date.values())))
+    logger.debug(u'Merging shows by date: old: %d, new: %d' % (len(old_by_date.values()), len(new_by_date.values())))
 
     for date, new_shows in new_by_date.iteritems():
       old_shows = old_by_date.get(date)
@@ -108,14 +108,14 @@ class ShowLoader(object):
       elif len(old_shows) == 1 and len(new_shows) == 1:
         shows.extend(self._merge_shows(old_shows[0], new_shows[0]))
       else:
-        logger.error('[%s] Multiple shows found for date %s, unable to load' % (self.parser_class.id(), date))
+        logger.error(u'[%s] Multiple shows found for date %s, unable to load' % (self.parser_class.id(), date))
         # Load the new shows, but set a flag to audit them
         pass
         
     return shows
           
   def _merge_shows(self, old_show, new_show):
-    logger.debug('Merging %s with %s' % (old_show, new_show))
+    logger.debug(u'Merging %s with %s' % (old_show, new_show))
 
     copy_attrs = ('parse_meta', 'title', 'date', 'show_time', 'door_time', 'url', 'image_url', 'parsed_resources', 'venue', 'soldout')
 
