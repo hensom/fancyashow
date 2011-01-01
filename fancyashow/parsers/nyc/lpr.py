@@ -2,6 +2,7 @@ import logging
 import urlparse
 import re
 
+from datetime                     import datetime
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
 from fancyashow.extensions.models import Venue, Performer, Show
 from fancyashow.util              import parsing  as html_util
@@ -12,32 +13,58 @@ extensions = ExtensionLibrary()
 
 class LPR(ShowParser):
   BASE_URL         = "http://lepoissonrouge.com/"
-  CALENDAR_URL     = "http://lepoissonrouge.com/calendar"
+  CALENDAR_URL     = "http://lepoissonrouge.com/calendar/%(year)s/%(month)s/"
   IS_EVENT_URL_RE  = re.compile('http://lepoissonrouge.com/events/view/\d+')
   IS_ARTIST_URL_RE = re.compile('http://lepoissonrouge.com/events/artist/\d+')
+  MONTHS_AHEAD     = 3
 
   def __init__(self, *args, **kwargs):
     super(LPR, self).__init__(*args, **kwargs)
-    
-    self._parser = None
+  
+    self._current_parser = None
+    self._date_queue     = self._request_dates()
+
+  def _next_parser(self):
+    if self._date_queue:
+      return self._month_parser(self._date_queue.pop(0))
+
+    return None
+
+  def _request_dates(self):
+    ret   = [ ]
+    start = datetime.today().date().replace(day = 1)
+
+    for i in xrange(self.MONTHS_AHEAD):
+      month = start.month + i
+      year  = start.year
+
+      if month > 12:
+        month = month - 12
+        year  = year + 1
+
+      ret.append(start.replace(month = month, year = year))
+
+    return ret
     
   def next(self):
-    if not self._parser:
-      self._parser = self._get_parser()
+    if not self._current_parser:
+      self._current_parser = self._next_parser()
 
-    while(True):
-      return self._parser.next()
+    while(self._current_parser):
+      try:
+        return self._current_parser.next()
+      except StopIteration:
+        self._current_parser = self._next_parser()
 
     raise StopIteration
-    
-  def _get_parser(self):
-    show_urls = html_util.get_show_urls_and_section(self.CALENDAR_URL, '#content', ".event", self.IS_EVENT_URL_RE)
+
+  def _month_parser(self, request_date):
+    month_url = self.CALENDAR_URL % {'year': request_date.year, 'month': request_date.month}
+  
+    show_urls = html_util.get_show_urls_and_section(month_url, '#content', ".event", self.IS_EVENT_URL_RE)
 
     for url, show_section in show_urls.iteritems():
-      try:
-        yield self._parse_show(url, show_section)
-      except Exception, e:
-        raise ParserError(url, show_section, e)
+      yield self._parse_show(url, show_section)
 
   def _parse_show(self, link, show_section):
     show_doc    = html_util.fetch_and_parse(link)

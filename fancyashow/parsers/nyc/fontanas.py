@@ -2,6 +2,7 @@ import logging
 import urllib2
 import lxml.html
 import re
+from datetime                     import datetime
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
 from fancyashow.extensions.models import Venue, Performer, Show
 from fancyashow.util              import parsing  as html_util
@@ -27,7 +28,8 @@ class Fontanas(ShowParser):
     
   def next(self):
     if not self._parser:
-      self._parser = self._get_parser()
+      self._parse_started = datetime.now()
+      self._parser        = self._get_parser()
 
     while(True):
       return self._parser.next()
@@ -90,6 +92,8 @@ class Fontanas(ShowParser):
     for a in info_el.iter(tag = 'a'):
       if self.IMAGE_RE.search(a.get('href', '')):
         show.resources.image_url = a.get('href')
+
+    date_util.adjust_fuzzy_years(show, self._parse_started)
 
     return show
 

@@ -18,7 +18,7 @@ class LivingRoom(ShowParser):
   BASE_URL     = "http://www.livingroomny.com/"
   DATE_RE      = re.compile("\w+\s+(?P<day>\d+)")
   TIME_RE      = re.compile('\s*(?P<time>%s)\s*(?:\s*-\s*)?(?:(?P<time_to>%s)\s*-\s*)?' % (TIME_MATCH, TIME_MATCH), re.IGNORECASE | re.MULTILINE)
-  MONTHS_AHEAD = 1
+  MONTHS_AHEAD = 3
   
   def __init__(self, *args, **kwargs):
     super(LivingRoom, self).__init__(*args, **kwargs)
@@ -50,11 +50,13 @@ class LivingRoom(ShowParser):
 
     for i in xrange(self.MONTHS_AHEAD):
       month = start.month + i
+      year  = start.year
 
       if month > 12:
         month = month - 12
+        year  = year + 1
 
-      ret.append(start.replace(month = month))
+      ret.append(start.replace(month = month, year = year))
       
     return ret
 
@@ -68,11 +70,8 @@ class LivingRoom(ShowParser):
     main_table = html_util.get_first_element(doc, '.month-view table')
     
     for td in html_util.get_elements(main_table, 'td.has-events'):
-      #try:
-        for show in self._parse_shows(request_date, td):
-          yield show
-      #except Exception, e:
-      #  raise ParserError(None, td, e)
+      for show in self._parse_shows(request_date, td):
+        yield show
           
   def _parse_shows(self, base_date, td):
     day = int(html_util.get_first_element(td, '.day').text_content())
