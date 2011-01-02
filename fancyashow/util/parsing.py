@@ -119,6 +119,9 @@ def get_displayed_text_content(el):
   def parse_text(el, text, preserve_text = False):
     if el.tag in SKIP_ELS:
       return
+      
+    if el.tag in LINE_BREAK_ELS and text.getvalue()[-1] != '\n':
+      text.write('\n')
 
     if el.text:
       if preserve_text:
