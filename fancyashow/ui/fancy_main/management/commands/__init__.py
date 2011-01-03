@@ -51,6 +51,8 @@ class ShowCommand(BaseCommand):
       show_filter['parse_meta__parser_id__icontains'] = options.get('parser')
       
     shows = Show.objects.filter(**show_filter)
+    
+    shows.timeout(False)
       
     self.handle_shows(shows, **options)
     
