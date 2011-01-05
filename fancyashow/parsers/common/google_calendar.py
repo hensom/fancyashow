@@ -54,17 +54,24 @@ class GoogleCalendarParser(ShowParser):
         single.append(e)
         
     for show in self._process_recurring_entries(recurring):
-      yield show
+      if show:
+        yield show
 
-    if self.group_by_date:
+    if self.group_by_date():
       single.sort(key = start_date)
 
       for batch_date, date_entries in groupby(single, start_date):
         for show in self._process_entry_group(batch_date, list(date_entries)):
+          if show:
+            pass
+          
           yield show 
     else:
-      for show in self._process_entry(entry):
-        yield show
+      for entry in single:
+        show = self._process_entry(entry)
+
+        if show:
+          yield show
 
           
   def _process_recurring_entries(self, entries):
