@@ -20,14 +20,13 @@ class SpikeHill(GoogleCalendarParser):
 
     show.venue      = self.venue()
     show.performers = []
-    #show.resources.resource_uris = self.resource_extractor.extract_resources(section)
     
-    entries.sort(key = lambda e: e.when[0].start_time)
+    entries.sort(key = lambda e: e.when[0].start_time, reverse = True)
 
     for entry in entries:
       logger.debug("Processing entry: %s, starting on: %s" % (entry.title.text, entry.when[0].start_time))
 
-      # Full dat events usually denote a title which we currently will simply skip
+      # Full day events usually denote a title which we currently will simply skip
       if 'T' not in entry.when[0].start_time:
         logger.debug('Entry "%s" is an all day event, skipping' % entry.title.text)
 
