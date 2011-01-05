@@ -4,7 +4,7 @@ from django.utils.stopwords import strip_stopwords
 
 PRESENTS       = re.compile('^.*?present[s]?:?\s*', re.I)
 AND            = re.compile('^\s*(?:and)|&\s*', re.I)
-PERFORMERS_SEP = re.compile(',|(?:w/)|(?:with)|/')
+PERFORMERS_SEP = re.compile(',|(?:w/)|(?:with)|/', re.I)
 
 NOT_WORD_NUM_RE = re.compile('[^\d\w\s]')
 
