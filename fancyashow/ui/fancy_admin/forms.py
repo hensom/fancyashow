@@ -185,7 +185,14 @@ class ArtistForm(ModelForm):
   def clean_name(self):
     name = self.cleaned_data['name']
     
-    if Artist.objects(normalized_name = lang.normalize(name)).count() > 0:
+    match_args = {
+      'normalized_name': lang.normalize(name)
+    }
+    
+    if self.instance:
+      match_args['id__ne'] = self.instance.pk
+
+    if Artist.objects(**match_args).count() > 0:
       raise forms.ValidationError('Another artist with this name already exists')
 
     return name
