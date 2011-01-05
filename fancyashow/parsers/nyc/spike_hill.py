@@ -54,7 +54,6 @@ class SpikeHill(GoogleCalendarParser):
   @classmethod
   def calendar_id(cls):
     return 'sa9552dusndv1rnrgumdujsgl0@group.calendar.google.com'
-    return 'h1a4qiqcvibk82n54ro7sr2cqg@group.calendar.google.com'
     
   @classmethod
   def group_by_date(cls):
