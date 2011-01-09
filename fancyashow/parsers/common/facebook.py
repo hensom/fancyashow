@@ -14,7 +14,8 @@ from fancyashow.util              import lang     as lang_util
 LOG = logging.getLogger(__name__)
 
 class FacebookParser(ShowParser):
-  EVENT_URL = 'http://www.facebook.com/event.php?eid=%s'
+  EVENT_URL   = 'http://www.facebook.com/event.php?eid=%s'
+  PICTURE_URL = 'http://graph.facebook.com/%s/picture?type=large'
   
   def __init__(self, *args, **kwargs):
     super(FacebookParser, self).__init__(*args, **kwargs)
@@ -63,6 +64,7 @@ class FacebookParser(ShowParser):
     doc      = lxml.html.document_fromstring(html_doc)
 
     show.resources.show_url      = self.EVENT_URL % event['id']
+    show.resources.image_url     = self.PICTURE_URL % event['id']
     show.resources.resource_uris = self.resource_extractor.extract_resources(doc)
 
     return show
