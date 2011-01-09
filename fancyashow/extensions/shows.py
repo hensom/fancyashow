@@ -1,7 +1,8 @@
 from fancyashow.extensions.common import Processor
 
 class ShowParser(object):
-  def __init__(self, resource_extractor):
+  def __init__(self, settings, resource_extractor):
+    self.settings           = settings
     self.resource_extractor = resource_extractor
 
   def __iter__(self):

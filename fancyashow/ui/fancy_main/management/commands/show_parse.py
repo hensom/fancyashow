@@ -6,7 +6,6 @@ from django.core.management.base import BaseCommand
 from django.conf                 import settings
 
 from fancyashow.extensions  import ExtensionLoader
-from fancyashow.parsers     import ParserError
 from fancyashow.processing  import ProcessorSetup
 from fancyashow.extensions.common import ResourceExtractorManager
 from fancyashow.util.loader import ShowLoader
@@ -77,25 +76,29 @@ class Command(BaseCommand):
 
       resource_extractor = ResourceExtractorManager(library.resource_extractors())
 
-      for parser in parsers:
+      loader = ShowLoader()
+
+      for parser_class in parsers:
         start_time = datetime.now()
 
-        logging.info(u'Starting parse for %s' % parser.id())
-
-        loader = ShowLoader(parser, resource_extractor)
+        logging.info(u'Starting parse for %s' % parser_class.id())
         
         num_new, num_invalid = 0, 0
         error = None
         shows = None
         
         try:
-          num_new, num_invalid, shows = loader.load_shows()
+          parser_settings = settings.SHOW_PARSER_SETTINGS.get(parser_class.id(), {})
+
+          parser = parser_class(parser_settings, resource_extractor)
+
+          num_new, num_invalid, shows = loader.load_shows(parser)
         except Exception, e:
-          logging.exception(u'Unable to parse %s: %s' % (parser.id(), e))
+          logging.exception(u'Unable to parse %s: %s' % (parser_class.id(), e))
 
         end_time = datetime.now()
         
-        stat, created = ParserStat.objects.get_or_create(parser_id = parser.id(), defaults = {'parser_id': parser.id()})
+        stat, created = ParserStat.objects.get_or_create(parser_id = parser_class.id(), defaults = {'parser_id': parser_class.id()})
         
         run_info = {
           'group_start_time':  parse_run_id,

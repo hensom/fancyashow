@@ -5,14 +5,8 @@ from fancyashow.util      import lang
 
 logger = logging.getLogger(__name__)
 
-class ShowLoader(object):
-  def __init__(self, parser_class, resource_extractor):
-    self.parser_class       = parser_class
-    self.resource_extractor = resource_extractor
-    
-  def load_shows(self):
-    parser = self.parser_class(self.resource_extractor)
-    
+class ShowLoader(object):    
+  def load_shows(self, parser):    
     logger.info(u'Parsing %s' % parser.id())
 
     shows = []
