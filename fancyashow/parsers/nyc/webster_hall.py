@@ -38,14 +38,10 @@ class WebsterHall(ShowParser):
     show_urls = html_util.get_show_urls(self.CALENDAR_URL, 'form[name="event_list"]', 'td.day', self.IS_EVENT)
     
     for url in show_urls:
-      try:
-        show = self._parse_show(url)
-        
-        if show:
-          yield show
-      except Exception, e:
-        raise
-        raise ParserError(url, None, e)
+      show = self._parse_show(url)
+      
+      if show:
+        yield show
 
   def _parse_show(self, js_link):
     global N
