@@ -8,7 +8,7 @@ from fancyashow.util              import lang     as lang_util
 
 class MyspaceParser(ShowParser):
   BASE_URL      = "http://www.myspace.com/%s/shows"
-  IS_EVENT      = re.compile("http://www.myspace.com/events/View/\d+", re.I)
+  IS_EVENT      = re.compile("http://www.myspace.com/events/View/\d+/[^#]+$", re.I)
   
   def __init__(self, *args, **kwargs):
     super(MyspaceParser, self).__init__(*args, **kwargs)
