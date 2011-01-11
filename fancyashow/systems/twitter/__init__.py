@@ -4,7 +4,7 @@ import urllib2
 import lxml.html
 from lxml import etree
 from fancyashow.extensions     import ExtensionLibrary, ResourceExtractor, ShowResourceHandler, ArtistResourceHandler
-from fancyashow.util.resources import HrefMatcher
+from fancyashow.util.resources import URLMatch, HrefMatcher, TextMatcher
 from fancyashow.db.models      import ArtistProfile
 from fancyashow.util           import artist_matcher, parsing
 
@@ -12,8 +12,10 @@ logger = logging.getLogger(__name__)
 
 extensions = ExtensionLibrary()
 
+PROFILE_ID = "(?P<profile_id>[\d\w_.-]+)"
+
 NAME_RE     = re.compile('\s*(.+)(?:\s+\(.+?\)\s+on twitter.*)', re.I | re.M)
-TWITTER_URL = re.compile('(?:http[s]?://)?(?:www\.)?twitter\.com/(?P<profile_id>[^/&]+)', re.I)
+TWITTER_URL = URLMatch('(?:www\.)?twitter\.com/%s' % PROFILE_ID)
 
 class TwitterResourceExtractor(ResourceExtractor):
   def resources(self, node):
@@ -23,6 +25,7 @@ class TwitterResourceExtractor(ResourceExtractor):
     ret = []
 
     ret.extend( [ uri(m) for m in HrefMatcher(node, TWITTER_URL) ] ) 
+    ret.extend( [ uri(m) for m in TextMatcher(node, TWITTER_URL) ] )
 
     return ret
 

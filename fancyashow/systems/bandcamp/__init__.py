@@ -6,7 +6,7 @@ from fancyashow.extensions        import ExtensionLibrary, ArtistMediaExtractor,
 from fancyashow.extensions        import ShowResourceHandler, ArtistResourceHandler
 from fancyashow.extensions.models import VideoInfo
 from fancyashow.db.models         import ArtistProfile
-from fancyashow.util.resources    import URLMatch, HrefMatcher, ParamMatcher
+from fancyashow.util.resources    import URLMatch, HrefMatcher, ParamMatcher, TextMatcher
 from fancyashow.util              import artist_matcher
 
 from bandcamp                     import BandCampService
@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
 
 extensions = ExtensionLibrary()
 
-HREF_URL  = URLMatch('(?P<profile_id>[^/&]+).bandcamp.com')
+PROFILE_ID = "(?P<profile_id>[\d\w_.-]+)"
+
+HREF_URL  = URLMatch('%s.bandcamp.com' % PROFILE_ID)
 SYSTEM_ID = 'bandcamp'
 
 class BandCampResourceExtractor(ResourceExtractor):
@@ -27,6 +29,7 @@ class BandCampResourceExtractor(ResourceExtractor):
     ret = []
 
     ret.extend([url(m) for m in HrefMatcher( node, HREF_URL)])
+    ret.extend([url(m) for m in TextMatcher( node, HREF_URL)])
 
     return ret
 

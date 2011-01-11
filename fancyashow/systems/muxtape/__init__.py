@@ -4,7 +4,7 @@ import urllib2
 import lxml.html
 from lxml                       import etree
 from fancyashow.extensions      import ExtensionLibrary, ResourceExtractor, ShowResourceHandler, ArtistResourceHandler
-from fancyashow.util.resources  import HrefMatcher
+from fancyashow.util.resources  import URLMatch, HrefMatcher, TextMatcher
 from fancyashow.db.models       import ArtistProfile
 from fancyashow.util            import artist_matcher, parsing
 
@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 extensions = ExtensionLibrary()
 
-PROFILE_URL = re.compile('(?:http://)?(?P<profile_id>[^/&]+)\.muxtape\.com/', re.I)
+PROFILE_ID = "(?P<profile_id>[\d\w_.-]+)"
+
+PROFILE_URL = URLMatch('%s\.muxtape\.com/' % PROFILE_ID)
 NAME_RE     = re.compile('\s*(.+)(?:\s+on muxtape.*)', re.I | re.M)
 
 class MuxtapeResourceExtractor(ResourceExtractor):
@@ -23,6 +25,7 @@ class MuxtapeResourceExtractor(ResourceExtractor):
     ret = []
 
     ret.extend( [ uri(m) for m in HrefMatcher(node, PROFILE_URL) ] ) 
+    ret.extend( [ uri(m) for m in TextMatcher(node, PROFILE_URL) ] ) 
 
     return ret
 

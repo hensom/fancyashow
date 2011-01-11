@@ -4,7 +4,7 @@ from datetime import datetime
 from facebook                     import GraphAPI
 from fancyashow.extensions        import ExtensionLibrary, ArtistMediaExtractor, ResourceExtractor
 from fancyashow.extensions        import ShowResourceHandler, ArtistResourceHandler
-from fancyashow.util.resources    import URLMatch, HrefMatcher
+from fancyashow.util.resources    import URLMatch, HrefMatcher, TextMatcher
 from fancyashow.db.models         import ArtistProfile
 from fancyashow.util              import artist_matcher
 
@@ -12,13 +12,14 @@ logger = logging.getLogger(__name__)
 
 extensions = ExtensionLibrary()
 
-OBJECT_ID = "(?P<object_id>[\d\w]+)"
+OBJECT_ID = "(?P<object_id>[\d\w_.-]+)"
 
-PROFILE_URL    = URLMatch('(www\.)?facebook.com/%s/?$' % OBJECT_ID)
-GROUP_URL      = URLMatch('(www\.)?facebook.com/group.php\?.*?gid=%s' % OBJECT_ID)
-EVENT_URL      = URLMatch('(www\.)?facebook.com/event.php\?.*?eid=%s' % OBJECT_ID)
-PAGE_URL       = URLMatch('(www\.)?facebook.com/pages/[^/]+/%s' % OBJECT_ID)
-PAGE_AJAX_URL  = URLMatch('(www\.)?facebook.com/home.php#!/pages/[^/]+/%s' % OBJECT_ID)
+STRICT_PROFILE_URL = URLMatch('(www\.)?facebook.com/%s/?$' % OBJECT_ID)
+PROFILE_URL        = URLMatch('(www\.)?facebook.com/%s' % OBJECT_ID)
+GROUP_URL          = URLMatch('(www\.)?facebook.com/group.php\?.*?gid=%s' % OBJECT_ID)
+EVENT_URL          = URLMatch('(www\.)?facebook.com/event.php\?.*?eid=%s' % OBJECT_ID)
+PAGE_URL           = URLMatch('(www\.)?facebook.com/pages/[^/]+/%s' % OBJECT_ID)
+PAGE_AJAX_URL      = URLMatch('(www\.)?facebook.com/home.php#!/pages/[^/]+/%s' % OBJECT_ID)
 
 class FacebookResourceExtractor(ResourceExtractor):
   def resources(self, node):
@@ -27,11 +28,17 @@ class FacebookResourceExtractor(ResourceExtractor):
 
     ret = []
 
-    ret.extend([url(m) for m in HrefMatcher( node, PROFILE_URL)])
+    ret.extend([url(m) for m in HrefMatcher( node, STRICT_PROFILE_URL)])
     ret.extend([url(m) for m in HrefMatcher( node, GROUP_URL)])
     ret.extend([url(m) for m in HrefMatcher( node, EVENT_URL)])
     ret.extend([url(m) for m in HrefMatcher( node, PAGE_URL)])
     ret.extend([url(m) for m in HrefMatcher( node, PAGE_AJAX_URL)])
+
+    ret.extend([url(m) for m in TextMatcher( node, PROFILE_URL)])
+    ret.extend([url(m) for m in TextMatcher( node, GROUP_URL)])
+    ret.extend([url(m) for m in TextMatcher( node, EVENT_URL)])
+    ret.extend([url(m) for m in TextMatcher( node, PAGE_URL)])
+    ret.extend([url(m) for m in TextMatcher( node, PAGE_AJAX_URL)])
 
     return ret
   

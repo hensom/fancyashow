@@ -7,7 +7,7 @@ from fancyashow.extensions        import ArtistResourceHandler, ShowResourceHand
 from fancyashow.extensions        import ArtistMediaExtractor, ArtistProfileParser, ArtistProfileParserResult
 from fancyashow.extensions.models import AudioInfo
 from fancyashow.db.models         import ArtistProfile
-from fancyashow.util.resources    import HrefMatcher
+from fancyashow.util.resources    import HrefMatcher, TextMatcher, URLMatch
 from fancyashow.util              import parsing
 from fancyashow.util              import artist_matcher
 
@@ -19,9 +19,11 @@ extensions = ExtensionLibrary()
 
 SYSTEM_ID   = 'myspace'
 
-MYSPACE_URL = re.compile('(?:http://)?(?:www\.)?myspace\.com/(?P<profile_id>[^/&]+)', re.I)
-PROFILE_URL = re.compile('(?:http://)?profile\.myspace\.com/index.cfm\?(?:[^&]*&)*friendid=(?P<profile_id>[^&]+)', re.I)
-OFFSITE_URL = re.compile('http[s]?://www.msplinks.com/', re.I)
+VALID_PROFILE_RE = '[\w\d_.-]+'
+
+MYSPACE_URL = URLMatch('(?:www\.)?myspace\.com/(?P<profile_id>%s)' % VALID_PROFILE_RE)
+PROFILE_URL = URLMatch('profile\.myspace\.com/index\.cfm\?(?:[^&]*&)*friendid=(?P<profile_id>%s)' % VALID_PROFILE_RE)
+OFFSITE_URL = URLMatch('(?:www\.)?msplinks\.com/')
 
 class MySpaceResourceExtractor(ResourceExtractor):
   def resources(self, node):
@@ -31,7 +33,9 @@ class MySpaceResourceExtractor(ResourceExtractor):
     ret = []
     
     ret.extend( [ uri(m) for m in HrefMatcher(node, MYSPACE_URL) ] ) 
-    ret.extend( [ uri(m) for m in HrefMatcher(node, PROFILE_URL) ] ) 
+    ret.extend( [ uri(m) for m in HrefMatcher(node, PROFILE_URL) ] )
+    ret.extend( [ uri(m) for m in TextMatcher(node, MYSPACE_URL) ] ) 
+    ret.extend( [ uri(m) for m in TextMatcher(node, PROFILE_URL) ] )
 
     return ret
 

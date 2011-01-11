@@ -1,6 +1,8 @@
 import logging
 import re
 
+import fancyashow.util.parsing as html_util
+
 logger = logging.getLogger(__name__)
 
 def HrefMatcher(node, match_exp):
@@ -8,7 +10,7 @@ def HrefMatcher(node, match_exp):
     if anchor.get('href'):
       logger.debug("Found link: %s" % anchor.get('href'))
 
-      m = match_exp.match(anchor.get('href'))
+      m = match_exp.match(anchor.get('href').strip())
 
       if m:
         logger.debug("Link matches expression: %s" % anchor.get('href'))
@@ -30,11 +32,14 @@ def ParamMatcher(node, name, match_exp):
         logger.debug("Param value matches expression: %s" % param_value)
 
         yield m
+        
+def TextMatcher(node, match_exp):
+  text = html_util.get_displayed_text_content(node)
+  
+  for m in match_exp.finditer(text):
+    yield m
 
-def URLMatch(match , http_required = True):
-  http_re = 'http[s]?:\/\/'
-
-  if not http_required:
-    http_re = '(?:%s)' % http_re
+def URLMatch(match):
+  http_re = '(?:http[s]?:\/\/)?'
 
   return re.compile('%s%s' % (http_re, match))
