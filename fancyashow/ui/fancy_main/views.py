@@ -110,6 +110,7 @@ def shows_at_venue(request, venue):
 def show_details(request, venue, year, month, day, artist):
   venue = Venue.objects.get(slug = venue)
   day   = datetime(int(year), int(month), int(day))
+  today = datetime.today()
 
   matching_shows = Show.objects(venue__url = venue.url, date = day)
   show           = None
@@ -133,7 +134,7 @@ def show_details(request, venue, year, month, day, artist):
       artist_ids[info.artist_id] = True
 
   if artist_ids:
-    artist_shows = Show.objects(artist_ids__in = artist_ids.keys(), id__ne = show.id).order_by('date')
+    artist_shows = Show.objects(artist_ids__in = artist_ids.keys(), id__ne = show.id, date__gte = today).order_by('date')
 
     for artist_show in artist_shows:
       for info in filter(lambda x: x.artist_id, artist_show.artists):
