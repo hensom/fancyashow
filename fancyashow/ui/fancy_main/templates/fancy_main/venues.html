@@ -6,12 +6,12 @@
   Venues
 {% endblock %}
 
+{% block content_title %}
+  Venues
+{% endblock %}
+
 {% block content %}
 <article class="venue-list">
-	<header>
-		<h1>Venues</h1>
-	</header>
-
   {% for city_info in cities %}
 	<section>
 		<header>
@@ -20,15 +20,90 @@
     {% for neighborhood_info in city_info.neighborhoods %}
       <h2>{{ neighborhood_info.neighborhood.name }}</h2>
         <ul>
-      {% for venue in neighborhood_info.venues %}
+      {% for info in neighborhood_info.venues %}
           <li>
-            <a href="{% url shows-at-venue venue.slug %}">{{ venue.name }}</a>
+            <a href="{% url shows-at-venue info.venue.slug %}" data-address="{{ info.venue.address|escape }}" data-lat="{{ info.venue.location.0 }}" data-lng="{{ info.venue.location.1 }}" data-num-shows="{{ info.shows|length }}"
+{% for show in info.shows %}
+ data-show-{{ forloop.counter0 }}-name="{% show_title show %}" data-show-{{ forloop.counter0 }}-url="{% show_url show %}"
+{% endfor %}
+>{{ info.venue.name }}</a>
           </li>
       {% endfor %}
         </ul>
     {% endfor %}
   </section>
   {% endfor %}
+	<section id="venue-map"></section>
 </article>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var mapOptions = {
+    zoom: 12,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+		mapTypeControl: false
+  };
+ 
+	var map = new google.maps.Map(document.getElementById("venue-map"), mapOptions);
+	
+	var infoWindow = new google.maps.InfoWindow({});
+
+	var latSum   = 0,
+	    lngSum   = 0,
+	    coordNum = 0;
+
+	$('.venue-list a').each(function() {
+		var lat = parseFloat(this.getAttribute('data-lat'));
+		var lng = parseFloat(this.getAttribute('data-lng'));
+
+		if(lat && lng) {
+			var name    = $(this).text();
+			var address = this.getAttribute('data-address');
+			
+			var venueContent = '<div class="map-venue-name">' + name + '</div>' +
+			  '<div class="map-venue-address">' + address + '</div>';
+			
+			var numShows = this.getAttribute('data-num-shows');
+			
+			for(var i = 0; i < numShows; i++) {
+				var showName = this.getAttribute('data-show-' + i + '-name');
+				var showUrl  = this.getAttribute('data-show-' + i + '-url');
+				
+				venueContent += '<div class="map-venue-show">Tonight: <a href="' + showUrl + '">' + showName + '</a></div>';
+			}
+			
+			if(numShows == 0) {
+				venueContent += '<div class="map-venue-show">No shows tonight</div>';
+			}
+			
+			latSum += lat;
+			lngSum += lng;
+			coordNum++;
+			
+			console.log('Adding point', name, lat, lng);
+			
+			var marker = new google.maps.Marker({
+	      map:      map, 
+	      position: new google.maps.LatLng(lat, lng),
+				title: name
+      });
+
+			var highlightVenue = function() {
+				infoWindow.setContent(venueContent);
+			  infoWindow.open(map, marker);
+			};
+
+			google.maps.event.addListener(marker, 'mouseover', highlightVenue);
+			$(this).mouseover(highlightVenue);
+		}
+	});
+	
+	if(coordNum > 0) {
+		console.log('Centering map: ', latSum, latSum / coordNum, lngSum / coordNum);
+
+		map.setCenter(new google.maps.LatLng(latSum / coordNum, lngSum / coordNum));
+	}
+});
+</script>
 
 {% endblock %}

@@ -154,7 +154,12 @@ class ShowLoader(object):
         
     return by_merge_key, by_date
     
-  def _show_date(self, test_date):
+  def _show_date(self, s):
+    if s.date:
+      return self._force_datetime(s.date)
+
+    test_date = s.show_time or s.door_time
+
     if isinstance(test_date, datetime):
       if test_date.hour < 4:
         test_date = test_date - timedelta(days = 1)
@@ -201,7 +206,7 @@ class ShowLoader(object):
       'artists':       [self._trans_artist(p) for p in s.performers],
       'soldout':       s.soldout,
       'venue':         trans_venue(s.venue),
-      'date':          self._show_date(s.show_time or s.door_time or s.date),
+      'date':          self._show_date(s),
       'show_time':     self._force_datetime(s.show_time),
       'door_time':     self._force_datetime(s.door_time),
       'url':           self._trans_url(s.resources.show_url),

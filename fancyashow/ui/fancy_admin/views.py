@@ -720,3 +720,7 @@ def missing_venues(request):
   venues.sort(lambda x,y: cmp(x['name'], y['name']))
 
   return render_to_response('fancy_admin/missing_venues.html', {'venues': venues})
+  
+@password_required
+def geo(request):
+  return render_to_response('fancy_admin/geo.html', {})

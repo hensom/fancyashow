@@ -37,61 +37,57 @@
 		- {{ show.date|date:"D, M d" }}
 {% endblock %}
 
+{% block content_title %}
+	{% if show.title %}
+	   {{ show.title }}
+	 {% else %}
+	   {{ show.artists.0.name }}
+	 {% endif %}
+	  at {{ show.venue.name }}
+{% endblock %}
+
 {% block content %}
 
-<article class="show-details">
-	<header>
-		<div>
-			<h1>{% singleline %}{% if show.title %}
-        {{ show.title }}
-      {% else %}
-        {{ show.artists.0.name }}
-      {% endif %}
-     {% endsingleline %}</h1>
+<section id="show-details">
+	{% show_featured_listing show %}
+	<section>
+		<header>
+	   <h1>{{ venue.name }}</h1>
+		</header>
 
-     {% spaceless %}
-       {% for a in show.artists %}
-         {% if forloop.counter == 0 and show.title %}
-         
-           <li>{{ a.name }}
-				    <span class="start-time">
-				    {% if artist.info.start_time %}
-				      {{ artist.info.start_time }}
-				    {% endif %}
-				    </span>
-					</li>
-         {% endif %}
-       {% endfor %}
-     {% endspaceless %}</ul>
+	   <div class="address">
+	   <a href="http://maps.google.com/?q={{ venue.address }}">{{ venue.address }}</a>
+		 </div>
 
-    <time datetime="{{ show.date|date:"F" }}">
-    {{ show.date|date:"D, M d" }}
-     {% if show.show_time and show.door_time %}
-         - Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
-     {% else %}
-       {% if show.show_time %} - Show: {{ show.show_time|date:"P" }}{% endif %}
-       {% if show.door_time %} - Door: {{ show.door_time|date:"P" }}{% endif %}
-     {% endif %}
-     </time>
-   </div>
-   <div>
-     <h1>{{ venue.name }}</h1>
-     <div class="address"><a href="http://maps.google.com/?q={{ venue.address }}">{{ venue.address }}</a></div>
+	   <div class="time">
+		   <time datetime="{{ show.date|date:"F" }}">
+		   {% if show.show_time and show.door_time %}
+		       Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
+		   {% else %}
+		     {% if show.show_time %}Show: {{ show.show_time|date:"P" }}{% endif %}
+		     {% if show.door_time %}Door: {{ show.door_time|date:"P" }}{% endif %}
+		   {% endif %}
+		   </time>
+	   </div>
 
-     {% if show.url %}
-     <div class="details">
-       <a href="{{ show.url }}">Details on Site</a>
-     </div>
-     {% endif %}
-   </div>
-	</header>
+	   {% if show.url %}
+	   <div>
+	     <a href="{{ show.url }}">Details on Site</a>
+	   </div>
+	   {% endif %}
+	</section>
 </section>
 
-<section id="show-details">
-   <ul class="artists">
+<section id="artist-details">
    {% for artist in artists %}
-     <li>
-       <h2>{{ artist.info.name }}</h2>
+		<section class="artist">
+		<header>
+      <h1>{{ artist.info.name }}
+		  {% if artist.info.start_time %}
+	  	@ {{ artist.info.start_time }}
+  		{% endif %}
+			</h1>
+		</header>
 
     {% if artist.artist %}
        <ul class="profiles">
@@ -102,7 +98,7 @@
 
         <div class="media">
         {% if artist.artist.videos %}
-			 	{% artist_video artist.artist %}
+				 	{% artist_video artist.artist %}
         {% endif %}
        </div>
       {% endif %}
@@ -117,11 +113,8 @@
         {% endfor %}
       </ul>
     {% endif %}
-		</li>
+		</section>
  {% endfor %}
-   </ul>
 </section>
-
-</article>
 
 {% endblock %}

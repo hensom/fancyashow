@@ -1,4 +1,4 @@
-{% extends "fancy_main/root.html" %}
+{% extends "fancy_main/show_base.html" %}
 
 {% load show_util %}
 
@@ -26,16 +26,17 @@
 	{% endattribute %}" />
 {% endblock %}
 
-{% block content %}
-<article class="show-list">
-	<header>
-		<h1>{% show_list_title show_context %}</h1>
-	</header>
-	
-	<nav>
-		{% show_list_nav show_context %}
-	</nav>
-	
+{% block content_post_title %}
+<nav>
+  {% if not show_context.multiday %}
+     <a href="{{ show_context.prev_url }}">&lt; Prev</a>
+     <a href="{{ show_context.next_url }}">Next &gt;</a>
+  {% endif %}
+</nav>
+{% endblock %}
+
+{% block show_list %}
+<article class="show-list">	
 	<section>
 		<header>
 		  <h1>Featured Shows</h1>
@@ -72,7 +73,7 @@
 		{% endif %}
 	</section>
 
-	<section id="artists">
+	<section id="artists" style="display: none;">
 		<header>
 		  <h1>
 				Artists

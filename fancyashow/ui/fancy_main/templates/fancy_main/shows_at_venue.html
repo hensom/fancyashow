@@ -1,4 +1,4 @@
-{% extends "fancy_main/root.html" %}
+{% extends "fancy_main/show_base.html" %}
 
 {% load show_util %}
 
@@ -26,12 +26,20 @@
 	{% endattribute %}" />
 {% endblock %}
 
-{% block content %}
-<article class="show-list">
-	<header>
-		<h1>{% show_list_title show_context %}</h1>
-	</header>
+{% block content_post_title %}
+<nav>
+	{% if prev_venue %}
+    <a href="{% url shows-at-venue prev_venue.slug %}">&lt; {{ prev_venue.name }}</a>
+	{% endif %}
 	
+	{% if next_venue %}
+     <a href="{% url shows-at-venue next_venue.slug %}">{{ next_venue.name }} &gt;</a>
+  {% endif %}
+</nav>
+{% endblock %}
+
+{% block show_list %}
+<article class="show-list">	
 	<section>
 		<header>
 		  <h1>Featured Shows</h1>
@@ -64,19 +72,6 @@
 		{% else %}
 		  Looks like we're in the dark here. :(
 		{% endif %}
-	</section>
-
-	<section id="artists">
-		<header>
-		  <h1>
-				Artists
-			</h1>
-		</header>
-		<ul>
-		{% for info in artists %}
-			<li><a href="{% show_url info.shows.0 %}">{{ info.artist.name }}</a></li>
-		{% endfor %}
-		</ul>
 	</section>
 </article>
 {% endblock %}

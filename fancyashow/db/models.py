@@ -3,7 +3,7 @@ from datetime             import datetime, timedelta
 from mongoengine          import Document, EmbeddedDocument
 from mongoengine          import IntField, FloatField, DateTimeField, ListField
 from mongoengine          import DictField, BooleanField, URLField
-from mongoengine          import EmbeddedDocumentField, ObjectIdField
+from mongoengine          import EmbeddedDocumentField, ObjectIdField, GeoPointField
 from mongoengine.base     import ValidationError
 from fancyashow.db.fields import StringField
 from django.template.defaultfilters import slugify
@@ -278,7 +278,7 @@ class Artist(Document):
       
   def add_audio(self, audio):
     return self.add_or_update_audio(audio, update = False)
-    
+
   def get_videos(self, system_id):
     return [v for v in self.videos if v.system_id == system_id]
 
@@ -320,6 +320,7 @@ class Venue(Document):
   address         = StringField()
   city            = StringField()
   neighborhood    = StringField()
+  location        = GeoPointField()
 
   def __str__(self):
     return unicode(self).encode('utf-8')

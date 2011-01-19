@@ -34,6 +34,26 @@ def show_url(show):
   }
   return reverse('show-details', kwargs = kwargs)
   
+@register.simple_tag
+def show_title(show):
+  parts = [ ]
+  
+  if show.title:
+    parts.append(show.title)
+    
+  if show.artists and parts:
+    parts[0] += ':'
+
+  num_artists = len(show.artists)
+
+  for i, artist in enumerate(show.artists):
+    parts.append(artist.name)
+
+    if i != num_artists - 1:
+      parts[-1] += ','
+      
+  return ' '.join(parts)
+  
 VIDEO_IMPL = {
   'youtube': '<iframe title="%(title)s" class="youtube-player" type="text/html" width="%(width)s" height="%(height)s" src="http://www.youtube.com/embed/%(media_id)s?rel=0&showinfo=1" frameborder="0"></iframe>',
   'vimeo':   '<iframe title ="%(title)s" src="http://player.vimeo.com/video/%(media_id)s?portrait=0&amp;color=ff9933" width="%(width)s" height="%(height)s" frameborder="0"></iframe>'  
@@ -94,8 +114,7 @@ def venue_options(show, venue_map):
   venue = venue_map.get(show.venue.url)
 
   return {'show': show, 'venue': venue}
-  
-  
+
 @register.inclusion_tag('fancy_main/templatetags/title.html')
 def show_list_title(show_context):
   return {'show_context': show_context}
@@ -105,7 +124,7 @@ def show_list_nav(show_context):
   today    = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
   tomorrow = today + timedelta(days = 1)
   
-  if show_context.multiday:
+  if show_context.multiday and show_context.has_period:
     date_type  = '-during-period'
     date_args = {
       'period': show_context.period

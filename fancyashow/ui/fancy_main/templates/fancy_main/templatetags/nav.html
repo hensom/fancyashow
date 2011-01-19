@@ -5,6 +5,14 @@
 	</ul>	
 </div>
 
+<div>
+	<h2>Where</h2>
+	<ul>
+		<li><a href="{{ show_context.anywhere_url }}">Anywhere</a></li>
+		<li><a href="{% url venues %}">At a Particular Venue</a></li>
+	</ul>
+</div>
+
 {% for city in cities %}
 <div>
 	<h2><a href="{{ city.set_url }}">{{ city.name }}:</a></h2>

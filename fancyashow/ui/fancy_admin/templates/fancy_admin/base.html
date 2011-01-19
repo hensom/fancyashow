@@ -8,6 +8,7 @@
   <head>
     <title>Fancy a Show?</title>
     
+{% block head %}
     <script type="text/javascript" src="{% js_url "jquery-1.4.2.min.js"      %}"></script>
     <script type="text/javascript" src="{% js_url "jquery.dataTables.min.js" %}"></script>
     <script type="text/javascript" src="{% js_url "highcharts.js"            %}"></script>
@@ -20,6 +21,7 @@
 			});
 		});
 		</script>
+{% endblock %}
   </head>
   <body id="{% block body_id %}body{% endblock %}">
 	  <div id="header">

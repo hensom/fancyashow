@@ -6,11 +6,6 @@ html {
   color:            black;
 }
 
-* {
-  margin:  0;
-  padding: 0;
-}
-
 li {
   list-style: none;
 }
@@ -27,6 +22,8 @@ nav h1 {
 a {
   color:   black;
   padding: 0.2em;
+  line-height: 1.3em;
+  margin-left: -0.2em;
   text-decoration: none;
 }
 
@@ -52,19 +49,17 @@ section {
 section > header {
   text-align:  left;
   height:      100%;
-  padding:     1em;
   padding-top: 3em;
+  margin-bottom: 8px;
 }
 
 section > header h1 {
   background-color: black;
   color:     white;
-  margin:    0.5em;
   padding:   0.3em;
   font-size: 1.6em;
+  line-height: 1.6em;
   display:   inline;
-  position:  relative;
-  left:      -2em;
 }
 
 
@@ -74,6 +69,7 @@ section > header h1 {
   margin-right: auto;
   width:        650px;
   position:     relative;
+  width: 970px;
 }
 
 /* Shows */
@@ -84,8 +80,9 @@ section > header h1 {
 .show-featured {
   float:         left;
   display:       block;
-  margin:        10px;
+  margin:        14px;
   margin-bottom: 25px;
+  margin-left:   0px;
   font-weight:   bold;
   position:      relative;
   background:    black;
@@ -252,77 +249,53 @@ section > header h1 {
   padding-bottom: 0.25em;
 }
 
-.artists > li {
+.artist {
   display:    block;
   position:   relative;
   margin-bottom: 20px;
   height:        100%;
 }
 
-.artists > li:after {
-  content: "";
-  clear:   both;
-  display: block;
-}
-
-.artists .profiles {
-  position: absolute;
-  right:    -1em;
-}
-
-.artists .profiles li {
+.artist .profiles li {
   display: inline;
   padding:  0.5em 1em;
   text-transform: uppercase;
 }
 
-.artists .start-time {
+.artist .start-time {
   position: absolute;
   right:    0px;
   top:      0px;
 }
 
-.artists span {
-  font-weight: bold;
+.artist .other-shows {
+  padding-left: 1.1em;
+  margin-top:   0.25em;
+  text-transform: uppercase;
+  clear: both;
 }
 
-.artists .other-shows {
-  display: none;
-  border-top: 1px solid #666;
-  width: 100%;
-  position: absolute;
-  right: 1em;
-  bottom: 0px;
-  left:   0px;
-  height: 2.4em;
-  padding-top: 0.2em;
-}
-
-.artists .other-shows li {
+.artist .other-shows li {
   display: inline;
 }
 
-.artists .other-shows li:after {
+.artist .other-shows li:after {
   content: '\25cf';
 }
 
-.artists .other-shows li:first-child:after,
-.artists .other-shows li:last-child:after {
+.artist .other-shows li:first-child:after,
+.artist .other-shows li:last-child:after {
   content: '';
 }
 
-.artists .other-shows li:first-child {
-  font-weight: bold;
+.artist .media {
+  margin-left: 0.5em;
 }
 
-.artists .media iframe {
-  margin:     1em;
-  margin-top: 2em;
+.artist .media iframe {
+  margin:     0.5em;
+  margin-top: 1em;
   float:      left;
-}
-
-.artists > li {
-  clear: both;
 }
 
 #show {
@@ -343,10 +316,6 @@ section > header h1 {
 
 #show-info .show-featured {
   float: none;
-}
-
-#show-details {
-  margin-top: 40px;
 }
 
 #show-info .venue-details {
@@ -475,9 +444,7 @@ section > header h1 {
 #site-header {
   text-transform: uppercase;
   position:       relative;
-  margin-bottom:  1em;
-  border-bottom:  1px solid #ccc;
-
+  padding:        0px 8px;
 }
 
 #site-header hgroup {
@@ -498,9 +465,8 @@ section > header h1 {
 
 #site-header nav {
   position: absolute;
-  right:    0px;
-  bottom:   8px;
-  
+  right:    8px;
+  bottom:   4px;
 }
 
 #site-header ul li {
@@ -514,33 +480,28 @@ section > header h1 {
   color: white;
 }
 
-.show-list nav {
-  display: none;
+.show-nav {
+/*  display: none;*/
 }
 
-.show-list nav h2 {
+.show-nav h2 {
   font-weight: bold;
   font-size:   1em;
 }
 
-.show-list nav {
+.show-nav {
   padding: 10px;
   height: 100%;
   overflow: hidden;
 }
 
-.show-list nav div {
+.show-nav div {
   float: left;
-  width: 32%;
+  width: 24%;
 }
 
-.show-list nav ul {
+.show-nav ul {
   padding-left: 1em;
-}
-
-.show-list nav {
-  display: block;
-  height:  100px;
 }
 
 #shows {
@@ -579,15 +540,104 @@ section > header h1 {
 
 /* Venue List */
 .venue-list h2 {
+  font-weight: bold;
+  font-size:   1.4em;
   padding: 0.5em 0;
+  margin-left: 10px;
 }
 
 .venue-list ul {
-  margin-left: 20px;
+  margin-left: 30px;
 }
 
 .venue-list section {
   float: left;
   clear: none;
-  width: 49%;
+  width: 25%;
+}
+
+.sidebar {
+  float: right;
+  width: 280px;
+  margin-top: 50px;
+}
+
+.show-list {
+  float: left;
+  width: 650px;
+}
+
+#content > header h1 {
+  font-size:  3em;
+  text-align: left;
+  padding:    0.3em 0;
+  line-height: 0.8em;
+}
+
+#content > header {
+  text-transform: uppercase;
+  position: relative;
+  border-bottom: 0px;
+  background-color: black;
+  color: white;
+  padding: 0px 8px;
+}
+
+#content > header nav {
+  position: absolute;
+  right:    8px;
+  bottom:   8px;
+}
+
+#content > header a {
+  color: white;
+}
+
+#content > header a:hover {
+  background-color: white;
+  color:            black;
+}
+
+.show-nav {
+  border-bottom: 1px solid black;
+}
+
+.artists ul {
+  margin-top: 10px;
+}
+
+#venue-map {
+  width:      49%;
+  height:     400px;
+  margin-top: 60px;
+  padding:    1px;
+  border:     1px solid black;
+}
+
+.map-venue-name {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+#show-details {
+  width: 320px;
+  float: left;
+}
+
+#artist-details {
+  float:  left;
+  width:  640px;
+  clear:  none;
+}
+
+#artist-details > section header {
+  padding-top: 14px;
+}
+
+#artist-details > section + section header {
+  padding-top: 3em;
+}
+
+.map-venue-show {
+  margin-top: 1em;
 }

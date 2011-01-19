@@ -3,6 +3,7 @@ from fancyashow.db.models             import Show, Venue, City, Neighborhood
 from fancyashow.ui.fancy_main.filters import ShowDateRangeFilter
 from mongoengine.queryset             import DoesNotExist
 from django.conf                      import settings
+from django.core.urlresolvers         import reverse
 
 class InvalidContextFilter(Exception):
   pass
@@ -63,15 +64,15 @@ class ShowContext(object):
   def _periods(cls):
     periods_by_name, periods_by_date = {}, {}
     
-    def add_period(name, display_name, start, end):
+    def add_period(name, display_name, start, end, visible = True):
       by_date_key = cls._date_key(start, end)
       
       period = {
-        'slug':  name,
-        'name':  display_name,
-        'start': start,
-        'end':   end
-        
+        'slug':    name,
+        'name':    display_name,
+        'start':   start,
+        'end':     end,
+        'visible': visible
       }
 
       periods_by_name[name]        = period
@@ -139,6 +140,14 @@ class ShowContext(object):
     return self.start_date != self.end_date
     
   @property
+  def has_period(self):
+    periods_by_name, periods_by_date = self._periods()
+    
+    date_key = self._date_key(self.start_date, self.end_date)
+    
+    return date_key in periods_by_date
+    
+  @property
   def period(self):
     periods_by_name, periods_by_date = self._periods()
     
@@ -168,7 +177,8 @@ class ShowContext(object):
       if date_key in periods_by_date:
         return periods_by_date[date_key]['name']
       else:
-        return ' to '.join((self.start_date.strftime(FORMAT), self.end_date.strftime(FORMAT)))
+        return 'Upcoming Shows'
+        #return ' to '.join((self.start_date.strftime(FORMAT), self.end_date.strftime(FORMAT)))
     
   @property
   def location_name(self):
@@ -181,3 +191,42 @@ class ShowContext(object):
         return self.location.get('city').name
 
     return settings.DEFAULT_LOCATION_NAME
+
+  def prev_url(self):
+    return self.url_for_date(datetime(self.start_date.year, self.start_date.month, self.start_date.day) - timedelta(days = 1))
+
+  def next_url(self):
+    return self.url_for_date(datetime(self.end_date.year, self.end_date.month, self.end_date.day) + timedelta(days = 1))
+    
+  def anywhere_url(self):
+    date_args = {
+      'year':  self.start_date.year,
+      'month': self.start_date.month,
+      'day':   self.start_date.day
+    }
+    return reverse('shows-on-date', kwargs = date_args)
+
+  def url_for_date(self, day):
+    location_type = ''
+    date_args = {
+      'year':  day.year,
+      'month': day.month,
+      'day':   day.day
+    }
+  
+    if self.location:
+      if self.location.get('neighborhood'):
+        location_type = '-in-neighborhood'
+        date_args.update({
+          'city':         self.location.get('city').slug,
+          'neighborhood': self.location.get('neighborhood').slug
+        })
+      else:
+        location_type = '-in-city'
+        date_args.update({
+          'city': self.location.get('city').slug
+        })
+    else:
+      location_type = ''
+
+    return reverse('shows%s-on-date' % location_type, kwargs = date_args)

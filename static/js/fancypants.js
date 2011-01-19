@@ -357,6 +357,7 @@ var FancyUI = null;
     },
     
     closeFilterPanel: function(instant) {
+      return;
       if(instant) {
         $('.show-list nav').css('display', 'none');
       } else {

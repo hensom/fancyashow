@@ -1,0 +1,59 @@
+{% extends "fancy_main/root.html" %}
+
+{% load show_util %}
+
+{% block title %}
+  {% show_list_title show_context %}
+{% endblock %}
+
+{% block content_title %}
+  {% show_list_title show_context %}
+{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+
+	<meta name="description" content="{% attribute %}
+		{% show_list_title show_context %}:
+
+  {% for show in shows %}
+    {% if forloop.counter < 6 %}
+      {% if show.title %}
+        {{ show.title }}
+      {% else %}
+        {{ show.artists.0.name }}
+      {% endif %}
+
+      at {{ show.venue.name }}{% if forloop.counter != 5 %}, {% endif %}
+    {% endif %}
+  {% endfor %}
+	{% endattribute %}" />
+{% endblock %}
+
+{% block content %}
+<nav class="show-nav">
+	{% show_list_nav show_context %}
+</nav>
+
+{% block content_sidebar %}
+<section class="sidebar">
+	<section class="artists">
+		<header>
+		  <h1>
+				Artists
+			</h1>
+		</header>
+		<ul>
+		{% for info in artists %}
+			<li><a href="{% show_url info.shows.0 %}">{{ info.artist.name }}</a></li>
+		{% endfor %}
+		</ul>
+	</section>
+</section>
+{% endblock %}
+
+{% block show_list %}
+
+{% endblock %}
+
+{% endblock %}

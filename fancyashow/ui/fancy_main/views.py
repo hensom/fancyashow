@@ -5,7 +5,6 @@ from django.core.urlresolvers         import reverse
 from django.template                  import RequestContext
 from datetime                         import datetime, timedelta
 from fancyashow.db.models             import Show, Artist, Venue, City
-from fancyashow.ui.fancy_main.filters import ShowDateFilter, ShowDateRangeFilter, VenueFilter
 from fancyashow.ui.fancy_main.context import ShowContext, InvalidContextFilter
 def root(request):
   today = datetime.today()
@@ -86,10 +85,24 @@ def shows_at_venue(request, venue):
   shows_by_date = list(shows)
   shows_by_date.sort(key = lambda s: s.date)
   
+  venues_near_by = list(Venue.objects.filter(city = venue.city, neighborhood = venue.neighborhood).order_by('name'))
+  
+  venue_index    = venues_near_by.index(venue)
+  
+  prev_venue, next_venue = None, None
+  
+  if venue_index > 0:
+    prev_venue = venues_near_by[venue_index - 1]
+    
+  if venue_index + 1 < len(venues_near_by):
+    next_venue = venues_near_by[venue_index + 1]
+
   context = {
     'show_context':  show_context,
     'shows_by_rank': shows_by_rank,
-    'shows_by_date': shows_by_date
+    'shows_by_date': shows_by_date,
+    'prev_venue':    prev_venue,
+    'next_venue':    next_venue
   }
 
   return show_list(request, shows, 'fancy_main/shows_at_venue.html', context)
@@ -97,8 +110,7 @@ def shows_at_venue(request, venue):
 def show_details(request, venue, year, month, day, artist):
   venue = Venue.objects.get(slug = venue)
   day   = datetime(int(year), int(month), int(day))
-  
-  
+
   matching_shows = Show.objects(venue__url = venue.url, date = day)
   show           = None
   
@@ -148,6 +160,18 @@ def show_details(request, venue, year, month, day, artist):
 
 def venues(request):
   neighborhood_map = { }
+  
+  today = datetime.now().date()
+
+  show_context = ShowContext(today, today)
+  
+  shows_by_venue = { }
+  
+  for show in show_context.shows:
+    if not show.venue.url in shows_by_venue:
+      shows_by_venue[show.venue.url] = [ ]
+
+    shows_by_venue[show.venue.url].append(show)
 
   for v in Venue.objects.order_by('name'):
     key = (v.city, v.neighborhood)
@@ -155,7 +179,7 @@ def venues(request):
     if key not in neighborhood_map:
       neighborhood_map[key] = []
 
-    neighborhood_map[key].append(v)
+    neighborhood_map[key].append({'venue': v, 'shows': shows_by_venue.get(v.url, [])})
 
   cities = [ ]
 

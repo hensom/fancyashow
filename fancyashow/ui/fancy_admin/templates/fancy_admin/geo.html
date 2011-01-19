@@ -1,0 +1,94 @@
+{% extends "fancy_admin/base.html" %}
+
+{% block head %}
+{{ block.super }}
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+{% endblock %}
+
+{% block body %}
+<form>
+	<textarea rows="20" cols="100" id="geocode-requests"></textarea><br />
+	<input type="button" value="Geocode!" id="geocode-start" />
+</form>
+
+<table class="normal-table">
+	<thead>
+		<tr>
+			<th>Address</th>
+			<th>Lat</th>
+			<th>Long</th>
+		</tr>
+	</thead>
+	<tbody id="geocode-results">
+	</tbody>
+</table>
+
+<script type="text/javascript">
+var FG = function(resultsContainer) {
+	this.init(resultsContainer);
+};
+
+FG.RUNNING = 0;
+FG.SUCCESS = 1;
+FG.FAILED  = 2;
+
+FG.prototype = {
+	init: function(resultsContainer) {
+		this.results  = $(resultsContainer);
+		this.geocoder = new google.maps.Geocoder();
+	},
+	
+	geocode: function(addresses) {
+		this.results.empty();
+		
+		for(var i = 0; i < addresses.length; i++) {
+			this._runGeocode(addresses[i]);
+		}
+	},
+	
+	_runGeocode: function(address) {
+		var self = this;
+		var tr   = $('<tr>');
+		
+		tr.appendTo(this.results);
+		
+		this._renderAddress(tr, address, FG.RUNNING);
+
+		this.geocoder.geocode({'address': address}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				self._renderAddress(tr, address, FG.SUCCESS, results[0].geometry.location);
+      } else {
+				self._renderAddress(tr, address, FG.FAILED);
+ 	    }
+		});
+	},
+	
+	_renderAddress: function(tr, address, state, coords) {
+		console.log('rending', tr, address, state, coords);
+		tr.empty();
+	
+		$('<td>').text(address).appendTo(tr);
+		
+		var lat = $('<td>').appendTo(tr);
+		var lng = $('<td>').appendTo(tr);
+		
+		if(state == FG.FAILED) {
+			lat.text('Failed');
+		} else if(state == FG.RUNNING) {
+			lat.text('Waiting');
+		} else {
+			lat.text(coords.lat());
+			lng.text(coords.lng());
+		}
+	} 
+};
+
+$(document).ready(function() {
+	$("#geocode-start").click(function() {
+		var g = new FG("#geocode-results");
+
+		g.geocode(document.getElementById("geocode-requests").value.split("\n"));
+	});
+});
+</script>
+{% endblock %}

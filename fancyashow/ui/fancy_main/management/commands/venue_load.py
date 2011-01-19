@@ -78,10 +78,10 @@ class Command(BaseCommand):
       for record in parser:
         copy_over = ('name', 'url', 'address', 'city', 'neighborhood')
         
-        #if record.get('lat') and record.get('long'):
-        #  v_map['geo'] = GeoPoint(lat = float(record.get('lat')), long = float(record.get('long')))
-        
         v_map = { }
+        
+        if record.get('lat') and record.get('long'):
+          v_map['location'] = [float(record.get('lat')), float(record.get('long'))]
         
         for field in copy_over:
           v_map[field] = record[field]

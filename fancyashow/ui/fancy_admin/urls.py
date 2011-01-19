@@ -16,4 +16,5 @@ urlpatterns = patterns('',
   url(r'show/(?P<show_id>[^/]+)?/link-artist/(?P<artist_position>\d+)/$', views.show_link_artist, name = 'admin-show-link-artist'),
   url(r'^system-stats/$',                        views.system_stats,     name = 'admin-system-stats'),
   url(r'^missing-venues/$',                      views.missing_venues,   name = 'admin-missing-venues'),
+  url(r'^geo/$',                                 views.geo,              name = 'admin-geo'),
 )
