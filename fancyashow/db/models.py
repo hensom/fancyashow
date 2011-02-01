@@ -388,6 +388,25 @@ class Show(Document):
   images           = DictField(default = lambda: {}, required = True)
 
   creation_date    = DateTimeField(required = True, default = lambda: datetime.now())
+  
+  def full_title(self):
+    parts = [ ]
+
+    if self.title:
+      parts.append(self.title)
+
+    if self.artists and parts:
+      parts[0] += ':'
+
+    num_artists = len(self.artists)
+
+    for i, artist in enumerate(self.artists):
+      parts.append(artist.name)
+
+      if i != num_artists - 1:
+        parts[-1] += ','
+
+    return ' '.join(parts)
 
   def __unicode__(self):
     return '%s on %s' % (self.title or self.artists[0].name, self.date.strftime('%F'))

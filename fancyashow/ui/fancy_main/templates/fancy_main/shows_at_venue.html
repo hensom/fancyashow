@@ -6,24 +6,8 @@
   {% show_list_title show_context %}
 {% endblock %}
 
-{% block head %}
-  {{ block.super }}
-
-	<meta name="description" content="{% attribute %}
-		{% show_list_title show_context %}:
-
-  {% for show in shows %}
-    {% if forloop.counter < 6 %}
-      {% if show.title %}
-        {{ show.title }}
-      {% else %}
-        {{ show.artists.0.name }}
-      {% endif %}
-
-      at {{ show.venue.name }}{% if forloop.counter != 5 %}, {% endif %}
-    {% endif %}
-  {% endfor %}
-	{% endattribute %}" />
+{% block shows_json %}
+	{% show_list_json request shows_by_date %}
 {% endblock %}
 
 {% block content_post_title %}
@@ -49,7 +33,7 @@
 		<ul>
 			{% for show in shows_by_rank %}
 			  {% if forloop.counter0 < 6 %}
-			  <li>{% show_featured_listing show %}</li>
+			  <li>{% show_featured_listing show saved_shows %}</li>
 			  {% endif %}
 			{% endfor %}
 		</ul>
@@ -66,7 +50,7 @@
 		{% if shows_by_date %}
 		<ul{% if show_context.multiday %}class=""{% endif %}>
 			{% for show in shows_by_date %}
-			  <li>{% show_featured_listing show %}</li>
+			  <li>{% show_featured_listing show saved_shows %}</li>
 			{% endfor %}
 		</ul>
 		{% else %}

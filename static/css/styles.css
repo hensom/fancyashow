@@ -32,6 +32,15 @@ a:hover {
   color:            white;
 }
 
+a.logout {
+  display: none;
+  margin-left: 1em;
+}
+
+body.logged_in a.logout {
+  display: inline;
+}
+
 /* Page Header */
 article > header {
   text-align:    center;
@@ -128,6 +137,7 @@ section > header h1 {
   margin:      0px;
   font-size:  18px;
   text-shadow: 1px 1px 3px black;
+  width:       90%;
 }
 
 .show-featured .summary .venue {
@@ -640,4 +650,78 @@ section > header h1 {
 
 .map-venue-show {
   margin-top: 1em;
+}
+
+a.login {
+  text-decoration: underline;
+}
+
+.show-featured a.save-show-action {
+  -webkit-transition: opacity 0.25s linear;
+  opacity: 0;
+  position: absolute;
+  top:   4px;
+  right: 4px;
+  font-size: 18px;
+  text-shadow: 1px 1px 3px black;
+}
+
+.show-featured:hover a.save-show-action {
+  opacity:  0.4;
+}
+
+.show-featured a.save-show-action:hover {
+  opacity: 0.4;
+  background: none;
+  color: white;
+}
+
+.show-saved a.save-show-action {
+  opacity: 1 !important;
+}
+
+#my-calendar li {
+  height:   100%;
+  overflow: hidden;
+}
+
+#my-calendar li * {
+  padding:     0.2em;
+  line-height: 1.3em;
+  float:       left;
+  display:     block;
+}
+
+#my-calendar li .date {
+  width: 14%;
+  clear: left;
+}
+
+#my-calendar li .sep {
+  float:   left;
+  display: block;
+  padding: 0.2em;
+  width:   4%;
+}
+
+#my-calendar li .show {
+  float:   left;
+  display: block;
+  width:   65%;
+}
+
+#my-calendar li .remove-saved-show {
+  visibility: hidden;
+  width:   7%;
+  text-align: center;
+  color: #666;
+}
+
+#my-calendar li .remove-saved-show:hover {
+  color:      black;
+  background: none;
+}
+
+#my-calendar li:hover .remove-saved-show {
+  visibility: visible;
 }

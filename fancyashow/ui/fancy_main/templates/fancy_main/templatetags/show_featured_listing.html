@@ -1,6 +1,6 @@
 {% load show_util %}
 
-<div class="show-featured">
+<div class="show show-featured{% if show_saved %} show-saved{% endif %}" data-show-id="{{ show.id }}">
 		<div class="preview"{% if show.images.featured.url %} style="background-image: url('{{ show.images.featured.url }}');"{% endif %}>			<a href="{% show_url show %}"></a></div>
 		<div class="summary">
 			<a href="{% show_url show %}">
@@ -10,6 +10,8 @@
 		     {{ show.artists.0.name }}
 		   {% endif %}
 		  {% endsingleline %}</h2>
+		
+			<a href="#" class="save-show-action">&#9733;</a>
 
 		  {% if show.artists|length > 1 %}
 			<ul class="with">

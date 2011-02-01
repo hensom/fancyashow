@@ -46,10 +46,14 @@
 	  at {{ show.venue.name }}
 {% endblock %}
 
+{% block shows_json %}
+  {% show_list_json request shows %}
+{% endblock %}
+
 {% block content %}
 
 <section id="show-details">
-	{% show_featured_listing show %}
+	{% show_featured_listing show saved_shows %}
 	<section>
 		<header>
 	   <h1>{{ venue.name }}</h1>

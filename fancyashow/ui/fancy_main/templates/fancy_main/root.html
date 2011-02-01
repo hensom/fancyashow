@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 
+
 {% load humanize %}
 {% load show_util %}
 
@@ -11,7 +12,6 @@
 		{% endsingleline %}</title>
 
 		<meta charset="utf-8">
-
     <link rel="stylesheet" href="{% css_url "reset.css" %}"  type="text/css" />
     <link rel="stylesheet" href="{% css_url "styles.css" %}" type="text/css" />
 		<!--[if IE]>
@@ -19,21 +19,26 @@
 		<![endif]-->
     <script type="text/javascript" src="{% js_url "modernizr-1.6.min.js"   %}"></script>
     <script type="text/javascript" src="{% js_url "jquery-1.4.2.min.js"    %}"></script>
-    <script type="text/javascript" src="{% js_url "jquery.scrollTo-min.js" %}"></script>
+    <script type="text/javascript" src="{% js_url "underscore.js"          %}"></script>
+    <script type="text/javascript" src="{% js_url "backbone.js"            %}"></script>
     <script type="text/javascript" src="{% js_url "jquery.textshadow.js"   %}"></script>
-    <script type="text/javascript" src="{% js_url "jquery-columnize.js"    %}"></script>
-    <script type="text/javascript" src="{% js_url "fancypants.js"          %}"></script>
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+		<script src="http://connect.facebook.net/en_US/all.js"></script>
+    <script type="text/javascript" src="{% js_url "fancypants.js"          %}"></script>
 		<script type="text/javascript">
-		$(document).ready(function() {
-      var ui = new Fancy.UI();
-
-	    //ui.init();
+		$(function() {
+			var conf = {
+				facebookAppId: '174609829242619',
+				shows:         {% block shows_json %}[]{% endblock %},
+				visitor:       {% visitor_info_json request %}
+			};
+      new Fancy.UI(conf);
 	  });
 		</script>
 	{% endblock %}
   </head>
-  <body>
+  <body id="all">
+		<div id="fb-root"></div>
 	  <div class="wrapper">
 		  <header id="site-header">
 			  <hgroup>
@@ -44,6 +49,7 @@
 				{% block nav %}
 				  <a href="{% url root %}">Shows</a>
 					<a href="{% url venues %}">Venues</a>
+					<a href="#logout" class="logout">Logout</a>
 				{% endblock %}
 				</nav>
 			</header>
@@ -57,6 +63,7 @@
 		  	{% block content %}{% endblock %}
 			</article>
 			{% endblock %}
+
 
 		{%if GOOGLE_ANALYTICS_ACCOUNT %}
 			<script type="text/javascript">
@@ -72,5 +79,21 @@
 			</script>
 		{% endif %}
 		</div>
+		<script id="my-calendar-template" type="text/template">
+			<header>
+				<h1>My Calendar</h1>
+			</header>
+      <% if(logged_in) { %>
+        <%= message %>
+        <ol></ol>
+      <% } else { %>
+        Please <a href="#" class="login">login</a> to access your calendar.
+      <% } %>
+		</script>
+		<script id="saved-show-template" type="text/template">
+      <span class="date"><%= date %></span>
+      <span class="sep">-</span>
+			<a href="<%= url %>" class="show"><%= title %></a> <a href="#" class="remove-saved-show">x</a>
+		</script>
   </body>
 </html>

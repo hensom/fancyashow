@@ -1,3 +1,4 @@
+import logging
 from django.conf                      import settings
 from django.http                      import HttpResponseRedirect, HttpResponse, HttpResponseServerError, Http404
 from django.shortcuts                 import render_to_response
@@ -6,6 +7,10 @@ from django.template                  import RequestContext
 from datetime                         import datetime, timedelta
 from fancyashow.db.models             import Show, Artist, Venue, City
 from fancyashow.ui.fancy_main.context import ShowContext, InvalidContextFilter
+from fancyashow.ui.fancy_main.forms   import ShowChoiceForm
+
+LOG = logging.getLogger(__name__)
+
 def root(request):
   today = datetime.today()
   
@@ -49,6 +54,12 @@ def show_list(request, shows, template, context):
 
     for artist_id, artist_info in artist_to_show.iteritems():
       artist_info['artist'] = artist_map[artist_id]
+      
+  saved_shows = { }
+
+  if request.user.is_authenticated():
+    for show_id in request.user.saved_shows:
+      saved_shows[show_id] = True
 
   artists = artist_to_show.values()
 
@@ -62,7 +73,8 @@ def show_list(request, shows, template, context):
     'artists':     artists,
     'venue_map':   venue_map,
     'venues':      venues,
-    'hot_ranking': settings.ARTIST_HOT_RANKING
+    'hot_ranking': settings.ARTIST_HOT_RANKING,
+    'saved_shows': saved_shows
   })
 
   return render_to_response(template, RequestContext(request, context))
@@ -76,8 +88,6 @@ def shows_at_venue(request, venue):
   show_context = ShowContext(start, end, venue = venue)
 
   shows = list(show_context.shows)
-
-  shows.sort(key = lambda s: s.date)
   
   shows_by_rank = list(shows)
   shows_by_rank.sort(key = lambda s: s.rank)
@@ -149,12 +159,20 @@ def show_details(request, venue, year, month, day, artist):
     artists.append({'info': artist_info, 'artist': artist_map.get(artist_info.artist_id), 'shows': shows_by_artist.get(artist_info.artist_id, [])})
 
   venues = list(Venue.objects())
+  
+  saved_shows = { }
+  
+  if request.user.is_authenticated():
+    for show_id in request.user.saved_shows:
+      saved_shows[show_id] = True
 
   context = {
-    'show':    show,
-    'artists': artists,
-    'venue':   Venue.objects.get(url = show.venue.url),
-    'venues':  venues
+    'show':        show,
+    'shows':       [show],
+    'artists':     artists,
+    'venue':       Venue.objects.get(url = show.venue.url),
+    'venues':      venues,
+    'saved_shows': saved_shows
   }
 
   return render_to_response('fancy_main/show_details.html', RequestContext(request, context))
@@ -203,3 +221,41 @@ def venues(request):
   }
 
   return render_to_response('fancy_main/venues.html', RequestContext(request, context))
+
+def user_saved_shows(request):
+  context = { }
+  return render_to_response('fancy_main/user_saved_shows.html', RequestContext(request, context))
+
+def user_suggested_shows(request):
+  context = { }
+  return render_to_response('fancy_main/user_suggested_shows.html', RequestContext(request, context))
+  
+def user_add_saved_shows(request):
+  form = ShowChoiceForm(request.REQUEST)
+  
+  if form.is_valid():
+    show = form.cleaned_data['show']
+    
+    if show.id not in request.user.saved_shows:
+      request.user.saved_shows.append(show.id)
+    
+      request.user.save()
+    
+    return HttpResponse('{success: true}')
+  else:
+    raise Exception(form.errors)
+
+def user_remove_saved_shows(request):
+  form = ShowChoiceForm(request.REQUEST)
+
+  if form.is_valid():
+    show = form.cleaned_data['show']
+
+    if show.id in request.user.saved_shows:
+      request.user.saved_shows.remove(show.id)
+
+      request.user.save()
+
+    return HttpResponse('{success: true}')
+  else:
+    raise Exception(form.errors)

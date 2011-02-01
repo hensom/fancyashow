@@ -1,55 +1,321 @@
-var FancyUI = null;
+$(function() {
+  window.Fancy = { };
+  
+  var URLS = {
+    CURRENT_VISITOR:             '/api/v1/me/',
+    CURRENT_VISITOR_SAVED_SHOWS: '/api/v1/me/saved_shows/'
+  }
 
-(function() {
-  Fancy = { };
+  var DAYS   = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
-  Fancy.UI = function() {
-  };
+  function simpleDateFormat(datetime) {
+    return MONTHS[datetime.getMonth()] + ' ' + datetime.getDate();
+  }
 
-  Fancy.UI.prototype = {
-    init: function() {
-      this.currentShowId      = null;
-      this.displayState       = 'top';
-      this.venuePanelIsOpen   = false;
-      this.page               = 0;
-      this.showPanelWasClosed = false;
-      this.requests        = {
-        showList:    null,
-        showDetails: null
-      };
-      this.filters         = {
-        free:     false,
-        outdoors: false,
-        county:   null,
-        geo:      null
-      };
+  function parseDateTime(datetime) {
+    if(datetime === null) {
+      return null;
+    } else if(_.isString(datetime)) {
+      var parts = datetime.split('T');
+      var date  = parts[0].split('-');
+      var time  = parts[1].split(':');
       
-      this.shows   = $('#shows');
-      this.artists = $('#artists');
- 	    
- 	    this._columnizeLists();
- 	     
- 	    this.closeFilterPanel(true);
- 	    
- 	    this.shows.filter('.show-featured').each(function(showEl) {
- 	      var show = $(showEl);
- 	      
- 	      show.css('position', 'absolute');
- 	    });
+      return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2]);
+    } else {
+      return datetime;
+    }
+  }
+
+  function parseShowJSON(o) {
+    o.date      = parseDateTime(o.date);
+    o.show_time = parseDateTime(o.show_time);
+    o.door_time = parseDateTime(o.door_time);
+
+    return o;
+  }
+  
+  Fancy.Show = Backbone.Model.extend({
+    parse: function(response) {
+      return parseShowJSON(response);
+    },
+    getDisplayTitle: function() {
+      parts = [ ]
+  
+      if(this.get('title')) {
+        parts.push(this.get('title'));
+      }
+
+      var artists = this.get('artists');
+  
+      if(artists.length > 0 && parts.length > 0) {
+        parts[0] += ':'
+      }
+
+      _.each(artists, function(artist, i) {
+        parts.push(artist.name);
+
+        if(i != artists.length - 1) {
+          parts[i - 1] += ',';
+        }
+      });
+
+      return parts.join(',');
+    },
+  });
+  
+  Fancy.ShowList = Backbone.Collection.extend({
+    model: Fancy.Show
+  });
+
+  Fancy.Visitor = Backbone.Model.extend({
+    url: URLS.CURRENT_VISITOR,
+    initialize: function() {
+      this.upcomingShows = new Fancy.ShowList([], {
+        comparator: function(show) {
+          return show.get('date');
+        }
+      });
+    },
+    parse: function(response) {
+      this.upcomingShows.refresh(_.map(response.upcoming_shows, parseShowJSON));
+
+      return response;
+    },
+
+    loggedIn: function() {
+      return this.get('id') !== undefined;
+    },
+
+    addShow: function(show) {
+      this.upcomingShows.add(show);
+
+      $.post(URLS.CURRENT_VISITOR_SAVED_SHOWS, {'add': show.id});
+    },
+
+    removeShow: function(show) {
+      this.upcomingShows.remove(show);
+
+      $.post(URLS.CURRENT_VISITOR_SAVED_SHOWS, {'remove': show.id});
+    }
+  });
+  
+  Fancy.SavedShowItemView = Backbone.View.extend({
+    tagName:  'li',
+    template: _.template($('#saved-show-template').html()),
+    events: {
+      'click a.remove-saved-show': 'remove'
+    },
+    initialize: function(options) {
+      this.visitor    = options.visitor;
+      this.model      = options.model;
+    },
+    render: function() {
+      var context = {
+        'date':  simpleDateFormat(this.model.get('date')),
+        'title': this.model.getDisplayTitle(),
+        'url':   this.model.get('url')
+      }
+
+      $(this.el).html(this.template(context));
       
-      //this._initSettings();
-      this._initDisplayCompat();
-      this._initEvents();
-      this._initPreviews();
+      return this;
+    },
+    remove: function() {
+      this.visitor.removeShow(this.model);
+
+      return false;
+    }
+  });
+
+  Fancy.SavedShowListView = Backbone.View.extend({
+    el:       $('#my-calendar'),
+    template: _.template($('#my-calendar-template').html()),
+
+    initialize: function(options) {
+      _.bindAll(this, 'render');
+
+      this.collection = options.collection;
+      this.visitor    = options.visitor;
+      
+      this.collection.bind('add',     this.render);
+      this.collection.bind('remove',  this.render);
+      this.collection.bind('refresh', this.render);
+
+      this.visitor.bind('auth:login',  this.render);
+      this.visitor.bind('auth:logout', this.render);
     },
     
-    _initDisplayCompat: function() {
-      if(!Modernizr.textshadow) {
-        $('#shows .show h2').each(this._createShadow);
-        $('#shows .show .venue').each(this._createShadow);
+    render: function() {
+      var el = $(this.el);
+
+      var context = {
+        message:   (this.collection.length == 0) ? 'Your calendar is empty' : '',
+        logged_in: this.visitor.loggedIn()
+      };
+
+      el.html(this.template(context));
+
+      var collection = this.collection;
+      var self       = this;
+
+      this.collection.each(function(show) {
+        el.find('ol').append(new Fancy.SavedShowItemView({'model': show, 'visitor': self.visitor}).render().el);
+      });
+    }
+  });
+
+  Fancy.UI = Backbone.View.extend({
+    el: $('body'),
+
+    events: {
+      'click a.save-show-action': 'toggleShowSavedState',
+      'click a.login':            'login',
+      'click a.logout':           'logout'
+    },
+    
+    initialize: function(options) {
+      this.facebookAppId = options.facebookAppId;
+      
+      this.visitor           = new Fancy.Visitor();
+      this.shows             = new Fancy.ShowList();
+      this.upcomingShowsView = new Fancy.SavedShowListView({collection: this.visitor.upcomingShows, visitor: this.visitor});
+      this.postLoginQueue    = [];
+
+      this.visitor.set(this.visitor.parse(options.visitor));
+      this.shows.refresh(_.map(options.shows, parseShowJSON));
+
+      this._initDisplayCompat();
+      this._initAuth();
+      this._initEvents();
+
+      this.upcomingShowsView.render();
+
+      if(this.visitor.loggedIn()) {
+        this.visitor.trigger('auth:login');
       }
     },
     
+    _parseShows: function(response) { 
+      response.date      = parseDateTime(response.date);
+      response.show_time = parseDateTime(response.show_time);
+      response.door_time = parseDateTime(response.door_time);
+
+      return response;
+    },
+
+    _initDisplayCompat: function() {
+      var root = $(this.el);
+
+      root.filter('.show-featured').each(function(showEl) {
+        $(showEl).css('position', 'absolute');
+ 	    });
+ 	    
+ 	    if(!Modernizr.textshadow) {
+        root.filter('.show-featured h2').each(this._createShadow);
+        root.filter('.show-featured .venue').each(this._createShadow);
+      }
+    },
+    
+    toggleShowSavedState: function(event) {
+      var self   = this;
+      var showId = $(event.target).parents('.show').attr('data-show-id');
+      var show   = this.shows.get(showId);
+      // FIXME this is probably less than ideal
+      var saved  = this.visitor.upcomingShows.get(showId);
+      
+      var handleToggle = function() {
+        if(saved) {
+          self.visitor.removeShow(saved);
+        } else {
+          self.visitor.addShow(show);
+        }
+      }
+
+      if(!this.visitor.loggedIn()) {
+        this.postLoginQueue.push(handleToggle);
+        this.login();
+      } else {
+        handleToggle();
+      }
+      
+      return false;
+    },
+
+    _initEvents: function() {
+      var self  = this;
+      var shows = $(this.el).find('.show-featured');
+      
+      this.visitor.upcomingShows.bind('add', function(show) {
+        shows.each(function() {
+          if(this.getAttribute('data-show-id') == show.id) {
+           $(this).addClass('show-saved') 
+          }
+        });
+      });
+      
+      this.visitor.upcomingShows.bind('remove', function(show) {        
+        shows.each(function() {
+          if(this.getAttribute('data-show-id') == show.id) {
+           $(this).removeClass('show-saved') 
+          }
+        });
+      });
+      
+      this.visitor.bind('auth:login', function() {
+        $('body').removeClass('logged_out').addClass('logged_in');
+        _.each(self.postLoginQueue, function(cb) { cb() });
+      });
+      
+      this.visitor.bind('auth:logout', function() {
+        $('body').removeClass('logged_in').addClass('logged_out');
+        self.postLoginQueue = [];
+      });
+    },
+    
+    _initAuth: function() {
+      var self = this;
+
+      FB.init({ appId:this.facebookAppId, cookie:true, status:true });
+      
+      FB.Event.subscribe('auth.sessionChange', function(response) {
+        self._handleSessionChange(response);
+      });
+    },
+    
+    login: function() {
+      FB.login();
+      
+      return false;
+    },
+    
+    logout: function() {
+      FB.logout();
+      
+      return false;
+    },
+    
+    _handleSessionChange: function(response) {
+      var self = this;
+
+      if(response.session) {
+        if(!this.visitor.loggedIn()) {
+          $.post('/login/', function(data) {
+            // TODO: return the new visitor as part of the login
+            // or perhaps post to a UserSession resource
+            self.visitor.fetch({
+              success: function(visitor) { visitor.trigger('auth:login'); }
+            });
+          });
+        }
+      } else {
+        $.post('/logout/', function(data) {
+          self.visitor.clear();
+          self.visitor.trigger('auth:logout');
+        });
+      }
+    },
+
     _createShadow: function() {
       if($.browser.msie) {
        $(this).textShadow();
@@ -68,547 +334,6 @@ var FancyUI = null;
 
         item.parent().append(shadow);
       }
-    },
-    
-    _columnizeLists: function() {
-      var baseWidth = 152;
-      var columns   = parseInt($('#main-nav').outerWidth() / baseWidth);
-      
-      console.log($('#main-nav').outerWidth());
-      
-      if(columns % 2 != 0) {
-        columns--;
-      }
-
-//      $('#artists ul').columnizeList({cols: columns, width: baseWidth, unit:'px'});
-      $('#venue-list ul').each(function() {
-	      $(this).columnizeList({cols: columns, width: baseWidth, unit:'px'});
- 	    });      
-    },
-    
-    _initSettings: function() {
-      var ui       = this;
-      var settings = $('#settings');
-      
-      var settingsClasses = [Fancy.UI.Settings.Free, Fancy.UI.Settings.Brooklyn, Fancy.UI.Settings.Manhattan, Fancy.UI.Settings.NearLocation];
-      
-      $.each(settingsClasses, function(index, settingClass) {
-        var li   = $('<li>');
-        var impl = new settingClass(ui);
-        
-        settings.append(li);
-        impl.render(li);
-      });
-      
-      settings.find('li').not('li:last-child').each(function() {
-        this.appendChild(document.createTextNode(' / '));
-      });
-    },
-    
-    _initPreviews: function() {
-      var ui      = this;
-      var manager = new Fancy.PreviewManager();
-
-      this.preview_manager = manager;
-
-      var preview = $('#preview');
-
-      preview.delegate('a.toggle-play-state', 'click', function(event) {
-        event.preventDefault();
-
-        manager.isPaused() ? manager.play() : manager.pause();
-      });
-      
-      preview.delegate('a.prev', 'click', function(event) {
-        event.preventDefault();
-
-        var showId = ui.getPrevShowWithPreview( manager.getShowId() );
-
-        if(showId) {
-          ui.setCurrentShow(showId);
-        }
-      });
-
-      preview.delegate('a.next', 'click', function(event) {
-        event.preventDefault();
-
-        var showId = ui.getNextShowWithPreview( manager.getShowId() );
-
-        if(showId) {
-          ui.setCurrentShow(showId);
-        }
-      });
-      
-      preview.delegate('.info', 'click', function(event) {
-        ui.expandShowPanel();
-      });
-
-      manager.on('preview-state', function(position, duration) {
-        var state = preview.find('.state');
-
-        var p = ui.formatTime(position);
-        var d = ui.formatTime(duration);
-
-        state.text( duration ? p + '/' + d : p );
-      });
-
-      manager.on('preview-play', function() {
-        var meta = manager.getMeta();
-        preview.css('display', 'block');
-        preview.html('');
-        
-        var header = $('<span>').addClass('info').appendTo(preview);
-        
-        if(meta.artist) {
-          $('<span>').addClass('artist').text(meta.artist).appendTo(header)
-        }
-        
-        $('<span>').addClass('title').text(meta.title).appendTo(header);
-        
-        var controls = $('<span>').addClass('controls').appendTo(preview);
-        
-        $('<span>').addClass('state').text('0:00').appendTo(controls);
-        $('<a href="#">').addClass('toggle-play-state').text('Pause').appendTo(controls);
-        
-        controls.append(document.createTextNode(' / '));
-        if(ui.getPrevShowWithPreview( manager.getShowId() )) {
-          $('<a href="#">').addClass('prev').text('Go Back').appendTo(controls);
-        } else {
-          $('<span>').addClass('disabled').text('Go Back').appendTo(controls);
-        }
-
-        controls.append(document.createTextNode(' / '));
-        if(ui.getNextShowWithPreview( manager.getShowId() )) {
-          $('<a href="#">').addClass('next').text('Skip').appendTo(controls);
-        } else {
-          $('<span>').addClass('disabled').text('Skip').appendTo(controls);
-        }
-      });
-
-      manager.on('preview-pause', function() {
-        preview.find('a.toggle-play-state').text('Resume');
-      });
-
-      manager.on('preview-resume', function() {
-        preview.find('a.toggle-play-state').text('Pause');
-      });
-
-      manager.on('preview-stop', function() {
-        preview.html('');
-      });
-
-      manager.on('preview-finish', function() {
-        var showId  = this.getShowId();
-
-        var nextShowId = ui.getNextShowWithPreview(showId);
-
-        if(nextShowId) {
-          ui.setCurrentShow(nextShowId);
-        }
-      });
-    },
-    
-    getShowEl: function(showId) {
-      return $('#show-' + showId);
-    },
-    
-    _firstShowWithPreview: function(shows) {
-      var me     = this;
-      var showId = null;
-
-      shows.each(function() {
-        showId = me._showFromElement(this).showId;
-
-        return false;
-      });
-
-      return showId;
-    },
-
-    
-    _firstShowWithPreview: function(shows) {
-      var me     = this;
-      var showId = null;
-
-      shows.each(function() {
-        var info = me._showFromElement(this);
-
-        if(info.preview) {
-          showId = info.showId;
-
-          return false;
-        }
-      });
-
-      return showId;
-    },
-    
-    getPrevShow: function(showId) {
-      return this._firstShow($('#show-' + showId).prevAll());
-    },
-    
-    getNextShow: function(showId) {
-      return this._firstShow($('#show-' + showId).nextAll());
-    },
-    
-    getPrevShowWithPreview: function(showId) {
-      return this._firstShowWithPreview($('#show-' + showId).prevAll());
-    },
-
-    getNextShowWithPreview: function(showId) {
-      return this._firstShowWithPreview($('#show-' + showId).nextAll());
-    },
-
-    _showFromElement: function(el) {
-      var info = {
-        'showId': el.getAttribute('show-id')
-      };
-
-      if(el.getAttribute('preview-url')) {
-        info.preview = {
-          'artist':    el.getAttribute('preview-artist'),
-          'title':     el.getAttribute('preview-title'),
-          'streamUrl': el.getAttribute('preview-url')
-        };
-      }
-
-      return info;
-    },
-
-    formatTime: function(milliseconds) {
-      var seconds = parseInt(milliseconds / 1000);
-      var minutes = parseInt(seconds / 60);
-      
-      seconds = seconds - minutes * 60;
-
-      if(seconds < 10) {
-        seconds = '0' + seconds;
-      }
-      
-      return minutes + ':' + seconds;
-    },
-    
-    _initEvents: function() {
-      var ui = this;
-      
-      $(window).resize(function() {
-        ui._columnizeLists();
-      });
-      
-      $('.show-list header').bind('click', function(ev) {
-        ev.preventDefault();
-        
-        if(ui.filterPanelIsOpen) {
-          ui.closeFilterPanel();
-        } else {
-          ui.openFilterPanel();
-        }
-      });
-      
-      this.shows.delegate('.show-feautured', 'mouseenter', function(ev) {
-        $(this).addClass('mouse-over');
-      });
-      
-      this.shows.delegate('.show-featured', 'mouseleave', function(ev) {
-        $(this).removeClass('mouse-over');
-      });
-
-      this.shows.delegate('#state', 'click', function(ev) {
-        ev.preventDefault();
-
-        if(ui.displayState == 'selected') {
-          ui.showTopShows();
-        } else if(ui.displayState == 'all') {
-          ui.showTopShows();
-        } else {
-          ui.showAllShows();
-        }
-      });
-      
-      this.shows.delegate('#prev', 'click', function(ev) {
-        ev.preventDefault();
-
-        ui.prevPage();
-      });
-      
-      this.shows.delegate('#next', 'click', function(ev) {
-        ev.preventDefault();
-
-        ui.nextPage();
-      });
-      
-      this.shows.delegate('.more-info', 'click', function() {
-        var show = $(this).parents('.show').first();
-        
-        show.addClass('details-shown');
-      });
-
-      this.shows.delegate('.close', 'click', function() {
-        var show = $(this).parents('.show').first();
-        
-        show.removeClass('details-shown');
-      });
-    },
-    
-    openFilterPanel: function() {
-      $('.show-list nav').slideDown();
-
-      this.filterPanelIsOpen = true;
-    },
-    
-    closeFilterPanel: function(instant) {
-      return;
-      if(instant) {
-        $('.show-list nav').css('display', 'none');
-      } else {
-        $('.show-list nav').slideUp();
-      }
-
-      this.filterPanelIsOpen = false;
-    },    
-    
-    setCurrentShow: function(showId) {
-      var showEl     = document.getElementById('show-' + showId);
-      var info       = this._showFromElement(showEl);
-      var manager    = this.preview_manager;
-      
-      this.currentShowId = showId;
-
-      if(info.preview) {
-        manager.startPreview(info.showId, info.preview.streamUrl, {'artist': info.preview.artist, 'title': info.preview.title});
-      } else {
-        manager.stop();
-
-        $('#preview').text("Sorry, we don't have a preview for this one just yet");
-      }      
-      
-      this.currentShowId = showId;
-      this.updateShowPanel(showId);
-      this.highlightShow(showId);
-    },
-    
-    highlightShow: function(showId) {
-      var ui = this;
-
-      ui.shows.find('.show-detail').each(function() {
-        var det = $(this);
-
-        det.removeClass('show-detail');
-
-        ui._syncDetailsUnder(det);
-      });
-
-      var newShow = $('#show-' + showId);
-
-      newShow.addClass('show-detail');
-
-      ui._showDetails(newShow);
-    },
- 
-    collapseShowPanel: function() {
-      $('#show-info').animate({height: 0}, 'fast', function() { $(this).css('display', 'none') });
-    },
-    
-    expandShowPanel: function(forceExpand) {
-      var info = $('#show-info');
-
-      info.css('display', 'block');
-      info.animate({height: 100 }, 'fast');
-    },
-    
-    updateShowPanel: function(showId) {
-      var ui = this;
-
-      if(this.requests.showDetails) {
-        this.requests.showDetails.abort();
-        this.requests.showDetails = null;
-      }
-
-      this.requests.showDetails = $.ajax({
-        'url':     '/show/' + showId + '/details/',
-        'success': function(data) {
-          var info = $('#show-info');
-          
-          info.html(data);
-          
-          if(!ui.showPanelWasClosed) {
-            ui.expandShowPanel();
-          }
-        },
-        'error': function() {
-          var info = $('#show-info');
-          
-          info.html('Ooop, your show details were eaten by gremlins. Please try again')
-          
-          info.animate({height: 17}, 'fast');
-        },
-        'complete': function() {
-          ui.requests.showDetails = null;
-        }
-      });
-    },
-    
-    showHeight: function() {
-      var showSet    = $('#shows ul').first();
-      var showSetEl  = showSet.get(0);
-
-      return showSet.children('.show').first().outerHeight(true);      
-    },
-    
-    showPage: function(pageNum) {
-      var showSet    = $('#shows ul').first();
-      var showHeight = this.showHeight();
-
-      showSet.scrollTo(showHeight * 2 * pageNum, 500);
-    },
-    
-    nextPage: function() {
-      this.showPage(this.page + 1);
-      
-      this.page++;
-    },
-    
-    prevPage: function() {
-      if(this.page > 0) {
-        this.showPage(this.page - 1);
-      
-        this.page--;
-      }
-    },
-    
-    clearArtistSelection: function() {
-      this.artists.find('li').removeClass('selected');
-    },
-    
-    setDisplayState: function(newState) {
-      this.displayState = newState;
-  
-      var map = {
-        'all':      'Show Less',
-        'top':      'Show More',
-        'selected': 'Show Top'
-      }
-
-      if(newState != 'selected') {
-        this.clearArtistSelection();        
-      }
-
-      $('#state').text( map[this.displayState] );
-      
-      for(var state in map) {
-        this.shows.removeClass(state);        
-      }
-
-      this.shows.addClass(newState);
-    },
-
-    showAllShows: function() {
-      var showSet    = $('#shows ul').first();
-      var showSetEl  = showSet.get(0);
-      var showHeight = showSet.children('.show').first().outerHeight(true);
-      
-      this.page = 0;
-
-      showSet.scrollTop(0);
-
-      showSet.animate({height: showSetEl.scrollHeight}, 'fast', function() {
-        showSet.css('height', 'auto');
-        showSet.children('.show').each(function() { $(this).css('display', 'block'); });
-      });
-
-      this.setDisplayState('all');
-    },
-    
-    showTopShows: function() {
-      var showSet    = $('#shows ul').first();
-      var showSetEl  = showSet.get(0);
-      var showHeight = showSet.children('.show').first().outerHeight(true);
-      
-      this.page = 0;
-      
-      showSet.scrollTop(0);
-      
-      showSet.animate({height: 2 * showHeight}, 'fast', function() {
-        showSet.children('.show').each(function() { $(this).css('display', 'block'); });
-      });
-      $.scrollTo(document.body, {'duration': 500, 'offset': {'top': -100}});
-      
-      this.setDisplayState('top');
-    },
-    
-    showSelected: function(showIds) {
-      var requestedShows = { };
-      var showSet        = $('#shows ul').first();
-      var showSetEl      = showSet.get(0);
-      var showHeight     = showSet.children('.show').first().outerHeight(true);
-      
-      for(var i in showIds) {
-        requestedShows[showIds[i]] = true;
-      }
-      
-      showSet.fadeOut('fast', function() {
-        showSet.children('.show').each(function() {
-          var showId = this.getAttribute('data-id');
-
-          if(!requestedShows[showId]) {
-            $(this).css('display', 'none');
-          } else {
-            $(this).css('display', null);
-          }
-        });
-
-        showSet.fadeIn('fast');
-      });
-
-      this.setDisplayState('selected');
-    },
-    
-    freeFilterIsSet: function() {
-      return this.filters.free;
-    },
-
-    setFreeFilter: function(setFilter) {
-      this.filters.free = setFilter;
-      
-      this.fire('free-filter-changed');
-
-      this.refreshShows()
-    },
-    
-    outdoorFilterIsSet: function() {
-      return this.filters.outdoors;
-    },
-
-    setOutdoorFilter: function(setFilter) {
-      this.filters.outdoors = setFilter;
-      
-      this.fire('outdoor-filter-changed');
-
-      this.refreshShows()
-    },
-    
-    setCountyFilter: function(county) {
-      this.filters.county = county;
-
-      this.fire('county-filter-changed');
-
-      this.refreshShows();
-    },
-    
-    countyFilter: function(county) {
-      return this.filters.county;
-    },
-    
-    setGeoFilter: function(geo) {
-      this.filters.geo = geo;
-      
-      this.fire('geo-filter-changed');
-
-      this.refreshShows();
-    },
-    
-    geoFilter: function() {
-      return this.filters.geo;
     }
-  };
-}());
+  });
+});

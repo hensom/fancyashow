@@ -80,8 +80,6 @@ $(document).ready(function() {
 			lngSum += lng;
 			coordNum++;
 			
-			console.log('Adding point', name, lat, lng);
-			
 			var marker = new google.maps.Marker({
 	      map:      map, 
 	      position: new google.maps.LatLng(lat, lng),
@@ -99,8 +97,6 @@ $(document).ready(function() {
 	});
 	
 	if(coordNum > 0) {
-		console.log('Centering map: ', latSum, latSum / coordNum, lngSum / coordNum);
-
 		map.setCenter(new google.maps.LatLng(latSum / coordNum, lngSum / coordNum));
 	}
 });

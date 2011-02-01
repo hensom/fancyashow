@@ -5,9 +5,38 @@ from django   import template
 from django.template          import Node
 from django.core.urlresolvers import reverse
 from django.conf              import settings
-from fancyashow.db.models     import Venue, City
+from django.utils             import simplejson
+from fancyashow.db.models     import Show, Venue, City
+
+from fancyashow.ui.fancy_api.resources import VisitorResource, ShowResource
 
 register = template.Library()
+
+def datetime_or_none(day):
+  if day:
+    return day.strftime('%F %H:%M:%S')
+  else:
+    return None
+    
+def show_json(show):
+  kwargs = {
+    'venue':  show.venue.slug(),
+    'year':   show.date.year,
+    'month':  show.date.month,
+    'day':    show.date.day,
+    'artist': show.slug()
+  }
+  
+  info = {
+    'id':        show.id_str,
+    'title':     show.full_title(),
+    'date':      datetime_or_none(show.date),
+    'show_time': datetime_or_none(show.show_time),
+    'door_time': datetime_or_none(show.door_time),
+    'url':       reverse('show-details', kwargs = kwargs)
+  }
+  
+  return info
 
 def static_url(base, path, version = None):
   if not version:
@@ -36,23 +65,12 @@ def show_url(show):
   
 @register.simple_tag
 def show_title(show):
-  parts = [ ]
+  return show.full_title()
   
-  if show.title:
-    parts.append(show.title)
-    
-  if show.artists and parts:
-    parts[0] += ':'
-
-  num_artists = len(show.artists)
-
-  for i, artist in enumerate(show.artists):
-    parts.append(artist.name)
-
-    if i != num_artists - 1:
-      parts[-1] += ','
-      
-  return ' '.join(parts)
+@register.simple_tag
+def show_list_json(request, shows):
+  sr = ShowResource()
+  return sr.serialize(request, [sr.full_dehydrate(show) for show in shows], 'application/json')
   
 VIDEO_IMPL = {
   'youtube': '<iframe title="%(title)s" class="youtube-player" type="text/html" width="%(width)s" height="%(height)s" src="http://www.youtube.com/embed/%(media_id)s?rel=0&showinfo=1" frameborder="0"></iframe>',
@@ -83,9 +101,17 @@ def artist_video(artist, width = 300, height = 200, number = 2):
     
   return ''.join(ret)
   
+@register.simple_tag
+def visitor_info_json(request):
+  if not request.user.is_authenticated():
+    return '{"logged_in": false}'
+  else:
+    vr = VisitorResource()
+    return vr.serialize(request, vr.full_dehydrate(request.user), 'application/json')
+
 @register.inclusion_tag('fancy_main/templatetags/show_featured_listing.html')
-def show_featured_listing(show):
-  return {'show': show}
+def show_featured_listing(show, saved_shows):
+  return {'show': show, 'show_saved': show.id in saved_shows}
   
 @register.inclusion_tag('fancy_main/templatetags/show_detailed_link.html')
 def show_detailed_link(show):
@@ -118,6 +144,7 @@ def venue_options(show, venue_map):
 @register.inclusion_tag('fancy_main/templatetags/title.html')
 def show_list_title(show_context):
   return {'show_context': show_context}
+  
 
 @register.inclusion_tag('fancy_main/templatetags/nav.html')
 def show_list_nav(show_context):

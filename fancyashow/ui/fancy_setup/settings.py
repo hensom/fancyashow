@@ -60,6 +60,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = (
+  'fancyashow.ui.fancy_main.auth.FacebookBackend',
+)
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.auth',
     'django.core.context_processors.debug',
@@ -86,15 +90,17 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.humanize',
     'password_required',
+    'mongoadmin',
     'fancyashow.ui.fancy_setup',
     'fancyashow.ui.fancy_main',
+    'fancyashow.ui.fancy_api',
     'fancyashow.ui.fancy_admin',
 )
 
 GOOGLE_ANALYTICS_ACCOUNT = None
 PARSE_STAT_MAX_HISTORY   = 5
 
-RESOURCE_VERSION = 4
+RESOURCE_VERSION = 5
 STATIC_BASE_URL  = '/static'
 
 import sys
