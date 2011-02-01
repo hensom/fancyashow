@@ -36,10 +36,7 @@ class Pianos(ShowParser):
       show_urls = html_util.get_show_urls(cal_url, "#longlist", '.details', self.IS_EVENT)
     
       for url in show_urls:
-        try:
-          yield self._parse_show(url)
-        except Exception, e:
-          raise ParserError(url, None, e)
+        yield self._parse_show(url)
 
   def _parse_show(self, link):
     logging.debug('Parsing show from: %s' % link)

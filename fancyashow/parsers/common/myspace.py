@@ -33,13 +33,12 @@ class MyspaceParser(ShowParser):
       yield self._parse_show(url, section)
 
   def _parse_show(self, url, section):
-    today = datetime.today()
-    day   = html_util.get_first_element(section, '.entryDate .day').text_content().strip(' \n\r')
-    month = html_util.get_first_element(section, '.entryDate .month').text_content().strip(' \n\r')
+    doc = html_util.fetch_and_parse(url)
 
-    date_txt = "%s %s, %d" % (month, day, today.year)
+    show_el  = html_util.get_first_element(doc, '#detailPage')
+    date_txt = html_util.get_first_element(show_el, 'time.dtstart').get('datetime')
 
-    title = html_util.get_first_element(section, '.details h4').text_content()
+    title = html_util.get_first_element(section, 'h4').text_content()
 
     show = Show()
 
@@ -49,7 +48,7 @@ class MyspaceParser(ShowParser):
     show.show_time  = date_util.parse_date_time(date_txt)
 
     show.resources.show_url      = url
-    show.resources.resource_uris = self.resource_extractor.extract_resources(section)
+    show.resources.resource_uris = self.resource_extractor.extract_resources(section, show_el)
 
     return show
 

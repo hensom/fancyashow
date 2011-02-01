@@ -33,10 +33,7 @@ class BoweryPresentsBase(ShowParser):
     show_urls = html_util.get_show_urls_and_section(self.show_list_url(), '#list-view', {'tag': 'li'}, self.event_url_re())
 
     for url, show_section in show_urls.iteritems():
-      try:
-        yield self._parse_show(url, show_section)
-      except Exception, e:
-        raise ParserError(url, show_section, e)
+      yield self._parse_show(url, show_section)
 
   def _parse_show(self, link, show_section):
     show_doc    = html_util.fetch_and_parse(link)

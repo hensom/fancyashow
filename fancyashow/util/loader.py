@@ -102,7 +102,7 @@ class ShowLoader(object):
       elif len(old_shows) == 1 and len(new_shows) == 1:
         shows.extend(self._merge_shows(old_shows[0], new_shows[0]))
       else:
-        logger.error(u'[%s] Multiple shows found for date %s, unable to load' % (self.parser_class.id(), date))
+        logger.error(u'Multiple shows found for date %s, unable to load' % date)
         # Load the new shows, but set a flag to audit them
         pass
         

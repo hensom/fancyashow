@@ -82,10 +82,7 @@ class Coco66(ShowParser):
     logging.debug('Parsing shows from: %s' % month_url)
 
     for show_url in html_util.get_show_urls(month_url, 'body', None, self.IS_EVENT):
-      try:
-        yield self._parse_show(show_url)
-      except Exception, e:
-        raise ParserError(show_url, None, e)
+      yield self._parse_show(show_url)
           
   def _parse_show(self, link):
     raw_url   = self.raw_url(link)

@@ -50,14 +50,10 @@ class Fontanas(ShowParser):
       match = self.DATE_RE.search(tds[0].text_content())
       
       if match:
-        try:          
-          show =  self._parse_show(match.group('date'), tds[1])
-      
-          if show:
-            yield show
-        except Exception, e:
-          raise
-          raise ParserError(self.CALENDAR_URL, tr, e)
+        show =  self._parse_show(match.group('date'), tds[1])
+
+        if show:
+          yield show
 
   def _parse_show(self, date_txt, info_el):
     logger.debug('Parsing show in %s' % date_txt)
