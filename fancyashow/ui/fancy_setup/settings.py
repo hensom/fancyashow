@@ -90,7 +90,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.humanize',
     'password_required',
-    'mongoadmin',
     'fancyashow.ui.fancy_setup',
     'fancyashow.ui.fancy_main',
     'fancyashow.ui.fancy_api',
