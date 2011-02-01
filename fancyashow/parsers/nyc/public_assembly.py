@@ -67,9 +67,7 @@ class PublicAssembly(ShowParser):
         logging.exception('Unable to parse show: %s, skipping' % show_url)
         
         continue
-      except Exception, e:
-        raise ParserError(show_url, None, e)
-          
+
   def _parse_show(self, link):
     event_doc    = html_util.fetch_and_parse(link)
 

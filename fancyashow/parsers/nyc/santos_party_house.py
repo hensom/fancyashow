@@ -30,10 +30,7 @@ class SantosPartyHouse(ShowParser):
     show_urls = html_util.get_show_urls(self.CALENDAR_URL, "#calendar-container", 'td', self.IS_EVENT)
     
     for url in show_urls:
-      try:
-        yield self._parse_show(url)
-      except Exception, e:
-        raise ParserError(url, None, e)
+      yield self._parse_show(url)
 
   def _parse_show(self, link):
     event_doc    = html_util.fetch_and_parse(link)
