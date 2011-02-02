@@ -18,10 +18,5 @@ urlpatterns = patterns('',
   url(r'^city/(?P<city>[^\/]+)/(?P<neighborhood>.*?)/shows/%s' % PERIOD,  views.shows, name = 'shows-in-neighborhood-during-period'),
   url(r'^venues/$',                                                                                views.venues,         name = 'venues'),
   url(r'^venues/(?P<venue>[^\/]+)/$',                                                              views.shows_at_venue, name = 'shows-at-venue'),
-  url(r'^venues/(?P<venue>[^\/]+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<artist>[^\/]+)?$', views.show_details,   name = 'show-details'),
-  url(r'^me/shows/saved/$',        views.user_saved_shows),
-  url(r'^me/shows/saved/add/$',    views.user_add_saved_shows,    name = 'user-add-saved-shows'),
-  url(r'^me/shows/saved/remove/$', views.user_remove_saved_shows, name = 'user-remove-saved-shows'),
-  url(r'^me/shows/suggested/$',    views.user_suggested_shows)
-
+  url(r'^venues/(?P<venue>[^\/]+)/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/(?P<artist>[^\/]+)?$', views.show_details,   name = 'show-details')
 )
