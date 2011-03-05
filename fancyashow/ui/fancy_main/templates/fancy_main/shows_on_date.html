@@ -6,36 +6,36 @@
   {% show_list_title show_context %}
 {% endblock %}
 
+{% block show_context %}
+  {{ show_context.toJSON }}
+{% endblock %}
+
 {% block shows_json %}
   {% show_list_json request shows %}
 {% endblock %}
 
-{% block content_post_title %}
-<nav>
-  {% if not show_context.multiday %}
-     <a href="{{ show_context.prev_url }}">&lt; Prev</a>
-     <a href="{{ show_context.next_url }}">Next &gt;</a>
-  {% endif %}
-</nav>
-{% endblock %}
-
 {% block show_list %}
-<article class="show-list">	
+		
+<nav id="content-nav" class="show-nav">
+	{% show_list_nav show_context %}
+</nav>
+
+<article id="show-list" class="show-list{% if not show_context.multiday %} single-date-show-list{% endif %}">	
 	<section>
 		<header>
 		  <h1>Featured Shows</h1>
 		</header>
 		
 		{% if shows %}
-		<ul{% if not show_context.multiday %} class="single-date"{% endif %}>
+		<ul>
 			{% for show in shows %}
-			{% if forloop.counter0 < 4 %}
+			{% if forloop.counter0 < 6 %}
 			  <li>{% show_featured_listing show saved_shows %}</li>
 			{% endif %}
 			{% endfor %}
 		</ul>
 		{% else %}
-		  Looks like we're in the dark here. :(
+		  <p class="empty">Looks like we're in the dark here. :(</p>
 		{% endif %}
 	</section>
 	
@@ -53,7 +53,7 @@
 			{% endfor %}
 		</ul>
 		{% else %}
-		  Looks like we're in the dark here. :(
+		  <p class="empty">Looks like we're in the dark here. :(</p>
 		{% endif %}
 	</section>
 

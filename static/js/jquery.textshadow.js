@@ -20,7 +20,7 @@
   		*/
   		var shadowarray = ['black', 1, 1, 3];
 			var sradi = parseInt(shadowarray[3], 10);
-			var text = "<span class='jQshad'>" + obj.html() + "</span>";
+			var text = innerShiv("<span class='jQshad'>" + obj.html() + "</span>");
 
 			var padding = {
 				left:parseInt(obj.css("padding-left"), 10),
@@ -38,10 +38,10 @@
 			options.color = (options.color.length == 4) ? options.color.replace(/#([0-9A-f])([0-9A-f])([0-9A-f])/i, '#$1$1$2$2$3$3') : options.color;
             var filtertext = "progid:DXImageTransform.Microsoft.Glow(Color="+options.color+",Strength="+(options.radius/6)+") progid:DXImageTransform.Microsoft.Blur(pixelradius="+options.radius+", enabled='true') progid:DXImageTransform.Microsoft.Alpha(opacity="+options.opacity+")";
 			if($.browser.msie && options != "") {
-				obj.css({"position":"absolute","zoom":"1"}).append(text);
+				obj.css({"position": "absolute", "zoom":"1", "z-index": "12"}).append(text);
 				obj.children("span.jQshad").css({
 					"position":"absolute",
-					"z-index":"-1",
+					"z-index":"0",
 					"zoom":"1",
 					"left":options.xoffset,
 					"top":options.yoffset,

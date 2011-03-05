@@ -95,24 +95,14 @@ def shows_at_venue(request, venue):
   shows_by_date = list(shows)
   shows_by_date.sort(key = lambda s: s.date)
   
-  venues_near_by = list(Venue.objects.filter(city = venue.city, neighborhood = venue.neighborhood).order_by('name'))
-  
-  venue_index    = venues_near_by.index(venue)
-  
-  prev_venue, next_venue = None, None
-  
-  if venue_index > 0:
-    prev_venue = venues_near_by[venue_index - 1]
-    
-  if venue_index + 1 < len(venues_near_by):
-    next_venue = venues_near_by[venue_index + 1]
+  venues_near_by = list(Venue.objects.filter(city = venue.city, neighborhood = venue.neighborhood, id__ne = venue.id).order_by('name'))
 
   context = {
     'show_context':  show_context,
     'shows_by_rank': shows_by_rank,
     'shows_by_date': shows_by_date,
-    'prev_venue':    prev_venue,
-    'next_venue':    next_venue
+    'other_venues':  venues_near_by,
+    'venue':         venue
   }
 
   return show_list(request, shows, 'fancy_main/shows_at_venue.html', context)
@@ -221,3 +211,25 @@ def venues(request):
   }
 
   return render_to_response('fancy_main/venues.html', RequestContext(request, context))
+  
+def my_shows(request):
+  user = request.user
+  
+  upcoming_shows = []
+  past_shows     = []
+  shows          = []
+  
+  if user.is_authenticated() and user.saved_shows:
+    shows = list(Show.objects.filter(id__in = user.saved_shows).order_by('date'))
+    
+    today = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+    
+    upcoming_shows = filter(lambda s: s.date >= today, shows)
+    past_shows     = filter(lambda s: s.date < today, shows)
+
+  context = {
+    'upcoming_shows': upcoming_shows,
+    'past_shows':     past_shows
+  }
+
+  return show_list(request, shows, 'fancy_main/my_shows.html', context)

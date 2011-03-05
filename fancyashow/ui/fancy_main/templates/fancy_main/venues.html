@@ -33,7 +33,7 @@
     {% endfor %}
   </section>
   {% endfor %}
-	<section id="venue-map"></section>
+	<section id="venue-map" class="map"></section>
 </article>
 
 <script type="text/javascript">
@@ -69,7 +69,7 @@ $(document).ready(function() {
 				var showName = this.getAttribute('data-show-' + i + '-name');
 				var showUrl  = this.getAttribute('data-show-' + i + '-url');
 				
-				venueContent += '<div class="map-venue-show">Tonight: <a href="' + showUrl + '">' + showName + '</a></div>';
+				venueContent += '<div class="map-venue-show"><a href="' + showUrl + '">' + showName + '</a></div>';
 			}
 			
 			if(numShows == 0) {

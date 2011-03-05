@@ -6,24 +6,23 @@
   {% show_list_title show_context %}
 {% endblock %}
 
+{% block show_context %}
+  {{ show_context.toJSON }}
+{% endblock %}
+
 {% block shows_json %}
 	{% show_list_json request shows_by_date %}
 {% endblock %}
 
-{% block content_post_title %}
-<nav>
-	{% if prev_venue %}
-    <a href="{% url shows-at-venue prev_venue.slug %}">&lt; {{ prev_venue.name }}</a>
-	{% endif %}
-	
-	{% if next_venue %}
-     <a href="{% url shows-at-venue next_venue.slug %}">{{ next_venue.name }} &gt;</a>
-  {% endif %}
-</nav>
-{% endblock %}
-
 {% block show_list %}
-<article class="show-list">	
+<nav id="content-nav">
+	Venues Near By:
+	{% for v in other_venues %}
+    <a href="{% url shows-at-venue v.slug %}">{{ v.name }}</a>{% if not forloop.last %},{% endif %}
+	{% endfor %}
+</nav>
+
+<article id="show-list" class="show-list venue-show-list">	
 	<section>
 		<header>
 		  <h1>Featured Shows</h1>
@@ -38,7 +37,7 @@
 			{% endfor %}
 		</ul>
 		{% else %}
-		  Looks like we're in the dark here. :(
+		  <p class="empty">Looks like we're in the dark here. :(</p>
 		{% endif %}
 	</section>
 	
@@ -54,7 +53,7 @@
 			{% endfor %}
 		</ul>
 		{% else %}
-		  Looks like we're in the dark here. :(
+		  <p class="empty">Looks like we're in the dark here. :(</p>
 		{% endif %}
 	</section>
 </article>

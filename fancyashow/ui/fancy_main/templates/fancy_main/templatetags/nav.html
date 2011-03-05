@@ -2,20 +2,16 @@
 	<h2>When:</h2>
 	<ul>
 	{% for choice in days %}<li{% if choice.classes %} class="{{ choice.classes }}"{% endif %}><a href="{{ choice.url }}">{{ choice.label }}</a></li>{% endfor %}
+	<li>
+		<a href="{{ show_context.prev_url }}">&lt; {{ show_context.prev_name }}</a> / 
+		<a href="{{ show_context.next_url }}">{{ show_context.next_name }} &gt;</a>
+	</li>
 	</ul>	
-</div>
-
-<div>
-	<h2>Where</h2>
-	<ul>
-		<li><a href="{{ show_context.anywhere_url }}">Anywhere</a></li>
-		<li><a href="{% url venues %}">At a Particular Venue</a></li>
-	</ul>
 </div>
 
 {% for city in cities %}
 <div>
-	<h2><a href="{{ city.set_url }}">{{ city.name }}:</a></h2>
+	<h2><a href="{{ city.set_url }}">{{ city.name }}</a>:</h2>
   <ul>
   {% for neighborhood in city.neighborhoods %}
     <li><a href="{{ neighborhood.set_url }}">{{ neighborhood.name }}</a></li>
@@ -23,3 +19,6 @@
   </ul>
 </div>
 {% endfor %}
+{% if show_context.location %}
+	<a href="{{ show_context.anywhere_url }}" class="anywhere">Any Location</a>
+{% endif %}

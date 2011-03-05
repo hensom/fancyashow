@@ -104,7 +104,7 @@ def artist_video(artist, width = 300, height = 200, number = 2):
 @register.simple_tag
 def visitor_info_json(request):
   if not request.user.is_authenticated():
-    return '{"logged_in": false}'
+    return '{}'
   else:
     vr = VisitorResource()
     return vr.serialize(request, vr.full_dehydrate(request.user), 'application/json')

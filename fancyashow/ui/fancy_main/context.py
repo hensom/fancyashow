@@ -4,6 +4,8 @@ from fancyashow.ui.fancy_main.filters import ShowDateRangeFilter
 from mongoengine.queryset             import DoesNotExist
 from django.conf                      import settings
 from django.core.urlresolvers         import reverse
+from django.utils.safestring          import mark_safe
+from django.utils                     import simplejson as json
 
 class InvalidContextFilter(Exception):
   pass
@@ -15,6 +17,17 @@ class ShowContext(object):
     self.location   = location
     self.venue      = venue
     self._shows     = None
+    
+  def toJSON(self):
+    data = {
+      'start_date': self.start_date.strftime('%F'),
+      'end_date':   self.end_date.strftime('%F')
+    }
+    
+    if self.venue:
+      data['venue'] = True
+    
+    return mark_safe(json.dumps(data))
 
   @classmethod    
   def from_request(cls, year, month, day, period, city, neighborhood, venue):
@@ -191,6 +204,26 @@ class ShowContext(object):
         return self.location.get('city').name
 
     return settings.DEFAULT_LOCATION_NAME
+    
+  def _format_rel_date(self, day, comp_day):
+    if day < comp_day and day > comp_day - timedelta(days = 6):
+      return day.strftime('%a')
+    elif day > comp_day and day < comp_day + timedelta(days = 6):
+      return day.strftime('%a')
+    elif day.year == comp_day.year:
+      return day.strftime('%a, %b %d')
+    else:
+      return day.strftime('%b %d, %Y')
+    
+  def prev_name(self):
+    prev_date = datetime(self.start_date.year, self.start_date.month, self.start_date.day) - timedelta(days = 1)
+
+    return self._format_rel_date(prev_date, datetime.today())
+    
+  def next_name(self):
+    next_date = datetime(self.end_date.year, self.end_date.month, self.end_date.day) + timedelta(days = 1)
+    
+    return self._format_rel_date(next_date, datetime.today())
 
   def prev_url(self):
     return self.url_for_date(datetime(self.start_date.year, self.start_date.month, self.start_date.day) - timedelta(days = 1))
@@ -203,6 +236,16 @@ class ShowContext(object):
       'year':  self.start_date.year,
       'month': self.start_date.month,
       'day':   self.start_date.day
+    }
+    return reverse('shows-on-date', kwargs = date_args)
+    
+  def today_url(self):
+    today = datetime.today()
+
+    date_args = {
+      'year':  today.year,
+      'month': today.month,
+      'day':   today.day
     }
     return reverse('shows-on-date', kwargs = date_args)
 

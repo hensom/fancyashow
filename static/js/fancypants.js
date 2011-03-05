@@ -1,16 +1,25 @@
 $(function() {
-  window.Fancy = { };
+  if(window.Fancy) {
+    return;
+  }
+
+  window.Fancy = { Models: { }, Collections: { }, Views: { }, Controllers: { } };
   
+  var Template = function(str) {
+    var tmpl = _.template(str);
+
+    return function(data) { return innerShiv(tmpl(data)); };
+  }
+
   var URLS = {
     CURRENT_VISITOR:             '/api/v1/me/',
     CURRENT_VISITOR_SAVED_SHOWS: '/api/v1/me/saved_shows/'
-  }
+  };
 
-  var DAYS   = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
-  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-
-  function simpleDateFormat(datetime) {
-    return MONTHS[datetime.getMonth()] + ' ' + datetime.getDate();
+  var SIMPLE_DATE_FORMAT = "ddd, MMM d";
+  
+  function dateOnly(datetime) {
+    return new Date(datetime.getFullYear(), datetime.getMonth(), datetime.getDate());
   }
 
   function parseDateTime(datetime) {
@@ -19,7 +28,7 @@ $(function() {
     } else if(_.isString(datetime)) {
       var parts = datetime.split('T');
       var date  = parts[0].split('-');
-      var time  = parts[1].split(':');
+      var time  = (parts.length > 1) ? parts[1].split(':') : [0, 0, 0];
       
       return new Date(date[0], date[1] - 1, date[2], time[0], time[1], time[2]);
     } else {
@@ -27,17 +36,53 @@ $(function() {
     }
   }
 
-  function parseShowJSON(o) {
-    o.date      = parseDateTime(o.date);
-    o.show_time = parseDateTime(o.show_time);
-    o.door_time = parseDateTime(o.door_time);
-
-    return o;
-  }
-  
-  Fancy.Show = Backbone.Model.extend({
+  Fancy.Models.ShowContext = Backbone.Model.extend({
     parse: function(response) {
-      return parseShowJSON(response);
+      response.start_date = parseDateTime(response.start_date);
+      response.end_date   = parseDateTime(response.end_date);
+
+      return response;
+    },
+    getPeriodName: function() {
+      var today    = Date.today(),
+          tomorrow = Date.today().addDays(1)
+          start    = this.get('start_date'),
+          end      = this.get('end_date')
+          
+      if(start.equals(end)) {
+        if(start.equals(today)) {
+          return 'Tonight'
+        } else if(start.equals(tomorrow)) {
+          return 'Tomorrow'
+        } else {
+          return start.toString(SIMPLE_DATE_FORMAT);
+        }
+      } else {
+        return start.toString(SIMPLE_DATE_FORMAT) + " to " + end.toString(SIMPLE_DATE_FORMAT);
+      }
+    },
+    getLocationName: function() {
+      
+    },
+    getTitle: function() {
+      if(this.get('visitor')) {
+        return "My Shows";        
+      } else {
+       return this.getPeriodName(); 
+      }
+    }
+  });
+
+  Fancy.Models.Venue        = Backbone.Model.extend({ });
+  Fancy.Models.City         = Backbone.Model.extend({ });
+  Fancy.Models.Neighborhood = Backbone.Model.extend({ });
+  Fancy.Models.Show         = Backbone.Model.extend({
+    parse: function(response) {
+      response.date      = parseDateTime(response.date);
+      response.show_time = parseDateTime(response.show_time);
+      response.door_time = parseDateTime(response.door_time);
+
+      return response;
     },
     getDisplayTitle: function() {
       parts = [ ]
@@ -61,141 +106,323 @@ $(function() {
       });
 
       return parts.join(',');
-    },
+    }
   });
   
-  Fancy.ShowList = Backbone.Collection.extend({
-    model: Fancy.Show
+  Fancy.Collections.ShowList = Backbone.Collection.extend({
+    model: Fancy.Models.Show,
+    parse: function(response) {
+      return _.map(response, this.model.prototype.parse);
+    }
   });
 
-  Fancy.Visitor = Backbone.Model.extend({
+  Fancy.Models.Visitor = Backbone.Model.extend({
     url: URLS.CURRENT_VISITOR,
-    initialize: function() {
-      this.upcomingShows = new Fancy.ShowList([], {
-        comparator: function(show) {
-          return show.get('date');
-        }
-      });
+    initialize: function(attributes) {
+      _.bindAll(this, "_updateSavedShows", "_processQueue", "_clearQueue");
+      this.postLoginQueue = [];
+      this.saved_shows = new Fancy.Collections.ShowList(attributes.saved_shows);
+      this.bind("change:saved_shows", this._updateSavedShows);
+      this.bind("auth:logout", this._clearQueue);
+      this.bind("auth:login",  this._processQueue);
+    },
+    _clearQueue: function() {
+      this.postLoginQueue = [];
+    },
+    _processQueue: function() {
+      _.each(this.postLoginQueue, function(cb) { cb() });
+      this.postLoginQueue = [];
+    },
+    _updateSavedShows: function() {
+      this.saved_shows.refresh(this.get('saved_shows'))
     },
     parse: function(response) {
-      this.upcomingShows.refresh(_.map(response.upcoming_shows, parseShowJSON));
+      response.saved_shows = this.saved_shows.parse(response.saved_shows);
 
       return response;
     },
-
     loggedIn: function() {
       return this.get('id') !== undefined;
     },
-
-    addShow: function(show) {
-      this.upcomingShows.add(show);
-
-      $.post(URLS.CURRENT_VISITOR_SAVED_SHOWS, {'add': show.id});
+    requestLogin: function(cb) {
+      if(cb) {
+        this.postLoginQueue.push(cb)
+      }
+      this.trigger('auth:login-requested');
     },
-
+    addShow: function(show) {
+      var self = this;
+      $.post(URLS.CURRENT_VISITOR_SAVED_SHOWS, {'add': show.id}, function() { self.saved_shows.add(show); });
+    },
     removeShow: function(show) {
-      this.upcomingShows.remove(show);
-
-      $.post(URLS.CURRENT_VISITOR_SAVED_SHOWS, {'remove': show.id});
+      var self = this;
+      $.post(URLS.CURRENT_VISITOR_SAVED_SHOWS, {'remove': show.id}, function() { self.saved_shows.remove(show); });
+    },
+    showIsSaved: function(show) {
+      return this.saved_shows.get(show.id) != null;
+    },
+    upcomingShows: function() {
+      var today = dateOnly(new Date());
+      return this.saved_shows.filter(function(show) { return show.get('date') >= today });
+    },
+    pastShows: function() {
+      var today = dateOnly(new Date());
+      return this.saved_shows.filter(function(show) { return show.get('date') < today });
     }
   });
   
-  Fancy.SavedShowItemView = Backbone.View.extend({
-    tagName:  'li',
-    template: _.template($('#saved-show-template').html()),
+  var displayCompatTimer = null;
+  function TextShadow() {
+    var item = $(this);
+    
+    if(this.getAttribute("data-set-shadow")) {
+      return;
+    } else {
+      this.setAttribute("data-set-shadow", "1");
+    }
+
+    if(item.css('position') != 'absolute') {
+      item.css('position', 'relative');
+    }
+
+    if(false && $.browser.msie) {
+        item.textShadow();
+    } else {
+      var shadow = item.clone();
+      var pos    = item.position();
+
+      shadow.css('position', 'absolute');
+      shadow.css('top',   pos.top + 1);
+      shadow.css('left',  pos.left + 1);
+      shadow.css('color', 'black');
+      shadow.css('z-index', 1);
+
+      item.css('z-index', 2);
+
+      item.parent().append(shadow);
+    }
+  }
+  function DisplayCompat() {
+    displayCompatTimer = null;
+
+    $(".show-featured h2").each(TextShadow);
+    $(".show-featured ul").each(TextShadow);
+    $(".show-featured .where-when").each(TextShadow);
+  }
+  function QueueDisplayCompat() {
+    if(displayCompatTimer == null && !Modernizr.textshadow) {
+      displayCompatTimer = setTimeout(DisplayCompat, 0);
+      return;
+    }    
+  }
+
+  Fancy.Views.ShowBanner = Backbone.View.extend({
+    template: Template($('#featured-show-template').html()),
+    tagName: 'li',
     events: {
-      'click a.remove-saved-show': 'remove'
+      'click a.save-show-action': 'toggleShowSavedState'
     },
     initialize: function(options) {
-      this.visitor    = options.visitor;
-      this.model      = options.model;
+      _.bindAll(this, 'render', 'maybeRender', 'toggleShowSavedState');
+
+      this.visitor = options.visitor;
+      this.show    = options.show;
+
+      this.show.bind('change', this.render);
+      this.visitor.saved_shows.bind('add',    this.maybeRender);
+      this.visitor.saved_shows.bind('remove', this.maybeRender);
+    },
+    maybeRender: function(show) {
+      if(show.id == this.show.id) {
+        this.render();
+      }
     },
     render: function() {
       var context = {
-        'date':  simpleDateFormat(this.model.get('date')),
-        'title': this.model.getDisplayTitle(),
-        'url':   this.model.get('url')
-      }
+        'show':         this.show.toJSON(),
+        'display_date': this.show.get('date').toString("MMM d"),
+        'iso_date':     this.show.get('date').toString("yyyy-MM-dd"),          
+        'saved':        this.visitor.showIsSaved(this.show)
+      };
 
       $(this.el).html(this.template(context));
       
+      QueueDisplayCompat();
+      
       return this;
     },
-    remove: function() {
-      this.visitor.removeShow(this.model);
+    toggleShowSavedState: function(event) {
+      var self   = this;
+      var show   = this.show;
+      var saved  = this.visitor.showIsSaved(this.show);
+      
+      var handleToggle = function() {
+        if(saved) {
+          self.visitor.removeShow(show);
+        } else {
+          self.visitor.addShow(show);
+        }
+      }
 
+      if(!this.visitor.loggedIn()) {
+        this.visitor.requestLogin(handleToggle);
+      } else {
+        handleToggle();
+      }
+      
       return false;
     }
   });
-
-  Fancy.SavedShowListView = Backbone.View.extend({
-    el:       $('#my-calendar'),
-    template: _.template($('#my-calendar-template').html()),
-
-    initialize: function(options) {
-      _.bindAll(this, 'render');
-
-      this.collection = options.collection;
-      this.visitor    = options.visitor;
-      
-      this.collection.bind('add',     this.render);
-      this.collection.bind('remove',  this.render);
-      this.collection.bind('refresh', this.render);
-
-      this.visitor.bind('auth:login',  this.render);
-      this.visitor.bind('auth:logout', this.render);
-    },
-    
+  
+  Fancy.Views.Base = Backbone.View.extend({
+    el: $('#wrapper'),
+    base_template: Template($('#base-template').html()),
+    content_selector: "section",
     render: function() {
-      var el = $(this.el);
+      var context = {
+        title:   this.getTitle(),
+        nav:     this.getNav()
+      };
+      
+      $(this.el).html(this.base_template(context));
+            
+      $(this.el).find(this.content_selector).first().append(this.getContent());
+      
+      return this;
+    },
+    getTitle:   function() { return 'IMPLEMENT TITLE';   },
+    getNav:     function() { return 'IMPLEMENT NAV';     },
+    getContent: function() { return 'IMPLEMENT CONTENT'; }
+  })
+  
+  Fancy.Views.ShowGroup = Backbone.View.extend({
+    template: Template($('#show-group-template').html()),
+    tagName: 'section',
+    initialize: function(options) {
+      _.bindAll(this, 'showView');
+
+      this.visitor            = options.visitor;
+      this.shows              = options.shows;
+      this.title              = options.title;
+      this.show_list_selector = options.show_list_selector || 'ol';
+      this.showViews          = _.map(this.shows, this.showView);
+    },
+    showView: function(show) {
+      return new Fancy.Views.ShowBanner({visitor: this.visitor, show: show});
+    },
+    render: function() {
+      var self    = this;
 
       var context = {
-        message:   (this.collection.length == 0) ? 'Your calendar is empty' : '',
-        logged_in: this.visitor.loggedIn()
+        title:      this.title,
+        message:   (this.shows.length == 0) ? 'No shows' : ''
       };
+      
+      $(this.el).html(this.template(context));
+      
+      var list = $(self.el).find(self.show_list_selector).first();
 
-      el.html(this.template(context));
-
-      var collection = this.collection;
-      var self       = this;
-
-      this.collection.each(function(show) {
-        el.find('ol').append(new Fancy.SavedShowItemView({'model': show, 'visitor': self.visitor}).render().el);
+      _.each(this.showViews, function(view) {
+        list.append(view.render().el);
       });
+      
+      return this;
     }
   });
 
-  Fancy.UI = Backbone.View.extend({
-    el: $('body'),
-
-    events: {
-      'click a.save-show-action': 'toggleShowSavedState',
-      'click a.login':            'login',
-      'click a.logout':           'logout'
-    },
-    
+  Fancy.Views.ShowList = Backbone.View.extend({
+    FEATURED_SIZE: 6,
+    el: $("#show-list"),
     initialize: function(options) {
-      this.facebookAppId = options.facebookAppId;
+      _.bindAll(this, 'groupView');
+
+      this.visitor    = options.visitor;
+      this.context    = options.context;
+      this.shows      = options.shows;
+      this.groups     = this.groupShows(this.shows);
+      this.groupViews = _.map(this.groups, this.groupView);
+    },
+    groupView:  function(group) {
+      return new Fancy.Views.ShowGroup({visitor: this.visitor, title: group.title, shows: group.shows});
+    },
+    groupShows: function(shows) {
+      var showsByRank   = shows.sortBy(function(show) { return show.get('rank') });
+      var featuredShows = _.first(showsByRank, this.FEATURED_SIZE);
+      var otherShows    = _.rest(showsByRank, this.FEATURED_SIZE);
+
+      return [{title: 'Featured', shows: featuredShows}, {title: 'Lineup', shows: otherShows}];
+    },
+    render: function() {
+      var el = $(this.el);
       
-      this.visitor           = new Fancy.Visitor();
-      this.shows             = new Fancy.ShowList();
-      this.upcomingShowsView = new Fancy.SavedShowListView({collection: this.visitor.upcomingShows, visitor: this.visitor});
-      this.postLoginQueue    = [];
+      el.html('');
 
+      _.each(this.groupViews, function(view) { el.append(view.render().el); });
+    }
+  });
+  
+  Fancy.Views.VenueShowList = Fancy.Views.ShowList.extend({
+    groupShows: function(shows) {
+      var today         = dateOnly(new Date());
+      var showsByRank   = shows.sortBy(function(show) { return show.get('rank') });
+      var featuredShows = _.first(showsByRank, this.FEATURED_SIZE);
+      var tonight       = _.filter(showsByRank, function(show) { return show.get('date').equals(today) })
+      var lineup        = shows.sortBy(function(show) { return show.get('date') });
+
+      return [{title: 'Tonight', shows: tonight}, {title: 'Featured', shows: featuredShows}, {title: 'Calendar', shows: lineup}];
+    }
+  });
+  
+  Fancy.Views.VisitorShowList = Fancy.Views.ShowList.extend({
+    groupShows: function(shows) {
+      var today        = dateOnly(new Date());
+      var showsByDate  = _.sortBy(shows.models, function(show) { return show.get('date') });
+      var futureShows  = _.filter(showsByDate,  function(show) { return show.get('date') >= today });
+      var pastShows    = _.filter(showsByDate,  function(show) { return show.get('date') < today });
+
+      return [{title: 'Upcoming Shows', shows: futureShows}, {title: 'Past Shows', shows: pastShows}];
+    }
+  });
+
+  Fancy.UI = Backbone.Controller.extend({
+    el: $('body'),
+    initialize: function(options) {
+      _.bindAll(this, "login");
+
+      this.facebookAppId  = options.facebookAppId;
+      this.page           = options.page;
+      this.context        = new Fancy.Models.ShowContext();
+      this.visitor        = new Fancy.Models.Visitor();
+      this.shows          = new Fancy.Collections.ShowList();
+
+      this.context.set(this.context.parse(options.context));
       this.visitor.set(this.visitor.parse(options.visitor));
-      this.shows.refresh(_.map(options.shows, parseShowJSON));
+      this.shows.refresh(_.map(options.shows, Fancy.Models.Show.prototype.parse));
 
-      this._initDisplayCompat();
       this._initAuth();
       this._initEvents();
-
-      this.upcomingShowsView.render();
+      this._initEnhancements();
 
       if(this.visitor.loggedIn()) {
         this.visitor.trigger('auth:login');
       }
+      
+      this.visitor.bind("auth:login-requested", this.login);
+
+      this.currentView = this._viewForContext();
+      this.currentView.render();
+    },    
+    _viewForContext: function() {
+      var viewClass = Fancy.Views.ShowList;
+
+      if(this.context.get('visitor')) {
+        viewClass = Fancy.Views.VisitorShowList;
+      } else if(this.context.get('venue')) {
+        viewClass = Fancy.Views.VenueShowList;
+      }
+      
+      return new viewClass({context: this.context, shows: this.shows, visitor: this.visitor});
     },
-    
     _parseShows: function(response) { 
       response.date      = parseDateTime(response.date);
       response.show_time = parseDateTime(response.show_time);
@@ -203,98 +430,92 @@ $(function() {
 
       return response;
     },
-
-    _initDisplayCompat: function() {
-      var root = $(this.el);
-
-      root.filter('.show-featured').each(function(showEl) {
-        $(showEl).css('position', 'absolute');
- 	    });
- 	    
- 	    if(!Modernizr.textshadow) {
-        root.filter('.show-featured h2').each(this._createShadow);
-        root.filter('.show-featured .venue').each(this._createShadow);
-      }
-    },
-    
-    toggleShowSavedState: function(event) {
-      var self   = this;
-      var showId = $(event.target).parents('.show').attr('data-show-id');
-      var show   = this.shows.get(showId);
-      // FIXME this is probably less than ideal
-      var saved  = this.visitor.upcomingShows.get(showId);
-      
-      var handleToggle = function() {
-        if(saved) {
-          self.visitor.removeShow(saved);
-        } else {
-          self.visitor.addShow(show);
-        }
-      }
-
-      if(!this.visitor.loggedIn()) {
-        this.postLoginQueue.push(handleToggle);
-        this.login();
-      } else {
-        handleToggle();
-      }
-      
-      return false;
-    },
-
     _initEvents: function() {
       var self  = this;
-      var shows = $(this.el).find('.show-featured');
-      
-      this.visitor.upcomingShows.bind('add', function(show) {
-        shows.each(function() {
-          if(this.getAttribute('data-show-id') == show.id) {
-           $(this).addClass('show-saved') 
-          }
-        });
-      });
-      
-      this.visitor.upcomingShows.bind('remove', function(show) {        
-        shows.each(function() {
-          if(this.getAttribute('data-show-id') == show.id) {
-           $(this).removeClass('show-saved') 
-          }
-        });
-      });
       
       this.visitor.bind('auth:login', function() {
         $('body').removeClass('logged_out').addClass('logged_in');
-        _.each(self.postLoginQueue, function(cb) { cb() });
+        self._updateUpcomingShowCount();
+      });
+      
+      this.visitor.saved_shows.bind('add', function() {
+        self._updateUpcomingShowCount();
+      });
+
+      this.visitor.saved_shows.bind('remove', function() {
+        self._updateUpcomingShowCount();
       });
       
       this.visitor.bind('auth:logout', function() {
         $('body').removeClass('logged_in').addClass('logged_out');
-        self.postLoginQueue = [];
+        self._updateUpcomingShowCount();
       });
     },
-    
     _initAuth: function() {
       var self = this;
+      
+      $("#site-nav .login") .click(function() { self.login();  return false; });
+      $("#site-nav .logout").click(function() { self.logout(); return false; });
+      
+      this._updateUpcomingShowCount();
 
       FB.init({ appId:this.facebookAppId, cookie:true, status:true });
-      
+
       FB.Event.subscribe('auth.sessionChange', function(response) {
         self._handleSessionChange(response);
       });
     },
-    
+    _updateUpcomingShowCount: function() {
+      $("#site-nav .upcoming-shows").text(this.visitor.upcomingShows().length);
+    },
+    _initEnhancements: function() {
+      this._initAddresses();
+    },
+    _initAddresses: function() {
+      $('.fancy-address').each(function() {
+        var title   = this.getAttribute('data-address-title');
+        var address = this.getAttribute('data-address-address');
+        var lat     = this.getAttribute('data-address-lat');
+        var lng     = this.getAttribute('data-address-lng');
+        var el      = $('<div class="map">')
+        
+        $(this).prepend(el);
+
+      	var mapOptions = {
+          zoom: 14,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+      		mapTypeControl: false
+        };
+
+      	var map = new google.maps.Map(el.get(0), mapOptions);
+
+      	var marker = new google.maps.Marker({
+  	      map:      map, 
+  	      position: new google.maps.LatLng(lat, lng),
+  				title:    title
+        });
+        
+        var highlightVenue = function() {
+  				infoWindow.setContent(venueContent);
+  			  infoWindow.open(map, marker);
+  			};
+
+  			google.maps.event.addListener(marker, 'click', function() {
+  			  window.location = "http://maps.google.com/?q=" + encodeURIComponent(address);
+			  });
+        map.setCenter(new google.maps.LatLng(lat, lng));
+      });
+    },
     login: function() {
       FB.login();
       
       return false;
     },
-    
     logout: function() {
       FB.logout();
       
       return false;
     },
-    
     _handleSessionChange: function(response) {
       var self = this;
 
@@ -313,26 +534,6 @@ $(function() {
           self.visitor.clear();
           self.visitor.trigger('auth:logout');
         });
-      }
-    },
-
-    _createShadow: function() {
-      if($.browser.msie) {
-       $(this).textShadow();
-      } else {
-        var item   = $(this);
-        var shadow = item.clone();
-      
-        var pos    = item.position();
-      
-        shadow.css('top',   pos.top + 1);
-        shadow.css('left',  pos.left + 1);
-        shadow.css('color', 'black');
-        shadow.css('z-index', 0);
-      
-        item.css('z-index', 1);
-
-        item.parent().append(shadow);
       }
     }
   });

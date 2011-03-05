@@ -1,9 +1,14 @@
 html {
+  background-color: white;
+  color:            #444;
+}
+
+body {
+  padding-top:    1.5em;
+  padding-bottom: 3em;
   font-family: 'Droid Sans Pro', 'Arial Rounded Bold', Arial;
   font-size:   12px;
-  line-height: 1.3em;
-  background-color: white;
-  color:            black;
+  line-height: 1.3;
 }
 
 li {
@@ -15,15 +20,8 @@ header, hgroup, nav, section {
   display: block;
 }
 
-nav h1 {
-  display: none;
-}
-
 a {
   color:   black;
-  padding: 0.2em;
-  line-height: 1.3em;
-  margin-left: -0.2em;
   text-decoration: none;
 }
 
@@ -34,11 +32,14 @@ a:hover {
 
 a.logout {
   display: none;
-  margin-left: 1em;
 }
 
 body.logged_in a.logout {
   display: inline;
+}
+
+body.logged_in a.login {
+  display: none;
 }
 
 /* Page Header */
@@ -63,128 +64,101 @@ section > header {
 }
 
 section > header h1 {
-  background-color: black;
-  color:     white;
-  padding:   0.3em;
+  padding:   0.3em 0;
   font-size: 1.6em;
   line-height: 1.6em;
-  display:   inline;
 }
-
 
 /* Wrapper */
 .wrapper {
   margin-left:  auto;
   margin-right: auto;
-  width:        650px;
   position:     relative;
-  width: 970px;
+  width:        960px;
 }
 
 /* Shows */
-#shows {
-  height:   100%;
-  overflow: hidden;
-}
 .show-featured {
-  float:         left;
   display:       block;
+  width:         300px;
+  height:        170px;
   margin:        14px;
-  margin-bottom: 25px;
   margin-left:   0px;
+  margin-bottom: 0px;
+  font-size:     13px;
   font-weight:   bold;
   position:      relative;
   background:    black;
-  border-radius: 4px;  
-  -moz-border-radius: 4px;
-}
-
-.show-featured > * {
-  -webkit-transition: opacity 0.25s linear;
-  -moz-transition:    opacity 0.25s linear;
-  -o-transition:      opacity 0.25s linear;
+  text-shadow: 1px 1px 5px black;
+  color: #f1f1f1;
+  border: 2px solid black;
+  border-radius: 4px;
 }
 
 .show-featured a {
   color: #f1f1f1;
 }
 
-.show-featured > div {
-  width:    300px;
-  height:   170px;
+.show-featured .preview {
+  width:    100%;
+  height:   100%;
+  overflow: hidden;
+  position: absolute;
+  top:      0px;
+  left:     0px;
+  opacity:  0.9;
+  filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+  -webkit-transition: opacity 1s linear;
 }
 
-.show-featured .preview {
-  border:   2px solid black;
-  overflow: hidden;
-  background-color: black;
-  -moz-box-shadow:    inset 0px 0px 3px black;
-  -webkit-box-shadow: inset 0px 0px 3px black;
-  box-shadow:         inset 0px 0px 3px black;
-  -moz-border-radius: 3px;
-  border-radius:      3px;
+.show-featured .summary a {
+  display: block;
+  width:   100%;
+  height:  100%;
+  background: transparent;
+}
+
+.show-featured:hover .preview {
+  opacity: 1;
+  filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
 }
 
 .show-featured .summary {
-  height: 100%;
+  width:    100%;
+  height:   100%;
+  overflow: hidden;
+  position: absolute;
+  top:      0px;
+  left:     0px;
 }
 
 .show-featured .summary h2 {
-  position:    absolute;
-  top:        0px;
-  left:       0px;
   padding:    10px;
-  margin:      0px;
   font-size:  18px;
-  text-shadow: 1px 1px 3px black;
-  width:       90%;
 }
 
-.show-featured .summary .venue {
- font-size: 13px;
- position:   absolute;
- right:      0px;
- bottom:     0px;
- width:      40%;
- padding:    10px;
- text-align: right;
- text-shadow: 1px 1px 3px black;
+.show-featured .summary .where-when {
+  position:   absolute;
+  right:      0px;
+  bottom:     0px;
+  padding:    10px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .show-featured .summary .with {
-  color: #666;
-  font-weight: normal;
-  position: absolute;
-  bottom:   -30px;
-  left:     0px;
-  padding:  10px;
-  overflow: hidden;
-  width: 210px;
-  white-space: nowrap;
+  position:      relative;
+  top:          -20px;
+  padding:       10px;
+  overflow:      hidden;
+  white-space:   nowrap;
   text-overflow: ellipsis;
 }
 
-.single-date .show-featured .with {
-  width: 280px;
-}
-
-.single-date .show-featured time {
-  display: none;
-}
-
-.show-featured .summary time {
-  position: absolute;
-  bottom:   -20px;
-  right:    0px;
-  width:    70px;
-  color: #666;
-  font-weight: normal;
-  padding-right: 12px;
-  text-align: right;
-}
-
 .show-featured .summary .with li {
-  display:     inline;
+  display: inline;
 }
 
 .show-featured .summary .with li:after {
@@ -195,27 +169,24 @@ section > header h1 {
   content: '';
 }
 
-.show-featured .preview {
-  border: 2px solid rgba(0, 0, 0, 1);
-  -webkit-box-shadow: none;
+.show-list .show-featured {
+  float: left;
 }
 
-.show-featured .preview a {
-  display: block;
-  width:   100%;
-  height:  100%;
-}
-
-.show-featured .preview a:hover {
-  background: none;
-}
-
-.show-featured .summary {
-  color: white;
-}
-
-.show-featured .on {
+.show-list.venue-show-list .where-when .at,
+.show-list.venue-show-list .where-when .venue {
   display: none;
+}
+
+.show-list.single-date-show-list .where-when .at,
+.show-list.single-date-show-list .where-when .date {
+  display: none;
+}
+
+#show-list {
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 20px;
 }
 
 /* Artist Lists */
@@ -449,18 +420,10 @@ section > header h1 {
   clear:       both;
 }
 
-
 /* Site Header */
 #site-header {
   text-transform: uppercase;
-  position:       relative;
-  padding:        0px 8px;
-}
-
-#site-header hgroup {
-  padding-top:    1em;
-  padding-bottom: 4px;
-  margin-bottom:  2px;
+  position: relative;
 }
 
 #site-header h1 {
@@ -469,18 +432,25 @@ section > header h1 {
   font-size:   1em;
 }
 
-#site-header h2 {
-  display: none;
-}
-
-#site-header nav {
+#site-nav {
+  text-transform: uppercase;
+  margin-left: 4em;
+  text-align: right;
+  padding-right: 25px;
   position: absolute;
-  right:    8px;
-  bottom:   4px;
+  bottom:   -46px;
+  right:    0px;
+  z-index:  2;
 }
 
-#site-header ul li {
-  display: inline;
+#site-nav a {
+  color: #444;
+  text-decoration: none;
+}
+
+#site-nav a:hover {
+  color: white;
+  background-color: #444;
 }
 
 /* Suppress the Headers for the First Level of Filters */
@@ -490,28 +460,26 @@ section > header h1 {
   color: white;
 }
 
-.show-nav {
-/*  display: none;*/
-}
-
 .show-nav h2 {
   font-weight: bold;
   font-size:   1em;
 }
 
 .show-nav {
-  padding: 10px;
-  height: 100%;
+  height:   100%;
   overflow: hidden;
+  position: relative;
+}
+
+.show-nav .anywhere {
+  position: absolute;
+  bottom:   0;
+  right:    0;
 }
 
 .show-nav div {
   float: left;
-  width: 24%;
-}
-
-.show-nav ul {
-  padding-left: 1em;
+  width: 32%;
 }
 
 #shows {
@@ -551,7 +519,7 @@ section > header h1 {
 /* Venue List */
 .venue-list h2 {
   font-weight: bold;
-  font-size:   1.4em;
+  font-size:   1.2em;
   padding: 0.5em 0;
   margin-left: 10px;
 }
@@ -566,50 +534,41 @@ section > header h1 {
   width: 25%;
 }
 
-.sidebar {
-  float: right;
-  width: 280px;
-  margin-top: 50px;
-}
-
-.show-list {
-  float: left;
-  width: 650px;
-}
-
-#content > header h1 {
-  font-size:  3em;
-  text-align: left;
-  padding:    0.3em 0;
-  line-height: 0.8em;
-}
-
-#content > header {
+#content-header {
   text-transform: uppercase;
   position: relative;
   border-bottom: 0px;
-  background-color: black;
+}
+
+#content-header h1 {
+  font-size:  3em;
+  text-align: left;
+  padding:    0.3em 0;
+  line-height: 1em;
+  display:    block;
+  width:      70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#content-nav {
+  color: #666;
+  text-transform: uppercase;
+  display: block;
+  width:   60%;
+  padding: 0 1em;
+  font-size: 0.9em;
+}
+
+#content-nav a {
+  color: #666;
+  text-decoration: none;
+}
+
+#content-nav a:hover {
   color: white;
-  padding: 0px 8px;
-}
-
-#content > header nav {
-  position: absolute;
-  right:    8px;
-  bottom:   8px;
-}
-
-#content > header a {
-  color: white;
-}
-
-#content > header a:hover {
-  background-color: white;
-  color:            black;
-}
-
-.show-nav {
-  border-bottom: 1px solid black;
+  background-color: #666;
 }
 
 .artists ul {
@@ -619,24 +578,21 @@ section > header h1 {
 #venue-map {
   width:      49%;
   height:     400px;
-  margin-top: 60px;
-  padding:    1px;
-  border:     1px solid black;
+  margin-top: 80px;
 }
 
 .map-venue-name {
   font-weight: bold;
-  font-size: 1.2em;
 }
 
 #show-details {
-  width: 320px;
+  width: 330px;
   float: left;
 }
 
 #artist-details {
   float:  left;
-  width:  640px;
+  width:  630px;
   clear:  none;
 }
 
@@ -659,25 +615,33 @@ a.login {
 .show-featured a.save-show-action {
   -webkit-transition: opacity 0.25s linear;
   opacity: 0;
+  filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   position: absolute;
+  width: auto;
+  height: auto;
   top:   4px;
   right: 4px;
   font-size: 18px;
-  text-shadow: 1px 1px 3px black;
 }
 
 .show-featured:hover a.save-show-action {
-  opacity:  0.4;
+  opacity:  0.6;
+  filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
 }
 
 .show-featured a.save-show-action:hover {
-  opacity: 0.4;
-  background: none;
+  opacity: 0.8;
+  filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
   color: white;
 }
 
 .show-saved a.save-show-action {
   opacity: 1 !important;
+  filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)" !important;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)" !important;
 }
 
 #my-calendar li {
@@ -724,4 +688,46 @@ a.login {
 
 #my-calendar li:hover .remove-saved-show {
   visibility: visible;
+}
+
+.map {
+  width:  250px;
+  height: 150px;
+  border: 1px solid #999;
+}
+
+#venue-details .map {
+  width:  300px;
+  height: 180px;
+}
+
+#venue-details address a {
+  display: none;
+}
+
+.empty {
+  padding-left: 2em;
+}
+
+/* To Ditch */
+.sidebar {
+  display: none;
+}
+
+#site-nav .upcoming-shows {
+  background-color: #444; 
+  color: white;
+  padding: 0px 3px;
+  border-radius: 3px;
+}
+
+dt {
+  width: 25%;
+  float: left;
+  clear: left;
+}
+
+dd {
+  width: 75%;
+  float: left;
 }

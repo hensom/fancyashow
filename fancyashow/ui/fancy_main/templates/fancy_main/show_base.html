@@ -10,7 +10,7 @@
   {% show_list_title show_context %}
 {% endblock %}
 
-{% block head %}
+{% block meta %}
   {{ block.super }}
 
 	<meta name="description" content="{% attribute %}
@@ -31,9 +31,6 @@
 {% endblock %}
 
 {% block content %}
-<nav class="show-nav">
-	{% show_list_nav show_context %}
-</nav>
 
 {% block content_sidebar %}
 <section class="sidebar">

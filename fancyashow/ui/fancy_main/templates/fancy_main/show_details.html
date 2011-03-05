@@ -51,34 +51,47 @@
 {% endblock %}
 
 {% block content %}
-
 <section id="show-details">
+  <section>
 	{% show_featured_listing show saved_shows %}
+	</section>
+	
 	<section>
+	  <header>
+	    <h1>Details</h1>
+    </header>
+    
+    <dl>
+      {% if show.door_time %}
+      <dt>Door Time:</dt>
+      <dd>{{ show.door_time|date:"P" }}</dd>
+      {% endif %}
+
+      {% if show.show_time %}
+      <dt>Show Time:</dt>
+      <dd>{{ show.show_time|date:"P" }}</dd>
+      {% endif %}
+      
+      <dt>Venue:</dt>
+      <dd><a href="{{ venue.url }}">{{ venue.name }}</a></dd>
+      
+      <dt>Address:</dt>
+      <dd><address><a href="http://maps.google.com/?q={{ venue.address }}">{{ venue.address }}</a></address></dd>
+
+      {% if show.url %}
+      <dt>More Info:</dt>
+      <dd><a href="{{ show.url }}">Details on Site</a></dd>
+      {% endif %}
+    </dl>
+	  
+  </section>
+
+	<section id="venue-details">
 		<header>
 	   <h1>{{ venue.name }}</h1>
 		</header>
-
-	   <div class="address">
-	   <a href="http://maps.google.com/?q={{ venue.address }}">{{ venue.address }}</a>
-		 </div>
-
-	   <div class="time">
-		   <time datetime="{{ show.date|date:"F" }}">
-		   {% if show.show_time and show.door_time %}
-		       Doors: {{ show.door_time|date:"P" }}, Show: {{ show.show_time|date:"P" }}
-		   {% else %}
-		     {% if show.show_time %}Show: {{ show.show_time|date:"P" }}{% endif %}
-		     {% if show.door_time %}Door: {{ show.door_time|date:"P" }}{% endif %}
-		   {% endif %}
-		   </time>
-	   </div>
-
-	   {% if show.url %}
-	   <div>
-	     <a href="{{ show.url }}">Details on Site</a>
-	   </div>
-	   {% endif %}
+		
+		<div data-address-title="{{ venue.name }}" data-address-lat="{{ venue.location.0 }}" data-address-lng="{{ venue.location.1 }}" data-address-address="{{ venue.address }}" class="fancy-address"></div>
 	</section>
 </section>
 
@@ -120,5 +133,33 @@
 		</section>
  {% endfor %}
 </section>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var styles       = [{stylers: [{saturation: -80}]}];
+
+	var fancyMapType = new google.maps.StyledMapType(styles, {name: 'FancyMapType'});
+
+	var mapOptions = {
+    zoom: 12,
+    mapTypeId: 'FancyMapType',
+		mapTypeControl: false
+  };
+ 
+	var map = new google.maps.Map(document.getElementById("venue-address"), mapOptions);
+
+	map.mapTypes.set('FancyMapType', fancyMapType);
+	
+	var infoWindow = new google.maps.InfoWindow({});
+			
+	var marker = new google.maps.Marker({
+     map:      map, 
+     position: new google.maps.LatLng({{ venue.location.0 }}, {{ venue.location.1 }}),
+		 title:    '{{ venue.name }}'
+   });
+
+	 map.setCenter(new google.maps.LatLng({{ venue.location.0 }}, {{ venue.location.1 }}));
+});
+</script>
 
 {% endblock %}

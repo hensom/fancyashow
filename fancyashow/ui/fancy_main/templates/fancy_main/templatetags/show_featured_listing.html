@@ -10,8 +10,6 @@
 		     {{ show.artists.0.name }}
 		   {% endif %}
 		  {% endsingleline %}</h2>
-		
-			<a href="#" class="save-show-action">&#9733;</a>
 
 		  {% if show.artists|length > 1 %}
 			<ul class="with">
@@ -32,10 +30,12 @@
 				{% endspaceless %}
 			</ul>
 			{% endif %}
-
-			<span class="venue">{{ show.venue.name }}</span>
-			<span class="on">on</span>
-			<time datetime="{{ show.date|date:"F" }}">{{ show.date|date:"D, M d" }}</time>
+			
+				<p class="where-when">
+  				<time class="date" datetime="{{ show.date|date:"F" }}">{{ show.date|date:"D, M d" }}</time>
+					<span class="at">at</span>
+					<span class="venue">{{ show.venue.name }}</span>
+				</p>
 			</a>
 		</div>
 </div>

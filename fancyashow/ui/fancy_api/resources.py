@@ -48,31 +48,35 @@ class ShowUrlField(ApiField):
     }
     
     return reverse('show-details', kwargs = kwargs)
+    
+class ShowImageField(ApiField):
+  def dehydrate(self, bundle):
+    show = bundle.obj
+    return show.images.get('featured', {}).get('url')
 
 class ShowResource(DocumentResource):
   artists = ListField(EmbeddedResourceField(SparseArtistResource), attribute = 'artists')
   url     = ShowUrlField()
+  image   = ShowImageField()
 
   class Meta:
     object_class = Show
-    fields       = ['id', 'title', 'artists', 'date', 'show_time', 'door_time', 'soldout']
+    fields       = ['id', 'title', 'artists', 'date', 'show_time', 'door_time', 'soldout', 'venue']
     
-class RecentShowListField(ApiField):
+class ShowListField(ApiField):
   def dehydrate(self, bundle):
     show_ids = getattr(bundle.obj, self.attribute)
     shows    = []
 
     if show_ids:
-      today = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
-      shows = list(Show.objects.filter(id__in = show_ids, date__gte = today).order_by('date'))[:10]
-      shows = list(Show.objects.filter(id__in = show_ids).order_by('date'))[:10]
+      shows = list(Show.objects.filter(id__in = show_ids).order_by('date'))
 
     show_resource = ShowResource()
     
     return [show_resource.full_dehydrate(s) for s in shows]
 
 class VisitorResource(DocumentResource):
-  upcoming_shows = RecentShowListField('saved_shows')
+  saved_shows = ShowListField('saved_shows')
   
   def get_object_list(self, request):
     queryset = super(VisitorResource, self).get_object_list(request)
@@ -81,7 +85,6 @@ class VisitorResource(DocumentResource):
     
   def obj_get(self, request = None, **kwargs):
     return self.get_object_list(request).get()
-
 
   def dispatch_saved_shows(self, request, **kwargs):
     return self.dispatch('saved_shows', request, **kwargs)
