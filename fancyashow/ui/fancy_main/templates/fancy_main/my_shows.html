@@ -1,0 +1,73 @@
+{% extends "fancy_main/show_base.html" %}
+
+{% load show_util %}
+
+{% block title %}
+  My Shows
+{% endblock %}
+
+{% block content_title %}
+  My Shows
+{% endblock %}
+
+{% block show_context %}
+  {visitor: true}
+{% endblock %}
+
+{% block shows_json %}
+  {% show_list_json request shows %}
+{% endblock %}
+
+{% block meta %}{% endblock %}
+
+{% block show_list %}
+
+<article id="show-list" class="show-list">	
+	<section>
+		<header>
+		  <h1>Upcoming Shows</h1>
+		</header>
+		
+		{% if upcoming_shows %}
+		<ul>
+			{% for show in upcoming_shows %}
+			  <li>{% show_featured_listing show saved_shows %}</li>
+			{% endfor %}
+		</ul>
+		{% else %}
+			<p class="empty">Looks like you have no upcoming saved shows.</p>
+		{% endif %}
+	</section>
+	
+	<section>
+		<header>
+		  <h1>Past Shows</h1>
+		</header>
+		
+		{% if past_shows %}
+		<ul>
+			{% for show in past_shows %}
+				{% if forloop.counter0 > 4 %}
+			  <li>{% show_featured_listing show saved_shows %}</li>
+				{% endif %}
+			{% endfor %}
+		</ul>
+		{% else %}
+		  <p class="empty">Looks like you have no past saved shows.</p>
+		{% endif %}
+	</section>
+
+	<section id="artists" style="display: none;">
+		<header>
+		  <h1>
+				Artists
+			</h1>
+		</header>
+		<ul>
+		{% for info in artists %}
+			<li><a href="{% show_url info.shows.0 %}">{{ info.artist.name }}</a></li>
+		{% endfor %}
+		</ul>
+	</section>
+</article>
+{% endblock %}
