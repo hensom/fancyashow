@@ -5,7 +5,24 @@ import fancyashow.util.parsing as html_util
 
 logger = logging.getLogger(__name__)
 
+def TagAttrMatcher(node, tags, attrs, match_exp):
+  for tag in tags:
+    for el in node.iter(tag = tag):
+      for attr in attrs:
+        if el.get(attr):
+          logger.debug("Found attr: %s on %s" % (el.get(attr), tag))
+    
+          m = match_exp.match(el.get(attr).strip())
+    
+          if m:
+            logger.debug("Value matches expression: %s" % el.get(attr))
+    
+            yield m
+    
 def HrefMatcher(node, match_exp):
+  for match in TagAttrMatcher(node, ['a'], ['href'], match_exp):
+    yield match
+  """
   for anchor in node.iter(tag = 'a'):
     if anchor.get('href'):
       logger.debug("Found link: %s" % anchor.get('href'))
@@ -16,6 +33,7 @@ def HrefMatcher(node, match_exp):
         logger.debug("Link matches expression: %s" % anchor.get('href'))
 
         yield m
+  """
 
 def ParamMatcher(node, name, match_exp):
   for param in node.iter(tag = 'param'):

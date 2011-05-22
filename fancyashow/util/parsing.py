@@ -18,6 +18,7 @@ def fetch_and_parse(url, parse_500 = False):
 
   try:
     data = urllib2.urlopen(url).read()
+    data = unicode(data, 'UTF-8', 'ignore')
   except urllib2.HTTPError, e:
     if parse_500 and e.getcode() == 500:
       data = e.read()
@@ -109,10 +110,10 @@ def get_displayed_text_content(el):
   text = StringIO()
   
   def clean(text):
-    text = SPACES_RE.sub(' ', text.replace('\n', ' ').strip())
+    text = SPACES_RE.sub(u' ', text.replace(u'\n', u' ').strip())
 
-    if not text.endswith('\n') and text != '':
-      text += ' '
+    if not text.endswith(u'\n') and text != u'':
+      text += u' '
       
     return text
 
@@ -121,8 +122,8 @@ def get_displayed_text_content(el):
       return
       
     if el.tag in LINE_BREAK_ELS:
-      if text.getvalue() and text.getvalue()[-1] != '\n':
-        text.write('\n')
+      if text.getvalue() and text.getvalue()[-1] != u'\n':
+        text.write(u'\n')
 
     if el.text:
       if preserve_text:
@@ -137,10 +138,10 @@ def get_displayed_text_content(el):
       parse_text(child, text, preserve_text or (child.tag in PRESERVE_ELS))
       
     if el.tag in LINE_BREAK_ELS:
-      text.write('\n')
+      text.write(u'\n')
       
-    if el.tail:
-      # Special attendtion must be taken here since we don't want to
+    if el.tail is not None:
+      # Special attention must be taken here since we don't want to
       # honor preserve_text if we're closing an element whose content
       # was to be preserved
       if el.tag in PRESERVE_ELS:

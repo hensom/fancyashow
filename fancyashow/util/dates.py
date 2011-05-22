@@ -40,10 +40,15 @@ def parse_date_and_time(date_str, time_str):
 
   logger.debug("Parsing date(%s) and time(%s)" % (date_str, time_str))
 
-  if time_str:
-    return date_parser.parse('%s at %s' % (date_str, time_str), fuzzy = True)
-  else:
-    return date_parser.parse(date_str, fuzzy = True).date()
+  try:
+    if time_str:
+      return date_parser.parse('%s at %s' % (date_str, time_str), fuzzy = True)
+    else:
+      return date_parser.parse(date_str, fuzzy = True).date()
+  except ValueError, e:
+    logging.error("Unable to parse date and time: %s at %s" % (date_str, time_str))
+
+    return None
 
 def parse_date_time(date_time_str):
   return date_parser.parse(date_time_str)

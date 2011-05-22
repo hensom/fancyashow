@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 class BellHouse(ShowParser):
   BASE_URL     = "http://www.thebellhouseny.com/"
   CALENDAR_URL = "http://www.thebellhouseny.com/calendar.php"
-  DATE_RE      = re.compile("\w+ (?P<month>\d+)/(?P<day>\d+):")
-  TIME_RE      = re.compile(':\s+(?P<time>\d+(?:\s*:\s*\d+)?\s*[ap]\.?m\.?)\s*', re.IGNORECASE)
+  DATE_RE      = re.compile("\w+ (?P<month>\d+)/(?P<day>\d+)")
+  TIME_RE      = re.compile('\s+(?P<time>\d+(?:\s*:\s*\d+)?\s*(?:am|pm|a\.m\.|p\.\m))\s*', re.IGNORECASE)
   
   def __init__(self, *args, **kwargs):
     super(BellHouse, self).__init__(*args, **kwargs)
@@ -64,13 +64,12 @@ class BellHouse(ShowParser):
     date_tag   = event_detail.get_element_by_id("bellhouse_date")
 
     date_match = self.DATE_RE.match(date_tag.text_content())
-    time_match = self.TIME_RE.search(date_tag.text_content())
+    time_match = self.TIME_RE.search(event_detail.text_content())
 
     if date_match and time_match:
       month, day = (int(d) for d in (date_match.group('month'), date_match.group('day')))
-      
-      show_date = datetime.now().replace(month = month, day = day)
-      
+      show_date  = datetime.now().replace(month = month, day = day)
+
       show.show_time = date_util.parse_date_and_time(show_date.strftime('%F'), time_match.group('time'))
 
     show.resources.resource_uris = self.resource_extractor.extract_resources(event_detail)
@@ -80,7 +79,7 @@ class BellHouse(ShowParser):
       
       break
       
-    date_util.adjust_fuzzy_years(show, self._parse_started)
+    date_util.adjust_fuzzy_years(show, self._parser_started)
       
     return show
 

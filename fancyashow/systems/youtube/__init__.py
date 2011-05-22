@@ -4,7 +4,7 @@ from datetime import datetime
 from fancyashow.extensions        import ExtensionLibrary, ArtistMediaExtractor, ResourceExtractor
 from fancyashow.extensions        import ShowResourceHandler, ArtistResourceHandler
 from fancyashow.extensions.models import VideoInfo
-from fancyashow.util.resources    import URLMatch, HrefMatcher, ParamMatcher
+from fancyashow.util.resources    import URLMatch, HrefMatcher, ParamMatcher, TagAttrMatcher
 from fancyashow.util              import artist_matcher
 
 from fancyashow.systems.youtube  import api
@@ -13,8 +13,9 @@ logger = logging.getLogger(__name__)
 
 extensions = ExtensionLibrary()
 
-HREF_URL  = URLMatch('(www\.)?youtube.com/watch?(.+&)?v=(?P<video_id>[^&])+')
-EMBED_URL = URLMatch('(www\.)?youtube.com/v/(?P<video_id>[^&]+)')
+HREF_URL      = URLMatch('(www\.)?youtube.com/watch?(.+&)?v=(?P<video_id>[^&])+')
+EMBED_URL     = URLMatch('(www\.)?youtube.com/v/(?P<video_id>[^&]+)')
+NEW_EMBED_URL = URLMatch('(www\.)?youtube.com/embed/(?P<video_id>[^&]+)')
 
 class YouTubeResourceExtractor(ResourceExtractor):
   def resources(self, node):
@@ -25,6 +26,7 @@ class YouTubeResourceExtractor(ResourceExtractor):
 
     ret.extend([url(m) for m in HrefMatcher( node,          HREF_URL)])
     ret.extend([url(m) for m in ParamMatcher(node, 'movie', EMBED_URL)])
+    ret.extend([url(m) for m in TagAttrMatcher(node, ['iframe'], ['src'], NEW_EMBED_URL)])
 
     return ret
 

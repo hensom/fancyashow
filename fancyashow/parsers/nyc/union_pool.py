@@ -28,12 +28,18 @@ class UnionPool(ShowParser):
   def _get_parser(self):    
     doc   = html_util.fetch_and_parse(self.BASE_URL)
     
-    sidebar = doc.get_element_by_id("sidebar")
+    sidebar = doc.get_element_by_id("sidebar-right-1")
     
     for event_detail in sidebar.cssselect("div.widget.Image"):
-      yield self._parse_show(event_detail)
+      show = self._parse_show(event_detail)
+
+      if show:
+        yield show
         
   def _parse_show(self, event_detail):
+    if html_util.get_first_element(event_detail, 'h2', optional = True) is None:
+      return None
+
     show = Show()
 
     date_txt       = html_util.get_first_element(event_detail, 'h2').text_content()

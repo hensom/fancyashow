@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 ARTIST_ID_RE        = re.compile('artid=(\d+)&')
 FRIEND_ID_RE        = re.compile('"DisplayFriendId":(\d+),')
 PLAYLIST_ID_RE      = re.compile('plid=(\d+)&')
-NAME_RE             = re.compile('\s*(.+)(?:\s+on myspace.*)', re.I | re.M)
+NAME_RE             = re.compile('\s*(.+?)\s+(?:\| Free Music, Tour Dates, Photos, Videos.*)', re.I | re.M)
 
 PLAYLIST_URL_FORMAT = "http://musicservices.myspace.com/Modules/MusicServices/Services/MusicPlayerService.ashx?artistId=%(artist_id)s&action=getArtistPlaylist&artistUserId=%(friend_id)s&playlistId=%(playlist_id)d"
+PLAYLIST_URL_FORMAT = "http://www.myspace.com/music/services/player?artistUserId=%(friend_id)s&playlistId=%(playlist_id)s&action=getArtistPlaylist&artistId=%(artist_id)s"
 SONG_URL_FORMAT     = "http://musicservices.myspace.com/Modules/MusicServices/Services/MusicPlayerService.ashx?songId=%(song_id)s&action=getSong&ptype=4"
 
 PLAYLIST_NS_MAP     = {'x': 'http://xspf.org/ns/0/'}
