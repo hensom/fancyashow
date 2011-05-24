@@ -5,6 +5,7 @@ from django.shortcuts                 import render_to_response
 from django.core.urlresolvers         import reverse
 from django.template                  import RequestContext
 from datetime                         import datetime, timedelta
+from mongoengine                      import Q
 from fancyashow.db.models             import Show, Artist, Venue, City
 from fancyashow.ui.fancy_main.context import ShowContext, InvalidContextFilter
 from fancyashow.ui.fancy_main.forms   import ShowChoiceForm
@@ -111,6 +112,7 @@ def show_details(request, venue, year, month, day, artist):
   venue = Venue.objects.get(slug = venue)
   day   = datetime(int(year), int(month), int(day))
   today = datetime.today()
+  look_until = today + timedelta(days = 30)
 
   matching_shows = Show.objects(venue__url = venue.url, date = day)
   show           = None
@@ -134,7 +136,8 @@ def show_details(request, venue, year, month, day, artist):
       artist_ids[info.artist_id] = True
 
   if artist_ids:
-    artist_shows = Show.objects(artist_ids__in = artist_ids.keys(), id__ne = show.id, date__gte = today).order_by('date')
+    show_range   = Q(date__gte = today) & Q(date__lte = look_until)
+    artist_shows = Show.objects(artist_ids__in = artist_ids.keys(), id__ne = show.id).filter(show_range).order_by('date')
 
     for artist_show in artist_shows:
       for info in filter(lambda x: x.artist_id, artist_show.artists):

@@ -62,6 +62,8 @@
     </header>
     
     <dl>
+      <dt>Date:</dt>
+      <dd>{{ show.date|date:"D, M d" }}</dd>
       {% if show.door_time %}
       <dt>Door Time:</dt>
       <dd>{{ show.door_time|date:"P" }}</dd>

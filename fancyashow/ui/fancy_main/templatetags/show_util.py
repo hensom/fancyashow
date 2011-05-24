@@ -112,7 +112,7 @@ def visitor_info_json(request):
 @register.inclusion_tag('fancy_main/templatetags/show_featured_listing.html')
 def show_featured_listing(show, saved_shows):
   return {'show': show, 'show_saved': show.id in saved_shows}
-  
+
 @register.inclusion_tag('fancy_main/templatetags/show_detailed_link.html')
 def show_detailed_link(show):
   return {'show': show}
@@ -145,7 +145,10 @@ def venue_options(show, venue_map):
 def show_list_title(show_context):
   return {'show_context': show_context}
   
-
+@register.inclusion_tag('fancy_main/templatetags/title_text.html')
+def show_list_title_text(show_context):
+  return {'show_context': show_context}
+  
 @register.inclusion_tag('fancy_main/templatetags/nav.html')
 def show_list_nav(show_context):
   today    = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)

@@ -61,7 +61,7 @@ class ShowResource(DocumentResource):
 
   class Meta:
     object_class = Show
-    fields       = ['id', 'title', 'artists', 'date', 'show_time', 'door_time', 'soldout', 'venue']
+    fields       = ['id', 'title', 'artists', 'date', 'show_time', 'door_time', 'soldout', 'venue', 'rank']
     
 class ShowListField(ApiField):
   def dehydrate(self, bundle):

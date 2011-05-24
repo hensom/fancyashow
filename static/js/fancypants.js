@@ -311,8 +311,6 @@ $(function() {
       return new Fancy.Views.ShowBanner({visitor: this.visitor, show: show});
     },
     render: function() {
-      var self    = this;
-
       var context = {
         title:      this.title,
         message:   (this.shows.length == 0) ? 'No shows' : ''
@@ -320,7 +318,7 @@ $(function() {
       
       $(this.el).html(this.template(context));
       
-      var list = $(self.el).find(self.show_list_selector).first();
+      var list = $(this.el).find(this.show_list_selector).first();
 
       _.each(this.showViews, function(view) {
         list.append(view.render().el);
@@ -346,7 +344,7 @@ $(function() {
       return new Fancy.Views.ShowGroup({visitor: this.visitor, title: group.title, shows: group.shows});
     },
     groupShows: function(shows) {
-      var showsByRank   = shows.sortBy(function(show) { return show.get('rank') });
+      var showsByRank   = shows.sortBy(function(show) { return -1 * show.get('rank') });
       var featuredShows = _.first(showsByRank, this.FEATURED_SIZE);
       var otherShows    = _.rest(showsByRank, this.FEATURED_SIZE);
 
@@ -364,7 +362,7 @@ $(function() {
   Fancy.Views.VenueShowList = Fancy.Views.ShowList.extend({
     groupShows: function(shows) {
       var today         = dateOnly(new Date());
-      var showsByRank   = shows.sortBy(function(show) { return show.get('rank') });
+      var showsByRank   = shows.sortBy(function(show) { return -1 * show.get('rank') });
       var featuredShows = _.first(showsByRank, this.FEATURED_SIZE);
       var tonight       = _.filter(showsByRank, function(show) { return show.get('date').equals(today) })
       var lineup        = shows.sortBy(function(show) { return show.get('date') });

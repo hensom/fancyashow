@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{% css_url "ie-fixups.css" %}" type="text/css" />
 		<![endif]-->
 		<!-- script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script -->
-    
+
     <script type="text/javascript" src="{% js_url "modernizr-1.6.min.js"   %}"></script>
     <script type="text/javascript" src="{% js_url "innershiv.js"           %}"></script>
     <script type="text/javascript" src="{% js_url "jquery-1.4.2.min.js"    %}"></script>
@@ -48,9 +48,11 @@
 		<div id="fb-root"></div>
 	  <div class="wrapper" id="wrapper">
 		  <header id="site-header">
-			  <h1>{% block header_title %}<a href="{% url root %}">{{ SITE_NAME }}</a>{% endblock %}</h1>
+  		  <h1><a href="{% url root %}">{{ SITE_NAME }}</a></h1>
+  		  <h2>{{ SITE_TAGLINE }}</h2>
+  		  
 				<nav id="site-nav">
-				{% block nav %}
+  		  {% block nav %}
 				  <a href="{% url shows %}">Shows</a> /
 					<a href="{% url venues %}">Venues</a>
 					<span class="js"> /
@@ -102,7 +104,9 @@
 			<header>
 				<h1><%= title %></h1>
 			</header>
-	    <%= message %>
+			<% if(message) { %>
+			  <div class="message"><%= message %></div>
+  	  <% } %>
 	    <ol></ol>
 		</script>
 		<script id="featured-show-template" type="text/template">

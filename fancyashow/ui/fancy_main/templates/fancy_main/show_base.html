@@ -3,7 +3,7 @@
 {% load show_util %}
 
 {% block title %}
-  {% show_list_title show_context %}
+  {% show_list_title_text show_context %}
 {% endblock %}
 
 {% block content_title %}
@@ -14,7 +14,7 @@
   {{ block.super }}
 
 	<meta name="description" content="{% attribute %}
-		{% show_list_title show_context %}:
+		{% show_list_title_text show_context %}:
 
   {% for show in shows %}
     {% if forloop.counter < 6 %}

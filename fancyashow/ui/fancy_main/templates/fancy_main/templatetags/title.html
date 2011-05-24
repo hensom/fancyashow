@@ -1,7 +1,32 @@
-{{ show_context.period_name }}
-{% if show_context.venue %}
-  at
-{% else %}
-  in
-{% endif %}
-{{ show_context.location_name }}
+<div class="part">
+  <div class="label">Choose a time:</div>
+  <div class="choice">{{ show_context.period_name }}</div>
+</div>
+
+<div class="part">
+  <div class="label">&nbsp;</div>
+  <div>
+    {% if show_context.venue %}
+      at
+    {% else %}
+      in
+    {% endif %}
+  </div>
+</div>
+
+<div class="part">
+  <div class="label">Choose a place:</div>
+  <div class="choice">{{ show_context.location_name }}</div>
+</div>  
+
+<div style="clear: both;"></div>
+
+<div style="display: none">
+  <span id="time">{{ show_context.period_name }}</span>
+  {% if show_context.venue %}
+    at
+  {% else %}
+    in
+  {% endif %}
+  <span id="location">{{ show_context.location_name }}</span>
+</div>

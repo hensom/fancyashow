@@ -4,7 +4,7 @@ html {
 }
 
 body {
-  padding-top:    1.5em;
+  padding-top:    10px;
   padding-bottom: 3em;
   font-family: 'Droid Sans Pro', 'Arial Rounded Bold', Arial;
   font-size:   12px;
@@ -21,12 +21,12 @@ header, hgroup, nav, section {
 }
 
 a {
-  color:   black;
+  color:   #444;
   text-decoration: none;
 }
 
 a:hover {
-  background-color: black;
+  background-color: #444;
   color:            white;
 }
 
@@ -54,12 +54,14 @@ article > header h1 {
 /* Section Headers */
 section {
   clear: both;
+  height: 100%;
+  overflow: hidden;
+  margin-bottom: 2em;
 }
 
 section > header {
   text-align:  left;
   height:      100%;
-  padding-top: 3em;
   margin-bottom: 8px;
 }
 
@@ -438,7 +440,8 @@ section > header h1 {
   text-align: right;
   padding-right: 25px;
   position: absolute;
-  bottom:   -46px;
+  top: 0;
+/*  bottom:   -46px;*/
   right:    0px;
   z-index:  2;
 }
@@ -538,6 +541,8 @@ section > header h1 {
   text-transform: uppercase;
   position: relative;
   border-bottom: 0px;
+  margin-top:    2em;
+  margin-bottom: 2em;
 }
 
 #content-header h1 {
@@ -546,7 +551,6 @@ section > header h1 {
   padding:    0.3em 0;
   line-height: 1em;
   display:    block;
-  width:      70%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -556,9 +560,11 @@ section > header h1 {
   color: #666;
   text-transform: uppercase;
   display: block;
-  width:   60%;
+  width:   70%;
   padding: 0 1em;
-  font-size: 0.9em;
+  z-index: 2;
+  margin-top: -2em;
+  margin-bottom: 3em;
 }
 
 #content-nav a {
@@ -730,4 +736,71 @@ dt {
 dd {
   width: 75%;
   float: left;
+}
+
+#foo {
+  margin-top: 40px;
+  position: relative;
+}
+
+#foo span {
+  font-size: 1.5em;
+  width:   15%;
+  display: inline-block;
+  text-align: center;
+}
+
+#search {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#foo .current {
+  background-color: #c1c1c1;
+}
+
+#time,
+#location {
+  color: white;
+  background-color: #444;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+#site-header {
+  margin-bottom: 20px;
+}
+
+#site-header h1 {
+  font-weight: bold;
+}
+
+#site-header h1,
+#site-header h2 {
+  display: inline;
+}
+
+body {
+
+}
+
+.label {
+  font-size: 14px;
+  color: #ccc;
+  text-align: left;
+  display: none;
+}
+
+.part {
+  float: left;
+  text-align: left;
+  padding: 0.25em;
+  padding-left: 0;
+}
+
+.message {
+  padding-top: 1em;
+  padding-left: 1em;
+  text-transform: uppercase;
 }
