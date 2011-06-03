@@ -1,5 +1,6 @@
 import datetime
 from mongoengine import *
+from fancyashow.db.models import ShowSet
 
 class User(Document):
     """A User document that aims to mirror most of the API specified by Django
