@@ -14,7 +14,7 @@ extensions = ExtensionLibrary()
 
 class CakeShop(ShowParser):
   BASE_URL     = "http://cake-shop.com/"
-  CALENDAR_RE  = re.compile('%scalendar/' % BASE_URL, re.IGNORECASE)
+  CALENDAR_RE  = re.compile('%sshow-calendar/' % BASE_URL, re.IGNORECASE)
   DATE_RE      = re.compile("\w+\s+(?P<day>\d+)")
   NUM_RE       = re.compile('^\s*\d+\s*(?:st|nd|rd|th):\s*$', re.IGNORECASE | re.MULTILINE)
   TIME_RE      = re.compile('^\s*(?P<time>\d+(?::\d+)?\s*(?:am|pm))\s*', re.IGNORECASE | re.MULTILINE)

@@ -1,0 +1,44 @@
+{% extends "fancy_main/root.html" %}
+
+{% load show_util %}
+
+{% block title %}
+  Festivals
+{% endblock %}
+
+{% block content_title %}
+  Festivals
+{% endblock %}
+
+{% block shows_json %}
+  {% show_list_json request shows %}
+{% endblock %}
+
+{% block content %}
+
+{% for info in festivals %}
+<article id="show-list" class="show-list">
+	<section>
+		<header>
+		  <h1>{{ info.festival.name }}</h1>
+		  <div style="text-align: right; padding-right: 20px; margin-top: -25px;">
+  		  <a href="{% url shows-at-festival festival=info.festival.merge_key %}">See all shows</a>
+		  </div>
+		</header>
+				
+  	{% if info.shows %}
+  	<ul>
+  		{% for show in info.shows %}
+  		{% if forloop.counter0 < 6 %}
+  		  <li>{% show_featured_listing show saved_shows %}</li>
+  		{% endif %}
+  		{% endfor %}
+  	</ul>
+  	{% else %}
+  	  <p class="empty">Looks like we're in the dark here. :(</p>
+  	{% endif %}
+  </section>
+</article>
+{% endfor %}
+
+{% endblock %}

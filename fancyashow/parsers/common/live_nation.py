@@ -9,10 +9,10 @@ from fancyashow.util              import parsing  as html_util
 from fancyashow.util              import dates    as date_util
 from fancyashow.util              import lang     as lang_util
 
-logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 class LiveNationParser(ShowParser):
-  EVENTS_URL_BASE = 'http://www.livenation.com/json/search/event?vid=%d'
+  EVENTS_URL_BASE = 'http://www.ticketmaster.com/json/search/event?vid=%d'
   IMAGE_URL_BASE  = 'http://media.ticketmaster.com/ln/%(lang_code)s%(image_path)s'
 
   BASE_URL = "http://www.bruarfalls.com/"
@@ -35,13 +35,15 @@ class LiveNationParser(ShowParser):
   def _get_parser(self):  
     events_url = self.EVENTS_URL_BASE % self.venue_id()
     
-    logger.debug("Fetching events from: %s" % events_url)
+    LOG.debug("Fetching events from: %s" % events_url)
 
     res = urllib2.urlopen(events_url)
     
     data = simplejson.load(res)
     
     shows = data['response']['docs']
+    
+    LOG.debug("shows: %s" % data)
     
     for show_data in shows:
       show = self._trans_show(show_data)
@@ -53,11 +55,16 @@ class LiveNationParser(ShowParser):
     return self.IMAGE_URL_BASE % {'lang_code': show_data['LangCode'], 'image_path': url_fragment}
 
   def _trans_show(self, show_data):
+    LOG.debug("Checking event: %s" % show_data['EventName'])
+
     if "Music" not in show_data['MajorGenre']:
+      LOG.debug("Skipping non music show")
       return None
     elif show_data.get('Canceled'):
+      LOG.debug("Skipping cancelled show")
       return None
     elif 'VIP Packages' in show_data['EventName']:
+      LOG.debug("Skipping VIP package")
       return None
   
     show = Show()

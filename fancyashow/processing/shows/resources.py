@@ -5,7 +5,7 @@ extensions = ExtensionLibrary()
 
 class ShowResourceHandlerProcessor(ResourceHandlerProcessorMixin, ShowProcessor):
   def resources(self, obj, state, dependent_states):
-    return obj.parsed_resources
+    return obj.parse_meta.resources
     
   def handlers(self):
     return [h() for h in self.library.show_resource_handlers()]

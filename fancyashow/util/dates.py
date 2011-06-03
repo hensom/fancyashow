@@ -122,6 +122,9 @@ def adjust_fuzzy_years(show, base_day, look_forward_months = 10, look_back_month
     return day
 
   if show.date:
+    if adjust_date(show.date).year < 200:
+      raise Exception('year really young')
+
     show.date = adjust_date(show.date)
     
   if show.show_time:

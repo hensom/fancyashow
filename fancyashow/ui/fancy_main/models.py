@@ -15,9 +15,6 @@ class User(Document):
     is_superuser = BooleanField(default=False)
     last_login = DateTimeField(default=datetime.datetime.now)
     date_joined = DateTimeField(default=datetime.datetime.now)
-    
-    saved_shows     = ListField(ObjectIdField(), default = lambda: [])
-    suggested_shows = ListField(ObjectIdField(), default = lambda: [])
 
     def __unicode__(self):
         return self.username
@@ -80,6 +77,18 @@ class User(Document):
 
     def get_and_delete_messages(self):
         return []
+    
+    @property
+    def starred_show_set(self):
+      if not hasattr(self, '_show_set'):
+        show_set_query  = Q(set_type = 'user-starred',  set_context_id = self.id)
+        show_set_kwargs = {'set_type': 'user-starred', 'set_context_id': self.id}
+
+        show_set, created = ShowSet.objects.get_or_create(show_set_query, defaults = show_set_kwargs)
+
+        setattr(self, '_show_set', show_set)
+
+      return self._show_set
 
 class AnonymousUser(User):
     def is_anonymous(self):

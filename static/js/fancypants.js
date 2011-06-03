@@ -273,114 +273,6 @@ $(function() {
       return false;
     }
   });
-  
-  Fancy.Views.Base = Backbone.View.extend({
-    el: $('#wrapper'),
-    base_template: Template($('#base-template').html()),
-    content_selector: "section",
-    render: function() {
-      var context = {
-        title:   this.getTitle(),
-        nav:     this.getNav()
-      };
-      
-      $(this.el).html(this.base_template(context));
-            
-      $(this.el).find(this.content_selector).first().append(this.getContent());
-      
-      return this;
-    },
-    getTitle:   function() { return 'IMPLEMENT TITLE';   },
-    getNav:     function() { return 'IMPLEMENT NAV';     },
-    getContent: function() { return 'IMPLEMENT CONTENT'; }
-  })
-  
-  Fancy.Views.ShowGroup = Backbone.View.extend({
-    template: Template($('#show-group-template').html()),
-    tagName: 'section',
-    initialize: function(options) {
-      _.bindAll(this, 'showView');
-
-      this.visitor            = options.visitor;
-      this.shows              = options.shows;
-      this.title              = options.title;
-      this.show_list_selector = options.show_list_selector || 'ol';
-      this.showViews          = _.map(this.shows, this.showView);
-    },
-    showView: function(show) {
-      return new Fancy.Views.ShowBanner({visitor: this.visitor, show: show});
-    },
-    render: function() {
-      var context = {
-        title:      this.title,
-        message:   (this.shows.length == 0) ? 'No shows' : ''
-      };
-      
-      $(this.el).html(this.template(context));
-      
-      var list = $(this.el).find(this.show_list_selector).first();
-
-      _.each(this.showViews, function(view) {
-        list.append(view.render().el);
-      });
-      
-      return this;
-    }
-  });
-
-  Fancy.Views.ShowList = Backbone.View.extend({
-    FEATURED_SIZE: 6,
-    el: $("#show-list"),
-    initialize: function(options) {
-      _.bindAll(this, 'groupView');
-
-      this.visitor    = options.visitor;
-      this.context    = options.context;
-      this.shows      = options.shows;
-      this.groups     = this.groupShows(this.shows);
-      this.groupViews = _.map(this.groups, this.groupView);
-    },
-    groupView:  function(group) {
-      return new Fancy.Views.ShowGroup({visitor: this.visitor, title: group.title, shows: group.shows});
-    },
-    groupShows: function(shows) {
-      var showsByRank   = shows.sortBy(function(show) { return -1 * show.get('rank') });
-      var featuredShows = _.first(showsByRank, this.FEATURED_SIZE);
-      var otherShows    = _.rest(showsByRank, this.FEATURED_SIZE);
-
-      return [{title: 'Featured', shows: featuredShows}, {title: 'Lineup', shows: otherShows}];
-    },
-    render: function() {
-      var el = $(this.el);
-      
-      el.html('');
-
-      _.each(this.groupViews, function(view) { el.append(view.render().el); });
-    }
-  });
-  
-  Fancy.Views.VenueShowList = Fancy.Views.ShowList.extend({
-    groupShows: function(shows) {
-      var today         = dateOnly(new Date());
-      var showsByRank   = shows.sortBy(function(show) { return -1 * show.get('rank') });
-      var featuredShows = _.first(showsByRank, this.FEATURED_SIZE);
-      var tonight       = _.filter(showsByRank, function(show) { return show.get('date').equals(today) })
-      var lineup        = shows.sortBy(function(show) { return show.get('date') });
-
-      return [{title: 'Tonight', shows: tonight}, {title: 'Featured', shows: featuredShows}, {title: 'Calendar', shows: lineup}];
-    }
-  });
-  
-  Fancy.Views.VisitorShowList = Fancy.Views.ShowList.extend({
-    groupShows: function(shows) {
-      var today        = dateOnly(new Date());
-      var showsByDate  = _.sortBy(shows.models, function(show) { return show.get('date') });
-      var futureShows  = _.filter(showsByDate,  function(show) { return show.get('date') >= today });
-      var pastShows    = _.filter(showsByDate,  function(show) { return show.get('date') < today });
-
-      return [{title: 'Upcoming Shows', shows: futureShows}, {title: 'Past Shows', shows: pastShows}];
-    }
-  });
 
   Fancy.UI = Backbone.Controller.extend({
     el: $('body'),
@@ -407,19 +299,20 @@ $(function() {
       
       this.visitor.bind("auth:login-requested", this.login);
 
-      this.currentView = this._viewForContext();
-      this.currentView.render();
-    },    
-    _viewForContext: function() {
-      var viewClass = Fancy.Views.ShowList;
+      this.renderShows()
+    },
+    renderShows: function() {
+      var self = this;
+      $(".show-featured").each(function() {
+        var show_id = this.getAttribute("data-show-id");
+        var show    = self.shows.get(show_id);
 
-      if(this.context.get('visitor')) {
-        viewClass = Fancy.Views.VisitorShowList;
-      } else if(this.context.get('venue')) {
-        viewClass = Fancy.Views.VenueShowList;
-      }
-      
-      return new viewClass({context: this.context, shows: this.shows, visitor: this.visitor});
+        if(show) {
+          var view =  new Fancy.Views.ShowBanner({show: show, visitor: self.visitor, el: this.parentNode});
+
+          view.render();
+        }
+      });
     },
     _parseShows: function(response) { 
       response.date      = parseDateTime(response.date);

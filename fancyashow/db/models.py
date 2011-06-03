@@ -1,6 +1,6 @@
 import                           logging
 from datetime             import datetime, timedelta
-from mongoengine          import Document, EmbeddedDocument
+from mongoengine          import Document, EmbeddedDocument, Q
 from mongoengine          import IntField, FloatField, DateTimeField, ListField
 from mongoengine          import DictField, BooleanField, URLField
 from mongoengine          import EmbeddedDocumentField, ObjectIdField, GeoPointField
@@ -9,6 +9,11 @@ from fancyashow.db.fields import StringField
 from django.template.defaultfilters import slugify
 
 logger = logging.getLogger(__name__)
+
+class AuditMixin(object):
+  creation_date          = DateTimeField(required = True, default = lambda: datetime.now())
+  deletion_date          = DateTimeField()
+  last_modification_date = DateTimeField(required = True, default = lambda: datetime.now())
 
 class SystemStat(Document):
   system_id     = StringField(required = True)
@@ -316,7 +321,7 @@ class City(Document):
 class Venue(Document):
   name            = StringField(required = True)
   slug            = StringField(required = True, unique = True)
-  url             = URLField()
+  url             = URLField(required = True)
   address         = StringField()
   city            = StringField()
   neighborhood    = StringField()
@@ -359,13 +364,16 @@ class ArtistInfo(EmbeddedDocument):
     return self.name
     
 class ParseMeta(EmbeddedDocument):
-  parser_id = StringField(required = True)
-  merge_key = StringField()
+  parser_id  = StringField(required = True)
+  merge_key  = StringField()
+  image_url  = URLField()
+  resources  = ListField(StringField(), default = lambda: [])
 
 class Show(Document):
   title            = StringField()
   artists          = ListField(EmbeddedDocumentField(ArtistInfo))
   artist_ids       = ListField(ObjectIdField(), default = lambda: [])
+  tags             = ListField(StringField(), default = lambda: [])
 
   date             = DateTimeField(required = True)
   show_time        = DateTimeField()
@@ -438,3 +446,44 @@ class Show(Document):
       return Artist.objects.in_bulk(artist_ids)
     else:
       return {}
+
+class ShowSet(Document, AuditMixin):
+  set_type       = StringField(required = True)
+  set_context_id = ObjectIdField(required = True)
+  show_ids       = ListField(ObjectIdField(), default = lambda: [])
+  
+  def shows(self):
+    return Show.objects.filter(id__in = self.show_ids)
+
+  def get_id_dict(self):
+    return dict((show_id, True) for show_id in self.show_ids)
+  
+  def add_shows(self, shows):
+    id_map = dict((show_id, True) for show_id in self.show_ids)
+
+    for s in shows:
+      if s.id not in id_map:
+        id_map[s.id] = True
+        self.show_ids.append(s.id)
+
+class Festival(Document, AuditMixin):
+  merge_key   = StringField()
+  name        = StringField()
+  
+class FestivalSeason(Document, AuditMixin):
+  festival_id = ObjectIdField(required = True)
+  merge_key   = StringField()
+  start_date  = DateTimeField(required = True)
+  end_date    = DateTimeField(required = True)
+  
+  @property
+  def show_set(self):
+    if not hasattr(self, '_show_set'):
+      show_set_query  = Q(set_type = 'festival',  set_context_id = self.id)
+      show_set_kwargs = {'set_type': 'festival', 'set_context_id': self.id}
+
+      show_set, created = ShowSet.objects.get_or_create(show_set_query, defaults = show_set_kwargs)
+      
+      setattr(self, '_show_set', show_set)
+      
+    return self._show_set

@@ -1,0 +1,24 @@
+"Parser",,,,,,,,,,,,,
+,"ID","festival-elevated-acre-movie-series-2011",,,,,,,,,,,
+"Festival",,,,,,,,,,,,,
+,"Name","Elevated Acre Movie Series",,,,,,,,,,,
+,"Merge Key","elevated-acre-movie-series",,,,,,,,,,,
+,"Season Merge Key","elevated-acre-movie-series-2011",,,,,,,,,,,
+,"Season Start Date","06/20/2011",,,,,,,,,,,
+,"Season End Date","07/11/2011",,,,,,,,,,,
+,"Season URL","http://www.rivertorivernyc.com/events/film?field_venue_nid=All",,,,,,,,,,,
+"Venue",,,,,,,,,,,,,
+,"Name","The Elevated Acre",,,,,,,,,,,
+,"URL","http://www.elevatedacre.com/",,,,,,,,,,,
+,"Address","55 Water Street, NY, NY 10041",,,,,,,,,,,
+,"City","manhattan",,,,,,,,,,,
+,"Neighborhood",,,,,,,,,,,,
+,"Lat",40.7032579,,,,,,,,,,,
+,"Long",-74.00962620000001,,,,,,,,,,,
+,,,,,,,,,,,,,
+"Shows",,,,,,,,,,,,,
+,"Merge Key","Show Date","Performers","Title","Show Time","Door Time","Venue Name","Venue URL","Free","Show URL","Image URL","Resources","Tags"
+,"desperately-seeking-susan","06/20/2011",,"Desperately Seeking Susan","08:00:00 PM",,"The Elevated Acre","http://www.elevatedacre.com/",,"http://www.rivertorivernyc.com/events/desperately-seeking-susan","http://ia.media-imdb.com/images/M/MV5BMTM4NTE0NDIyMF5BMl5BanBnXkFtZTcwNzAwMjMzNA@@._V1._SX640_SY432_.jpg",,"movie"
+,"the-godfather-part-2","06/27/2011",,"The Godfather Part II","08:00:00 PM",,"The Elevated Acre","http://www.elevatedacre.com/",,"http://www.rivertorivernyc.com/events/godfather-part-ii","http://ia.media-imdb.com/images/M/MV5BMjgwMzkwMDA4MF5BMl5BanBnXkFtZTcwNzY0Mzg4Mw@@._V1._SX640_SY951_.jpg",,"movie"
+,"the-dancer-films","07/09/2011",,"Extraordinary Moves: THE DANCER FILMS","7pm",,"The Elevated Acre","http://www.elevatedacre.com/",,"http://www.rivertorivernyc.com/events/extraordinary-movesbrthe-dancer-filmsbrdirected-judy-dennis",,,"movie"
+,"the-brother-from-another-planet","07/11/2011",,"The Brother from Another Planet","8pm",,"The Elevated Acre","http://www.elevatedacre.com/",,"http://www.rivertorivernyc.com/events/brother-another-planet","http://www.blogcdn.com/blog.moviefone.com/media/2009/03/brother031209.jpg",,"movie"

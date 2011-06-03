@@ -10,8 +10,8 @@ def show_has_resource(resource):
     var shows [];
   
     function has_resource(show) {
-      for(var i = 0; i < show.parsed_resources.length; i++) {
-        if(show.parsed_resources[i].indexOf('%s') != -1) {
+      for(var i = 0; i < show.parse_meta.resources.length; i++) {
+        if(show.parse_meta.resources[i].indexOf('%s') != -1) {
           return true;
         }
       }

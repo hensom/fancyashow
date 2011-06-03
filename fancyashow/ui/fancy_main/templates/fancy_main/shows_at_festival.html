@@ -1,0 +1,53 @@
+{% extends "fancy_main/root.html" %}
+
+{% load show_util %}
+
+{% block title %}
+  {{ festival.name }}
+{% endblock %}
+
+{% block content_title %}
+  {{ festival.name }}
+{% endblock %}
+
+{% block shows_json %}
+  {% show_list_json request shows %}
+{% endblock %}
+
+{% block content %}
+
+<article id="show-list" class="show-list">
+	<section>
+		<header>
+		  <h1>Upcoming Shows</h1>
+		</header>
+				
+  	{% if upcoming_shows %}
+  	<ul>
+  		{% for show in upcoming_shows %}
+  		  <li>{% show_featured_listing show saved_shows %}</li>
+  		{% endfor %}
+  	</ul>
+  	{% else %}
+  	  <p class="empty">There are no upcoming shows.</p>
+  	{% endif %}
+  </section>
+  
+  <section>
+		<header>
+		  <h1>Past Shows</h1>
+		</header>
+				
+  	{% if past_shows %}
+  	<ul>
+  		{% for show in past_shows %}
+  		  <li>{% show_featured_listing show saved_shows %}</li>
+  		{% endfor %}
+  	</ul>
+  	{% else %}
+  	  <p class="empty">There are no past shows</p>
+  	{% endif %}
+  </section>
+</article>
+
+{% endblock %}

@@ -94,7 +94,8 @@
 		<dt>{{ show_form.image_url.label }}</dt>
 		<dd>
 			<div class="error">{{ show_form.image_url.errors }}</div>
-			{{ show_form.image_url }}
+			{{ show_form.image_url }}<br />
+			{{ show.parse_meta.image_url }}
 		</dd>
 		
 		<dt>{{ show_form.url.label }}</dt>
@@ -103,10 +104,11 @@
 			{{ show_form.url }}
 		</dd>
 
-		<dt>{{ show_form.parsed_resources.label }}</dt>
+		<dt>Parsed Resources</dt>
 		<dd>
-			<div class="error">{{ show_form.parsed_resources.errors }}</div>
-			{{ show_form.parsed_resources }}
+		  {% for resource in show.parse_meta.resources %}
+		    {{ resource }}<br />
+	    {% endfor %}
 		</dd>
 		
 	{% for a in show.artists %}

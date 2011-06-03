@@ -1,6 +1,7 @@
 import feedparser
 import logging
 import lxml.html
+from datetime import datetime
 import re
 from   lxml.html.clean import Cleaner
 from fancyashow.extensions        import ExtensionLibrary, ShowParser
@@ -51,8 +52,13 @@ class Glasslands(ShowParser):
   def _parse_shows(self, entry):
     content = None
     shows   = []
+    today   = datetime.now()
     
     entry_date = date_util.parse_date_time(entry.published)
+    
+    # Only parse shows for the current year, or at the tail end of last year
+    if entry_date.year != today.year or (entry_date.year == today.year -1 and entry_date.month > 10):
+      return []
 
     for item in entry.content:
       if item.type in ('text/html',):

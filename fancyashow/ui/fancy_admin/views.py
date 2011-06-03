@@ -277,8 +277,8 @@ def resource_domains(request):
   function() {
     var domainRe = /(.*?):/;
 
-    for(var i = 0; i < this.parsed_resources.length; i++) {
-      var m = domainRe.exec(this.parsed_resources[i]);
+    for(var i = 0; i < this.parse_meta.resources.length; i++) {
+      var m = domainRe.exec(this.parse_meta.resources[i]);
       
       if(m) {      
         emit(m[1], 1);
@@ -349,7 +349,7 @@ def best_artists(request):
     if any( a.media for a in artist_map.values() ):
       with_media += 1
 
-    if show.parsed_resources:
+    if show.parse_meta.resources:
       with_resources += 1
     
     had_headliner     = False
@@ -416,7 +416,7 @@ def parser_stats(request):
   function() {
     var stats = {
       total:          1,
-      with_resources: this.parsed_resources.length > 0 ? 1 : 0,
+      with_resources: this.parse_meta.resources.length > 0 ? 1 : 0,
       with_artists:   this.artists.length > 0 ? 1 : 0,
       with_title:     this.title != null ? 1 : 0
     };

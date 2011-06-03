@@ -1,12 +1,12 @@
-from fancyashow.extensions                 import ExtensionLibrary
-from fancyashow.parsers.common.live_nation import LiveNationParser
-from fancyashow.extensions.models          import Venue
+from fancyashow.extensions            import ExtensionLibrary
+from fancyashow.parsers.common.lastfm import LastFMParser
+from fancyashow.extensions.models     import Venue
 
 extensions = ExtensionLibrary()
 
-class HammersteinBallroom(LiveNationParser):
+class HammersteinBallroom(LastFMParser):
   def venue_id(self):
-    return 280
+    return 8778684
 
   def venue(self):
     return Venue('Hammerstein Ballroom', 'http://www.mcstudios.com/mc-studio-events/the-hammerstein.php')

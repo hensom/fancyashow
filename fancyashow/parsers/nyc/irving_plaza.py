@@ -1,12 +1,12 @@
-from fancyashow.extensions                 import ExtensionLibrary
-from fancyashow.parsers.common.live_nation import LiveNationParser
-from fancyashow.extensions.models          import Venue
+from fancyashow.extensions            import ExtensionLibrary
+from fancyashow.parsers.common.lastfm import LastFMParser
+from fancyashow.extensions.models     import Venue
 
 extensions = ExtensionLibrary()
 
-class IrvingPlaza(LiveNationParser):
+class IrvingPlaza(LastFMParser):
   def venue_id(self):
-    return 47
+    return 8778815
 
   def venue(self):
     return Venue('Irving Plaza', 'http://www.irvingplaza.com/')

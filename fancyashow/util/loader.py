@@ -111,7 +111,7 @@ class ShowLoader(object):
   def _merge_shows(self, old_show, new_show):
     logger.debug(u'Merging %s with %s' % (old_show, new_show))
 
-    copy_attrs = ('parse_meta', 'title', 'date', 'show_time', 'door_time', 'url', 'image_url', 'parsed_resources', 'venue', 'soldout')
+    copy_attrs = ('parse_meta', 'title', 'date', 'show_time', 'door_time', 'url', 'venue', 'soldout')
 
     for attr in copy_attrs:
       setattr(old_show, attr, getattr(new_show, attr))
@@ -196,12 +196,22 @@ class ShowLoader(object):
 
     return ArtistInfo(name = display_name, headliner = p.headliner, start_time = p.start_time,)
 
+  def _parse_meta(self, parser, s):
+    kwargs = {
+     'parser_id': parser.id(),
+     'merge_key': s.merge_key,
+     'image_url': self._trans_url(s.resources.image_url),
+     'resources': s.resources.resource_uris,
+    }
+
+    return ParseMeta(**kwargs)
+
   def _trans_show(self, parser, s):
     def trans_venue(v):
       return VenueInfo(name = v.name, url = v.url)
 
     show_mappings = {
-      'parse_meta':    ParseMeta(parser_id = parser.id(), merge_key = s.merge_key),
+      'parse_meta':    self._parse_meta(parser, s),
       'title':         self._normalize_caps(s.title),
       'artists':       [self._trans_artist(p) for p in s.performers],
       'soldout':       s.soldout,
@@ -210,8 +220,7 @@ class ShowLoader(object):
       'show_time':     self._force_datetime(s.show_time),
       'door_time':     self._force_datetime(s.door_time),
       'url':           self._trans_url(s.resources.show_url),
-      'image_url':     self._trans_url(s.resources.image_url),
-      'parsed_resources': s.resources.resource_uris,
+      'image_url':     None,
       'creation_date': datetime.now()
     }
 

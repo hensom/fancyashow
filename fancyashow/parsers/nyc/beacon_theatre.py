@@ -1,12 +1,12 @@
-from fancyashow.extensions                 import ExtensionLibrary
-from fancyashow.parsers.common.live_nation import LiveNationParser
-from fancyashow.extensions.models          import Venue
+from fancyashow.extensions            import ExtensionLibrary
+from fancyashow.parsers.common.lastfm import LastFMParser
+from fancyashow.extensions.models     import Venue
 
 extensions = ExtensionLibrary()
 
-class BeaconTheatre(LiveNationParser):
+class BeaconTheatre(LastFMParser):
   def venue_id(self):
-    return 237665
+    return 8825722
 
   def venue(self):
     return Venue('Beacon Theatre', 'http://www.beacontheatre.com/')

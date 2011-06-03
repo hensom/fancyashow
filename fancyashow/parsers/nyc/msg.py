@@ -1,12 +1,12 @@
-from fancyashow.extensions                 import ExtensionLibrary
-from fancyashow.parsers.common.live_nation import LiveNationParser
-from fancyashow.extensions.models          import Venue
+from fancyashow.extensions            import ExtensionLibrary
+from fancyashow.parsers.common.lastfm import LastFMParser
+from fancyashow.extensions.models     import Venue
 
 extensions = ExtensionLibrary()
 
-class MadisonSquareGarden(LiveNationParser):
+class MadisonSquareGarden(LastFMParser):
   def venue_id(self):
-    return 237569
+    return 8778812
 
   def venue(self):
     return Venue('Madison Square Garden', 'http://www.thegarden.com/')

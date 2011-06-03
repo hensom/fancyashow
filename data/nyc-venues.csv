@@ -5,7 +5,7 @@
 "Mercury Lounge","http://www.mercuryloungenyc.com/","217 E Houston St, New York, NY 10002","manhattan","lower-east-side",40.7221646,-73.9867142
 "Bowery Ballroom","http://www.boweryballroom.com/","6 Delancey St, New York, NY 10002","manhattan","lower-east-side",40.720364,-73.993542
 "Music Hall of Williamsburg","http://www.musichallofwilliamsburg.com/","66 North 6th St, Brooklyn, NY 1121","brooklyn","williamsburg-greenpoint",40.7192899,-73.9617113
-"Terminal 5","http://www.terminal5nyc.com/","610 W 56th St, New York, NY 10019","manhattan","not-les-chinatown",40.769708,-73.992762
+"Terminal 5","http://www.terminal5nyc.com/","610 W 56th St, New York, NY 10019","manhattan","above-14th-street",40.769708,-73.992762
 "Brooklyn Bowl","http://www.brooklynbowl.com/","61 Wythe Avenue, Brooklyn, NY 11211","brooklyn","williamsburg-greenpoint",40.721876,-73.957676
 "Cake Shop","http://cake-shop.com/","152 Ludlow St, New York, NY","manhattan","lower-east-side",40.720892,-73.988156
 "Littlefield","http://www.littlefieldnyc.com/","622 Degraw St, Brooklyn, NY 11217","brooklyn","park-slope-gowanus",40.679167,-73.983473
@@ -20,20 +20,25 @@
 "Barbes","http://www.barbesbrooklyn.com/","376 9th St, Brooklyn, NY, 11215","brooklyn","park-slope-gowanus",40.6678516,-73.9837879
 "Glasslands","http://www.glasslands.com/","289 Kent Ave, Brooklyn, NY 11211","brooklyn","williamsburg-greenpoint",40.7151296,-73.9664814
 "Europa","http://www.europalive.net/","98 Meserole Ave, Brooklyn, New York","brooklyn","williamsburg-greenpoint",40.72695,-73.952974
-"Webster Hall","http://www.websterhall.com/","125 E 11th St, New York, NY","manhattan","not-les-chinatown",40.7316872,-73.9892914
+"Webster Hall","http://www.websterhall.com/","125 E 11th St, New York, NY","manhattan","east-village",40.7316872,-73.9892914
+"The Studio at Webster Hall","http://www.websterhall.com/thestudio/","125 E 11th St, New York, NY","manhattan","east-village",40.7316872,-73.9892914
 "Union Pool","http://unionpool.blogspot.com/","484 Union Ave, New York, NY","brooklyn","williamsburg-greenpoint",40.715448,-73.952094
 "Shea Stadium","http://www.myspace.com/sheastadiumbk","20 Meadow St, Brooklyn, NY","brooklyn","bushwick",40.7104209,-73.936368
 "Fontanas","http://fontanasnyc.com/","105 Eldridge Street, New York, NY","manhattan","chinatown",40.718105,-73.992284
 "Bruar Falls","http://www.bruarfalls.com/","245 Grand Street, Brooklyn, NY","brooklyn","williamsburg-greenpoint",40.713682,-73.958712
 "Spike Hill","http://www.spikehill.com/","186 Bedford Ave, Brooklyn, NY","brooklyn","williamsburg-greenpoint",40.717696,-73.9580272
 "Zebulon","http://www.myspace.com/zebuloncafeconcert","258 Wythe Avenue, Brooklyn, NY","brooklyn","williamsburg-greenpoint",40.7169662,-73.9632777
-"Irving Plaza","http://www.irvingplaza.com/","17 Irving Place, New York, NY","manhattan","not-les-chinatown",40.734917,-73.9884469
-"Beacon Theatre","http://www.beacontheatre.com/","2124 Broadway, New York","manhattan","not-les-chinatown",40.7805932,-73.981318
-"Hammerstein Ballroom","http://www.mcstudios.com/mc-studio-events/the-hammerstein.php","311 West 34th Street, New York, NY","manhattan","not-les-chinatown",40.752664,-73.994309
-"Madison Square Garden","http://www.thegarden.com/","4 Penn Plaza, New York, NY 10001","manhattan","not-les-chinatown",40.750354,-73.993371
-"Radio City Music Hall","http://www.radiocity.com/","1260 Avenue of the Americas, New York, NY","manhattan","not-les-chinatown",40.760114,-73.980024
+"Irving Plaza","http://www.irvingplaza.com/","17 Irving Place, New York, NY","manhattan","above-14th-street",40.734917,-73.9884469
+"Beacon Theatre","http://www.beacontheatre.com/","2124 Broadway, New York","manhattan","above-14th-street",40.7805932,-73.981318
+"Hammerstein Ballroom","http://www.mcstudios.com/mc-studio-events/the-hammerstein.php","311 West 34th Street, New York, NY","manhattan","above-14th-street",40.752664,-73.994309
+"Madison Square Garden","http://www.thegarden.com/","4 Penn Plaza, New York, NY 10001","manhattan","above-14th-street",40.750354,-73.993371
+"Radio City Music Hall","http://www.radiocity.com/","1260 Avenue of the Americas, New York, NY","manhattan","above-14th-street",40.760114,-73.980024
 "Roseland Ballroom","http://www.roselandballroom.com/","239 West 52nd Street, New York, NY 10019
-","manhattan","not-les-chinatown",40.7631436,-73.9841923
+","manhattan","above-14th-street",40.7631436,-73.9841923
 "The Rock Shop","http://www.therockshopny.com/","249 Fourth Ave, Brooklyn, NY 11215","brooklyn","park-slope-gowanus",40.6761399,-73.983451
 "The Gutter","http://www.thegutterbrooklyn.com/","200 North 14th Street, Brooklyn NY 11211","brooklyn","williamsburg-greenpoint",40.7226349,-73.955401
 "Silent Barn","http://www.facebook.com/silentbarn","915 Wyckoff Ave, Queens, NY, 11385","brooklyn","bushwick",40.6969934,-73.9062936
+"Luna Park","http://www.lunaparknyc.com/","1000 Surf Avenue, Brooklyn, NY 11224","brooklyn","",40.5754128,-73.97786610000003
+"McCarren Park","http://www.nycgovparks.org/parks/mccarrenpark/","780 Lorimer Street, New York, NY 11211","brooklyn","williamsburg-greenpoint",40.72017779999999,-73.9503555
+"Socrates Sculpture Park","http://www.socratessculpturepark.org/","3134 Vernon Boulevard, NY 11106","queens","",40.7685694,-73.93583939999996
+"Tompkins Square Park","http://www.nycgovparks.org/parks/tompkinssquarepark/","500 East 9th Street New York, NY 10009","manhattan","east-village",40.7272675,-73.98271420000003

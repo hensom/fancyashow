@@ -7,6 +7,7 @@ from django.template                  import RequestContext
 from datetime                         import datetime, timedelta
 from mongoengine                      import Q
 from fancyashow.db.models             import Show, Artist, Venue, City
+from fancyashow.db.models             import Festival, FestivalSeason
 from fancyashow.ui.fancy_main.context import ShowContext, InvalidContextFilter
 from fancyashow.ui.fancy_main.forms   import ShowChoiceForm
 
@@ -59,8 +60,7 @@ def show_list(request, shows, template, context):
   saved_shows = { }
 
   if request.user.is_authenticated():
-    for show_id in request.user.saved_shows:
-      saved_shows[show_id] = True
+    saved_shows = request.user.starred_show_set.get_id_dict();
 
   artists = artist_to_show.values()
 
@@ -156,8 +156,7 @@ def show_details(request, venue, year, month, day, artist):
   saved_shows = { }
   
   if request.user.is_authenticated():
-    for show_id in request.user.saved_shows:
-      saved_shows[show_id] = True
+    saved_shows = request.user.starred_show_set.get_id_dict();
 
   context = {
     'show':        show,
@@ -222,9 +221,9 @@ def my_shows(request):
   past_shows     = []
   shows          = []
   
-  if user.is_authenticated() and user.saved_shows:
-    shows = list(Show.objects.filter(id__in = user.saved_shows).order_by('date'))
-    
+  if user.is_authenticated() and user.starred_show_set.show_ids:
+    shows = list(user.starred_show_set.shows().order_by('date'))
+
     today = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
     
     upcoming_shows = filter(lambda s: s.date >= today, shows)
@@ -236,3 +235,60 @@ def my_shows(request):
   }
 
   return show_list(request, shows, 'fancy_main/my_shows.html', context)
+  
+def festivals(request):
+  today   = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+  seasons = dict((s.festival_id, s) for s in FestivalSeason.objects.all()) #.filter(Q(start_date__gte = today) | Q(end_date__gte = today)))
+  festivals = []
+  all_shows = []
+  
+  for festival in Festival.objects().order_by('name'):
+    season = seasons.get(festival.id)
+    
+    if season:
+      shows = list(Show.objects.filter(id__in = season.show_set.show_ids).order_by('date'))[:6]
+      
+      all_shows.extend(shows)
+
+      festivals.append({
+        'festival': festival,
+        'season':   season,
+        'shows':    shows
+      })
+      
+  saved_shows = { }
+
+  if request.user.is_authenticated():
+    saved_shows = user.starred_show_set.get_id_dict()
+  
+  context = {
+    'festivals':   festivals,
+    'shows':       all_shows,
+    'saved_shows': saved_shows
+  }
+  
+  return render_to_response('fancy_main/festivals.html', RequestContext(request, context))
+  
+def shows_at_festival(request, festival):
+  today   = datetime.today().replace(hour = 0, minute = 0, second = 0, microsecond = 0)
+  festival = Festival.objects.get(merge_key = festival)
+  season   = FestivalSeason.objects.get(festival_id = festival.id)
+  shows    = list(Show.objects.filter(id__in = season.show_set.show_ids).order_by('date'))
+  
+  upcoming_shows = []
+  past_shows     = []
+    
+  upcoming_shows = filter(lambda s: s.date >= today, shows)
+  past_shows     = filter(lambda s: s.date < today, shows)
+  
+
+  context = {
+    'festival':       festival,
+    'season':         season,
+    'upcoming_shows': upcoming_shows,
+    'past_shows':     past_shows,
+    'saved_shows':    { },
+    'shows':          shows
+  }
+
+  return show_list(request, shows, 'fancy_main/shows_at_festival.html', context)

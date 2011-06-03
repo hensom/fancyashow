@@ -1,12 +1,12 @@
-from fancyashow.extensions                 import ExtensionLibrary
-from fancyashow.parsers.common.live_nation import LiveNationParser
-from fancyashow.extensions.models          import Venue
+from fancyashow.extensions            import ExtensionLibrary
+from fancyashow.parsers.common.lastfm import LastFMParser
+from fancyashow.extensions.models     import Venue
 
 extensions = ExtensionLibrary()
 
-class RadioCityMusicHall(LiveNationParser):
+class RadioCityMusicHall(LastFMParser):
   def venue_id(self):
-    return 237571
+    return 8906841
 
   def venue(self):
     return Venue('Radio City Music Hall', 'http://www.radiocity.com/')

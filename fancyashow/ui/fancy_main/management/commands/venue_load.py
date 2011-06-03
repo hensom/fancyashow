@@ -10,6 +10,8 @@ from fancyashow.db.models import Venue, City, Neighborhood
 from fancyashow.util.csv  import CSVParser
 from fancyashow.util.lang import normalize
 
+LOG = logging.getLogger(__name__)
+
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
          make_option('--cities',
@@ -49,6 +51,7 @@ class Command(BaseCommand):
       city_map = { }
 
       for record in parser:
+        LOG.debug(record)
         city, city_slug = record.get('city'), record.get('city slug')
 
         if city_slug not in city_map:
@@ -65,9 +68,11 @@ class Command(BaseCommand):
         neighborhoods = [Neighborhood(name = name, slug = slug) for slug, name in city_info['neighborhoods'].iteritems()]
 
         neighborhoods.sort(key = lambda n: n.name)
-        
+
         city.neighborhoods = neighborhoods
         
+        LOG.debug("Saving neighborhoods for city: %s - %s: %s" % (city.name, city.slug, city_info['neighborhoods']))
+
         city.save()
       
     def load_venues(self, venue_file):      
@@ -87,6 +92,8 @@ class Command(BaseCommand):
           v_map[field] = record[field]
           
         v_map['normalized_name'] = normalize(v_map['name'])
+        
+        print v_map['name']
         
         v = Venue(**v_map)
         

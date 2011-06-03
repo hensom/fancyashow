@@ -14,6 +14,7 @@ from tempfile import TemporaryFile, NamedTemporaryFile
 from fancyashow.extensions       import ExtensionLibrary
 from fancyashow.extensions.shows import ShowProcessor
 from fancyashow.util.storage     import ChunkedFile
+from fancyashow.util             import faces as faces_util
 
 from dateutil              import parser as date_parser
 
@@ -37,7 +38,7 @@ class DownloadImageProcessor(ShowProcessor):
   def process(self, show, state, dependent_states):
     new_state   = state.copy()
     
-    current_url = show.image_url
+    current_url = show.image_url or show.parse_meta.image_url
 
     old_url     = state.get('image_url')
 
@@ -107,6 +108,7 @@ class DownloadImageProcessor(ShowProcessor):
       return None
     
   def do_download(self, show, current_url, old_url, old_mtime):
+    logger.debug('urls: %s - %s' % (current_url, old_url))
     if not old_mtime:
       logger.debug('[show:%s] Previous modification time for image was unknown' % show.id)
       
@@ -221,10 +223,21 @@ class TransformImageBase(ShowProcessor):
     return ('download-image',)
     
 class ImageMagickImageProcessor(TransformImageBase):
+  def centering_for_faces(self, img, faces):
+    width, height = img.size
+
+    if faces:
+      minY = min(f[0][1] for f in faces)
+    else:
+      minY = height * 0.2
+
+    return (0.5, 1.0 * minY / height)
   def transform_image(self, show, state, dependent_states, image_path, image_version):
     img = pil.open(image_path).convert('RGB')
+    
+    faces = faces_util.detect(image_path)
 
-    img = ImageOps.fit(img, (self.width, self.height), Image.ANTIALIAS, 0, (0.5,0.5))
+    img = ImageOps.fit(img, (self.width, self.height), Image.ANTIALIAS, 0, self.centering_for_faces(img, faces))
 
     inp_file = TemporaryFile()
     out_file = TemporaryFile()

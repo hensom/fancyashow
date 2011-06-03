@@ -54,7 +54,8 @@
 				<nav id="site-nav">
   		  {% block nav %}
 				  <a href="{% url shows %}">Shows</a> /
-					<a href="{% url venues %}">Venues</a>
+					<a href="{% url venues %}">Venues</a> /
+					<a href="{% url festivals %}">Festivals</a>
 					<span class="js"> /
 						<a href="{% url my-shows %}">My Shows</a> <span class="upcoming-shows">0</span> /
 					  <a href="#login" class="login">Login</a>
@@ -79,6 +80,7 @@
 			  var _gaq = _gaq || [];
 			  _gaq.push(['_setAccount', '{{ GOOGLE_ANALYTICS_ACCOUNT }}']);
 			  _gaq.push(['_trackPageview']);
+			  _gaq.push(['_trackPageLoadTime']);
 
 			  (function() {
 			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -88,27 +90,6 @@
 			</script>
 		{% endif %}
 		</div>
-		<script id="base-template" type="text/template">
-			<article id="content">
-				<header id="content-header">
-					<h1><%= title %></h1>
-				</header>
-				
-				<nav id="content-nav"><%= nav %></nav>
-				
-				<section class="show-list">
-				</section>
-			</article>
-		</script>
-		<script id="show-group-template" type="text/template">
-			<header>
-				<h1><%= title %></h1>
-			</header>
-			<% if(message) { %>
-			  <div class="message"><%= message %></div>
-  	  <% } %>
-	    <ol></ol>
-		</script>
 		<script id="featured-show-template" type="text/template">
 			<div class="show show-featured<%= (saved) ? ' show-saved' : '' %>">
 				<div class="preview"<%= (show.image) ? ' style="background-image: url(' + show.image + ');"' : '' %>></div>
