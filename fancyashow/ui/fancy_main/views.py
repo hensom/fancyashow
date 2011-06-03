@@ -259,7 +259,7 @@ def festivals(request):
   saved_shows = { }
 
   if request.user.is_authenticated():
-    saved_shows = user.starred_show_set.get_id_dict()
+    saved_shows = request.user.starred_show_set.get_id_dict()
   
   context = {
     'festivals':   festivals,

@@ -98,15 +98,17 @@ class VisitorResource(DocumentResource):
       add, remove = form.cleaned_data['add'], form.cleaned_data['remove']
 
       LOG.debug('Request by user: %s to add: %s, remove: %s' % (user, add, remove))
+      
+      show_set = user.starred_show_set
 
-      if add and add.id not in user.saved_shows:
-        user.saved_shows.append(add.id)
+      if add and add.id:
+        show_set.add_shows([add])
 
-      if remove and remove.id in user.saved_shows:
-        user.saved_shows.remove(remove.id)
+      if remove and remove.id:
+        show_set.remove_shows([remove])
 
       if add or remove:
-        user.save()
+        show_set.save()
     else:
       desired_format = self.determine_format(request)
       serialized     = self.serialize(request, form.errors, desired_format)

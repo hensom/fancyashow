@@ -465,6 +465,15 @@ class ShowSet(Document, AuditMixin):
       if s.id not in id_map:
         id_map[s.id] = True
         self.show_ids.append(s.id)
+        
+  def remove_shows(self, shows):
+    id_map = dict((show_id, True) for show_id in self.show_ids)
+
+    for s in shows:
+      if s.id in id_map:
+        del id_map[s.id]
+
+    self.show_ids = id_map.keys()
 
 class Festival(Document, AuditMixin):
   merge_key   = StringField()
