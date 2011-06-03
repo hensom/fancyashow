@@ -65,7 +65,7 @@ class ShowResource(DocumentResource):
     
 class ShowListField(ApiField):
   def dehydrate(self, bundle):
-    show_ids = getattr(bundle.obj, self.attribute)
+    show_ids = bundle.obj.starred_show_set.show_ids
     shows    = []
 
     if show_ids:
