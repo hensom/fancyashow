@@ -30,7 +30,7 @@ class BoweryPresentsBase(ShowParser):
     raise StopIteration
     
   def _get_parser(self):
-    show_urls = html_util.get_show_urls_and_section(self.show_list_url(), '#list-view', {'tag': 'li'}, self.event_url_re())
+    show_urls = html_util.get_show_urls_and_section(self.show_list_url(), '.list-view', '.list-view-item', self.event_url_re())
 
     for url, show_section in show_urls.iteritems():
       yield self._parse_show(url, show_section)
@@ -38,29 +38,24 @@ class BoweryPresentsBase(ShowParser):
   def _parse_show(self, link, show_section):
     show_doc    = html_util.fetch_and_parse(link)
 
-    show_detail = show_doc.get_element_by_id("featured")
+    show_detail = html_util.get_first_element(show_doc, "#content .event-detail")
 
-    # Not all pages have one of these
-    artist_info = html_util.get_first_element(show_doc, "#artist-info", optional = True)
-
-    summary     = html_util.get_first_element(show_detail, ".summary")
-    description = html_util.get_first_element(show_detail, ".description")
-    start_time  = html_util.get_first_element(show_section, 'abbr.dtstart').get('title')
-    image_el    = html_util.get_first_element(show_detail,  '#featured')
-    soldout     = html_util.has_class(show_detail, 'soldout')
-
-    image_match = self.IMAGE_RE.search(image_el.get('style'))
+    date_txt    = html_util.get_first_element(show_detail, ".dates").text_content()
+    time_txt    = html_util.get_first_element(show_detail, ".times").text_content()
+    sold_out    = html_util.get_first_element(show_detail,  '.sold-out', optional = True)
+    image       = html_util.get_first_element(show_detail,  'img',       optional = True)
     
-    if image_match:
-      image_url = urlparse.urljoin(link, image_match.group('image_path'))
+    # The image we want is generally the first one, but if the layout changes this may break
+    if image is not None:
+      image_url = image.get('src')
     else:
       image_url = None
     
     performers = [] 
     
     for tag in ('h1', 'h2', 'h3'):
-      for p in summary.iter(tag = tag):
-        if p.text_content():        
+      for p in show_detail.iter(tag = tag):
+        if p.text_content():    
           performers.extend(self._parse_performers(p))
 
     show = Show()
@@ -68,57 +63,29 @@ class BoweryPresentsBase(ShowParser):
     show.merge_key               = link
     show.venue                   = self.venue()
     show.performers              = performers
-    show.show_time               = date_util.parse_date_time(start_time)
-    show.soldout                 = soldout
+    show.door_time               = date_util.parse_door_time(date_txt, time_txt)
+    show.show_time               = date_util.parse_show_time(date_txt, time_txt)
+    show.soldout                 = sold_out is not None
 
     show.resources.show_url      = link
     show.resources.image_url     = image_url
-    show.resources.resource_uris = self.resource_extractor.extract_resources(show_detail, artist_info)
+    show.resources.resource_uris = self.resource_extractor.extract_resources(show_detail)
 
     return show
 
-  def _parse_performers(self, el):
-    """
-    Sample Multi Performer Case
-
-    <h1>
-      The Watson Twins<br />
-      <span class="t">10:30</span><br />
-      Sean Bones<br />
-      <span class="t">9:30</span>
-    </h1>
+  def _parse_performers(self, el):    
+    headliner = html_util.has_class(el, "headliners")
+    support   = html_util.has_class(el, "supports")
     
-    """
-    performers = []
-      
-    f = el.getchildren()
-    
-    # Initialize our first performer's name
-    name = el.text
-    
-    headliner = el.tag == 'h1' 
-    
-    for e in el.getchildren():
-      # if we find a new element with a tail and had a prior artist, we need to pop it
-      if e.tail:
-        if name:
-          performers.append(Performer(name, headliner = headliner))
-
-        name = e.tail
-      # if we have a start time process it
-      elif e.tag == 'span':
-        performers.append(Performer(name, start_time = e.text, headliner = headliner))
-
-        name = None
-        
-    if name:
-      for performer_name in name.split('/'):
-        performers.append(Performer(performer_name.strip(), headliner = headliner))
-      
-    return performers
+    if not headliner and not support:
+      return []
+    elif headliner:
+      return [Performer(el.text_content(), headliner = True)]
+    elif support:
+      return [Performer(name) for name in lang_util.parse_performers(el.text_content())]
     
   def show_list_url(self):
-    return self.venue().url + 'events'
+    return self.venue().url + 'listing'
     
   def event_url_re(self):
     return re.compile(self.venue().url + 'event/\d+')
